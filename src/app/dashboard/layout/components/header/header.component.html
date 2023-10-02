@@ -1,0 +1,15 @@
+<div class="header tw-bg-white tw-p-5 flex-c-b">
+  <!-- search -->
+  <div class="flex-box tw-gap-2">
+    <!--  [(ngModel)]="searchTerm" (keyup)="searchItems($event)" -->
+    <input type="text"
+      class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80" placeholder="Search here">
+    <button type="submit" class="tw-bg-blue-500 tw-text-white tw-h-10 tw-px-4 hover:tw-bg-blue-800 transition-du200"> <i
+        class="icon icon-search tw-text-base tw-block"></i> </button>
+  </div>
+  <div>
+    <button (click)="addTaskForm()"
+      class="tw-bg-pink-600 tw-text-white tw-h-10 tw-px-4 hover:tw-bg-pink-800 transition-du200"> <i
+        class="icon icon-plus tw-text-xs"></i> Add Task </button>
+  </div>
+</div>

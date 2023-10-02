@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
-  {path:'', redirectTo:"/tailwind-UI", pathMatch:'full'},
-  { path: 'tailwind-UI', loadChildren: () => import('./tailwind-ui/tailwind-ui.module').then(m => m.TailwindUIModule) },
+  { path: '', redirectTo: '/', pathMatch: 'full' },
+
+  { path: '', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) }
 
 ];
 
