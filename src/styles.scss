@@ -1,0 +1,341 @@
+@import "tailwindcss/base";
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
+/* You can add global styles to this file, and also import other style files */
+@import "assets/scss/base.scss";
+
+body {
+  background: #f3f3f3;
+  [dir="rtl"] & {
+    direction: rtl;
+    text-align: right;
+    .arrow-right {
+      transform: rotate(180deg);
+      line-height: initial !important;
+    }
+  }
+}
+
+app-root {
+  height: 100%;
+}
+
+a {
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked + span:not(.box) {
+  border: 0 !important;
+  background-color: transparent !important;
+}
+
+input[type="checkbox"] + span {
+  border: 0 !important;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@layer base {
+  body {
+    font-family: "STC_Forward", serif !important;
+    @apply tw-bg-gray-50;
+  }
+}
+@layer components {
+  .flex-box {
+    @apply tw-flex;
+    @apply tw-items-center;
+  }
+  .flex-c-b {
+    @apply flex-box;
+    @apply tw-justify-between;
+  }
+  .flex-s-b {
+    @apply tw-flex;
+    @apply tw-justify-between;
+  }
+  .flex-s {
+    @apply tw-flex;
+    @apply tw-items-start;
+  }
+  .flex-c-s {
+    @apply flex-s;
+    @apply tw-justify-start;
+  }
+  .flex-e-b {
+    @apply tw-flex;
+    @apply tw-items-end;
+    @apply tw-justify-between;
+  }
+  .flex-c-c {
+    @apply flex-box;
+    @apply tw-justify-center;
+  }
+  .flex-c {
+    @apply tw-flex;
+    @apply tw-items-center;
+  }
+  .flex-c-e {
+    @apply flex-box;
+    @apply tw-justify-end;
+  }
+  .flex-c-r {
+    @apply flex-box;
+    @apply tw-justify-around;
+  }
+  .inputLabel {
+    @apply tw-text-base;
+    @apply tw-font-normal;
+    @apply tw-text-gray-600;
+    @apply tw-mb-2;
+    @apply tw-block;
+  }
+  .active-link {
+    @apply tw-text-coral;
+    @apply tw-font-semibold;
+    @apply tw-border-b;
+    @apply tw-border-coral;
+  }
+}
+
+.custom-box {
+  background: #f9f9f9;
+  border: 1px solid #fff;
+  background: #f9f9f9 0% 0% no-repeat padding-box;
+  box-shadow: inset 0px 3px 6px #00000029;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  opacity: 1;
+}
+// tabs
+.mat-ink-bar {
+  background-color: #3a0e65;
+}
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
+.mat-tab-body-wrapper {
+  margin-top: 10px;
+}
+//Accordion-custom
+.mat-expansion-panel {
+  box-shadow: none !important;
+  .mat-expansion-panel-header {
+    padding: 0 10px 0 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .mat-expansion-indicator::after {
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    margin-top: -3px;
+  }
+  .mat-expansion-panel-header-description,
+  .mat-expansion-indicator::after {
+    border-color: black;
+  }
+}
+
+.mat-expansion-panel:not(.mat-expanded)
+  .mat-expansion-panel-header:hover:not([aria-disabled="true"]) {
+  background-color: transparent;
+}
+
+.mat-expansion-panel-body {
+  padding: 0 !important;
+}
+
+.mat-expansion-panel-content {
+  // height: auto !important;
+  visibility: inherit !important;
+}
+.mat-select-trigger {
+  align-items: baseline !important;
+}
+
+// new 5-2023
+.sideNav {
+  position: absolute !important;
+  right: 0;
+  height: 100%;
+  .mat-mdc-dialog-container {
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background-color: #fff;
+  }
+}
+.mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+  top: 23px;
+}
+.mdc-text-field--outlined .mdc-floating-label--float-above {
+  transform: none !important;
+  display: none !important;
+}
+.mat-mdc-select-arrow-wrapper {
+  display: none !important;
+}
+
+.mat-form-field-appearance-outline {
+  height: 50px;
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__trailing {
+    border: 0 !important;
+  }
+
+  .mat-mdc-form-field-infix {
+    min-height: 50px;
+    line-height: 2;
+    padding: 0.5em 0 0.7em 0 !important;
+  }
+  .mat-mdc-form-field-icon-suffix {
+    padding: 4px 12px 0 4px;
+    .mat-icon{
+      height: 30px !important;
+    }
+  }
+  .mat-expansion-panel-header {
+    height: 40px;
+  }
+  .mat-select-arrow-wrapper {
+    display: none;
+  }
+  .mdc-notched-outline__notch {
+    border: 0 !important;
+  }
+
+  .mat-select-value-text {
+    line-height: 1.8;
+    font-size: 14px;
+  }
+  .mat-form-field-wrapper {
+    padding: 0;
+  }
+  // .mat-form-field-label-wrapper{
+  //   top: -25px;
+  // }
+
+  .mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float
+    .mat-form-field-label {
+    display: none;
+    color: rgb(177 177 177) !important;
+  }
+  .mat-expansion-panel .mat-expansion-indicator::after {
+    margin-top: -5px;
+  }
+  .dark-header {
+    .mat-expansion-indicator::after {
+      border-color: white !important;
+    }
+  }
+
+  .mat-mdc-checkbox {
+    .mat-checkbox-frame {
+      border-color: rgb(180 180 180 / 54%);
+      border-width: 1px;
+    }
+    .mat-checkbox-layout {
+      white-space: pre-wrap;
+    }
+  }
+  .mat-mdc-icon-button .mat-mdc-button-touch-target{
+    width: 30px;
+    height: 30px;
+  }
+
+
+}
+.t-datepicker{
+  .mat-datepicker-toggle{
+    .mat-mdc-icon-button{
+      width: 36px !important;
+      height: 36px !important;
+      padding: 0;
+      svg{
+        margin: auto;
+      }
+    }
+
+  }
+  .mat-mdc-form-field-icon-suffix{
+    padding-top:0 ;
+  }
+}
+.toggle-c {
+  .mat-mdc-slide-toggle
+    .mdc-switch.mdc-switch--selected:enabled
+    .mdc-switch__handle::after {
+    background: #fff !important;
+  }
+  .mat-mdc-slide-toggle .mdc-switch:enabled .mdc-switch__track::after,
+  .mat-mdc-slide-toggle
+    .mdc-switch:enabled:hover:not(:focus):not(:active)
+    .mdc-switch__track::after {
+    background: #3a0e65 !important;
+  }
+  .mat-mdc-slide-toggle
+    .mdc-switch.mdc-switch--selected:enabled
+    .mdc-switch__icon {
+    fill: #3a0e65;
+  }
+  .mdc-form-field {
+    flex-direction: row-reverse;
+    gap: 10px;
+  }
+}
+.radio-c {
+  .mat-mdc-radio-button
+    .mdc-radio
+    .mdc-radio__native-control:enabled:checked
+    + .mdc-radio__background
+    .mdc-radio__outer-circle,
+  .mat-mdc-radio-button
+    .mdc-radio
+    .mdc-radio__native-control:enabled
+    + .mdc-radio__background
+    .mdc-radio__inner-circle {
+    border-color: #ff375e !important;
+  }
+  .mdc-radio{
+    padding: 0 !important;
+  }
+  .mdc-form-field>label{
+    padding-left: 9px;
+    padding-top: 2px;
+  }
+  .mdc-radio__outer-circle{
+    border-width: 1px;
+  }
+  .mat-mdc-radio-button .mdc-radio .mdc-radio__native-control:enabled:not(:checked)+.mdc-radio__background .mdc-radio__outer-circle{
+    border-color: rgb(181 181 181 / 54%);
+  }
+}
+.mat-mdc-unelevated-button.mat-mdc-button-base {
+  height: auto;
+  letter-spacing: 0;
+}
+.search_home{
+  .mat-form-field-appearance-outline .mat-mdc-form-field-infix{
+    line-height: 1.6 !important;
+  }
+}

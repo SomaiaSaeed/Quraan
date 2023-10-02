@@ -1,0 +1,148 @@
+// ======================= STC_Forward =================== //
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-MediumItalic.eot');
+  src: url('../fonts/STCForward-MediumItalic.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-MediumItalic.woff') format('woff'),
+      url('../fonts/STCForward-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-Medium.eot');
+  src: url('../fonts/STCForward-Medium.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-Medium.woff') format('woff'),
+      url('../fonts/STCForward-Medium.ttf') format('truetype');
+  font-weight: 500;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-LightItalic.eot');
+  src: url('../fonts/STCForward-LightItalic.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-LightItalic.woff') format('woff'),
+      url('../fonts/STCForward-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-Light.eot');
+  src: url('../fonts/STCForward-Light.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-Light.woff') format('woff'),
+      url('../fonts/STCForward-Light.ttf') format('truetype');
+  font-weight: 300;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-ExtraBold.eot');
+  src: url('../fonts/STCForward-ExtraBold.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-ExtraBold.woff') format('woff'),
+      url('../fonts/STCForward-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-BoldItalic.eot');
+  src: url('../fonts/STCForward-BoldItalic.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-BoldItalic.woff') format('woff'),
+      url('../fonts/STCForward-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-ExtraBoldItalic.eot');
+  src: url('../fonts/STCForward-ExtraBoldItalic.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-ExtraBoldItalic.woff') format('woff'),
+      url('../fonts/STCForward-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-Bold.eot');
+  src: url('../fonts/STCForward-Bold.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-Bold.woff') format('woff'),
+      url('../fonts/STCForward-Bold.ttf') format('truetype');
+  font-weight: bold;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-ThinItalic.eot');
+  src: url('../fonts/STCForward-ThinItalic.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-ThinItalic.woff') format('woff'),
+      url('../fonts/STCForward-ThinItalic.ttf') format('truetype');
+  font-weight: 300;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-Italic.eot');
+  src: url('../fonts/STCForward-Italic.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-Italic.woff') format('woff'),
+      url('../fonts/STCForward-Italic.ttf') format('truetype');
+  font-weight: 400;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-Regular.eot');
+  src: url('../fonts/STCForward-Regular.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-Regular.woff') format('woff'),
+      url('../fonts/STCForward-Regular.ttf') format('truetype');
+  font-weight: 400;
+
+}
+
+@font-face {
+  font-family: 'STC_Forward';
+  src: url('../fonts/STCForward-Thin.eot');
+  src: url('../fonts/STCForward-Thin.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/STCForward-Thin.woff') format('woff'),
+      url('../fonts/STCForward-Thin.ttf') format('truetype');
+  font-weight: 300;
+
+}
+
+p,
+div,
+span,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+article,
+section,
+main,
+table,
+td,
+th,
+button,
+input,
+select {
+  font-family: 'STC_Forward';
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
+.mat-mdc-menu-item , .mat-select-search-input{
+  font-family: 'STC_Forward' !important;
+}
