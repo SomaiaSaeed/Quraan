@@ -1,15 +1,21 @@
-<div class="header tw-bg-white tw-p-5 flex-c-b">
-  <!-- search -->
-  <div class="flex-box tw-gap-2">
-    <!--  [(ngModel)]="searchTerm" (keyup)="searchItems($event)" -->
-    <input type="text"
-      class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80" placeholder="Search here">
-    <button type="submit" class="tw-bg-blue-500 tw-text-white tw-h-10 tw-px-4 hover:tw-bg-blue-800 transition-du200"> <i
-        class="icon icon-search tw-text-base tw-block"></i> </button>
-  </div>
-  <div>
-    <button (click)="addTaskForm()"
-      class="tw-bg-pink-600 tw-text-white tw-h-10 tw-px-4 hover:tw-bg-pink-800 transition-du200"> <i
-        class="icon icon-plus tw-text-xs"></i> Add Task </button>
+<div class=" header tw-bg-[#94A684] ">
+  <div class="tw-container tw-mx-auto tw-p-5 flex-c-b">
+    <div>
+      <h1 class="tw-font-quraanFont tw-text-4xl tw-text-white tw-drop-shadow-lg tw-mb-0">قرءان كريم</h1>
+    </div>
+    <!-- search -->
+    <div class="flex-box tw-gap-2">
+      <!--  [(ngModel)]="searchTerm" (keyup)="searchItems($event)" -->
+      <input type="text" dir="rtl" class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none"
+        placeholder="بحث عن ايات قرءانية">
+      <button type="submit"
+        class="tw-bg-[#E4E4D0] tw-text-[#94A684] tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200">
+        <i class="sfi sfi-search-I tw-text-base tw-block"></i> </button>
+    </div>
+    <!-- <div>
+      <button (click)="addTaskForm()"
+        class="tw-bg-pink-600 tw-text-white tw-h-10 tw-px-4 hover:tw-bg-pink-800 transition-du200"> <i
+          class="icon icon-plus tw-text-xs"></i> Add Task </button>
+    </div> -->
   </div>
 </div>

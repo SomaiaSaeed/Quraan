@@ -8,6 +8,9 @@ module.exports = {
   },
   darkMode: false, // or 'media' or 'class'
   theme: {
+    fontFamily: {
+      'quraanFont': ['Alkalami','serif'],
+    },
     screens: {
       sm: '640px',
       md: '768px',
