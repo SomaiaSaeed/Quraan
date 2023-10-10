@@ -211,7 +211,7 @@ input[type="checkbox"] + span {
     padding: 0.5em 0 0.7em 0 !important;
   }
   .mat-mdc-form-field-icon-suffix {
-    padding: 4px 12px 0 4px;
+    padding: 4px 12px 0 6px !important;
     .mat-icon{
       height: 30px !important;
     }
@@ -340,4 +340,12 @@ input[type="checkbox"] + span {
   .mat-form-field-appearance-outline .mat-mdc-form-field-infix{
     line-height: 1.6 !important;
   }
+}
+.mat-mdc-form-field-infix{
+  width: auto !important;
+}
+.mat-mdc-select-value-text {
+  font: {
+    size: 12px !important;
+  };
 }
