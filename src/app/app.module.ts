@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -10,6 +10,9 @@ import { SharedModule } from './shared/shared.module';
 import { LayoutComponent } from './dashboard/layout/layout.component';
 import { HeaderComponent } from './dashboard/layout/components/header/header.component';
 import { FooterComponent } from './dashboard/layout/components/footer/footer.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { LoaderInterceptor } from './core/interceptor/loader.interceptor';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,10 +26,17 @@ import { FooterComponent } from './dashboard/layout/components/footer/footer.com
     AppRoutingModule,
     SharedModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    NgxSpinnerModule,
   ],
   exports:[],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoaderInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

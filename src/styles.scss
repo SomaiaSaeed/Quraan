@@ -349,3 +349,19 @@ input[type="checkbox"] + span {
     size: 12px !important;
   };
 }
+.search_home{
+  .mat-form-field-appearance-outline .mat-mdc-form-field-infix{
+    line-height: 1.6 !important;
+  }
+}
+.mat-mdc-form-field-infix{
+  width: auto !important;
+}
+.mat-mdc-select-value-text {
+  font: {
+    size: 12px !important;
+  };
+}
+.mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label{
+  line-height: 2 !important;
+}

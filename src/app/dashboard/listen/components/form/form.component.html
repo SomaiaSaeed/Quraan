@@ -1,23 +1,27 @@
-<form [formGroup]="addForm" class="tw-w-6/12 tw-m-auto tw-mt-8 tw-border tw-border-gray-200 tw-rounded-md tw-bg-white tw-p-5">
+<form class="tw-w-6/12 tw-m-auto tw-mt-8 tw-border tw-border-gray-200 tw-p-4">
   <div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
     <div class="tw-w-full sm:tw-w-auto select-box tw-flex-1">
       <label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">اسم السورة</label>
       <div class="flex-box tw-gap-2">
-        <mat-form-field appearance="outline" 
+        <mat-form-field appearance="outline"
           class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
           <mat-label class="tw-text-sm">من</mat-label>
-          <span matSuffix class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-          <!-- (selectionChange)="getSora(value)" -->
-          <mat-select formControlName="fromName" (selectionChange)="getSora($event)">
-            <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{sora.soraName}}</mat-option>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <!-- من سورة" -->
+          <mat-select (selectionChange)="fromSoraFun($event)">
+            <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName }}</mat-option>
           </mat-select>
         </mat-form-field>
+
+        <!-- إلى سورة -->
         <mat-form-field appearance="outline"
           class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
           <mat-label class="tw-text-sm">إلى</mat-label>
-          <span matSuffix class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-          <mat-select (selectionChange)="fromAyaFun($event)">
-            <mat-option *ngFor="let number of fromSoraAyat" [value]="number.id">{{number.id}}</mat-option>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <mat-select (selectionChange)="toSoraFun($event)">
+            <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -25,23 +29,168 @@
     <div class="tw-w-full sm:tw-w-auto select-box tw-flex-1">
       <label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">رقـم الاية</label>
       <div class="flex-box tw-gap-2">
+        <!-- من اية -->
         <mat-form-field appearance="outline"
-          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-100 tw-rounded-md">
+          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
           <mat-label class="tw-text-sm">من</mat-label>
-          <span matSuffix class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-          <mat-select>
-            <mat-option value="option">Option</mat-option>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <mat-select (selectionChange)="fromAyaFun($event)">
+            <mat-option *ngFor="let number of fromSoraAyat" [value]="number">{{
+              number.id
+              }}</mat-option>
           </mat-select>
         </mat-form-field>
+        <!-- إلى اية -->
         <mat-form-field appearance="outline"
-          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-100 tw-rounded-md">
+          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
           <mat-label class="tw-text-sm">إلى</mat-label>
-          <span matSuffix class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-          <mat-select>
-            <mat-option value="option">Option</mat-option>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <mat-select (selectionChange)="toAyaFun($event)">
+            <mat-option *ngFor="let number of toSoraAyat" [value]="number">{{
+              number.id
+              }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
     </div>
   </div>
+  <!-- advanced search -->
+  <div *ngIf="isOpen" class="tw-mt-4 tw-border-t tw-border-gray-200 tw-pt-4 tw-space-y-3">
+    <div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
+      <div class="tw-w-full sm:tw-w-auto select-box tw-flex-1">
+        <label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الجـزء</label>
+        <div class="flex-box tw-gap-2">
+          <mat-form-field appearance="outline"
+            class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <span matSuffix
+              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            <!-- من سورة" -->
+            <mat-select (selectionChange)="fromPartFun($event)">
+              <mat-option *ngFor="let part of parts; let i = index" [value]="part">{{ part.elPart }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- إلى سورة -->
+          <mat-form-field appearance="outline"
+            class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <span matSuffix
+              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            <mat-select (selectionChange)="toPartFun($event)">
+              <mat-option *ngFor="let part of parts; let i = index" [value]="part">{{ part.elPart }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="tw-w-full sm:tw-w-auto select-box tw-flex-1">
+        <label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الحـزب</label>
+        <div class="flex-box tw-gap-2">
+          <mat-form-field appearance="outline"
+            class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <span matSuffix
+              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            <!-- من سورة" -->
+            <mat-select (selectionChange)="fromHezpFun($event)">
+              <mat-option *ngFor="let h of hezb; let i = index" [value]="h">{{ h.nOFHezb }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- إلى سورة -->
+          <mat-form-field appearance="outline"
+            class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <span matSuffix
+              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            <mat-select (selectionChange)="toHezpFun($event)">
+              <mat-option *ngFor="let h of hezb; let i = index" [value]="h">{{ h.nOFHezb }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
+    <div class="tw-w-full sm:tw-w-auto select-box tw-flex-1">
+      <label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الربـع</label>
+      <div class="flex-box tw-gap-2">
+        <mat-form-field appearance="outline"
+          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+          <mat-label class="tw-text-sm">من</mat-label>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <!-- من سورة" -->
+          <mat-select (selectionChange)="fromRobFun($event)">
+            <mat-option *ngFor="let r of rob; let i = index" [value]="r">{{ r.rub }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- إلى سورة -->
+        <mat-form-field appearance="outline"
+          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+          <mat-label class="tw-text-sm">إلى</mat-label>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <mat-select (selectionChange)="toRobFun($event)">
+            <mat-option *ngFor="let r of rob; let i = index" [value]="r">{{ r.rub }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="tw-w-full sm:tw-w-auto select-box tw-flex-1">
+      <label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الصفحة</label>
+      <div class="flex-box tw-gap-2">
+        <mat-form-field appearance="outline"
+          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+          <mat-label class="tw-text-sm">من</mat-label>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <!-- من سورة" -->
+          <mat-select (selectionChange)="fromPageFun($event)">
+            <mat-option *ngFor="let page of pages; let i = index" [value]="page">{{ page.nOFPage }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- إلى سورة -->
+        <mat-form-field appearance="outline"
+          class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-border tw-border-gray-200 tw-rounded-md">
+          <mat-label class="tw-text-sm">إلى</mat-label>
+          <span matSuffix
+            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+          <mat-select (selectionChange)="toPageFun($event)">
+            <mat-option *ngFor="let page of pages; let i = index" [value]="page">{{ page.nOFPage }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+  </div>
+  <!-- actions -->
+  <div class="tw-mt-5">
+    <button type="submit" (click)="isOpen = !isOpen"
+      class="tw-bg-[#E4E4D0] tw-text-[#94A684] hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+      بحث متقدم
+    </button>
+    <span class="tw-mx-1"></span>
+    <button type="submit" (click)="rest()"
+      class="tw-bg-[#E4E4D0] tw-text-[#94A684] hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+      إعادة تعيين
+    </button>
+  </div>
 </form>
+<!-- result -->
+<div class="tw-grid tw-grid-cols-4 tw-gap-4 tw-mt-6 tw-justify-center">
+  <ng-container *ngFor="let row of sorats; let i = index">
+    <div class="flex-box">
+      <span class="tw-font-medium tw-bg-[#e4e4d0] tw-w-8 tw-min-w-[30px] tw-h-full flex-c-c">{{i + 1}}</span>
+      <div class="tw-rounded-none tw-border tw-border-[#e4e4d0] tw-bg-[#f1f3f4]">
+        <audio [id]="'surahPlayer' + i" controls="controls" (play)="onPlay(i)" (ended)="audioEnded(i)"
+          class="tw-max-w-[265px]">
+          <source id="activeAyah" src="{{ row }}" title="{{ 1 }}" type="audio/mp3" />
+        </audio>
+      </div>
+    </div>
+  </ng-container>
+</div>

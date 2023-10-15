@@ -1,12 +1,19 @@
-<div class=" header tw-bg-[#94A684] ">
+<div class=" header tw-bg-[#94A684]">
   <div class="tw-container tw-mx-auto tw-py-4 flex-c-b">
-    <div>
-      <h1 class="tw-font-quraanFont tw-text-2xl tw-text-white tw-drop-shadow-lg tw-mb-0">قرءان كريم</h1>
+    <div class="tw-flex tw-items-center tw-gap-14">
+      <div>
+        <h1 class="tw-font-quraanFont tw-text-2xl tw-text-white tw-drop-shadow-lg tw-mb-0">قرءان كريم</h1>
+      </div>
+      <!-- menu -->
+      <nav>
+        <a routerLink="/listen" class="tw-text-white tw-text-base hover:tw-text-[#E4E4D0]">ضبط الاستماع</a>
+      </nav>
     </div>
     <!-- search -->
     <div class="flex-box tw-gap-2">
       <!--  [(ngModel)]="searchTerm" (keyup)="searchItems($event)" -->
-      <input type="text" dir="rtl" class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none"
+      <input type="text" dir="rtl"
+        class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none"
         placeholder="بحث عن ايات قرءانية">
       <button type="submit"
         class="tw-bg-[#E4E4D0] tw-text-[#94A684] tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200">
