@@ -45,4 +45,13 @@
     .mat-expansion-panel{
         min-width: auto !important;
     }
+    table tr td{
+        padding-top: 10px;
+        padding-bottom: 10px;
+        line-height: 2;
+        font-size: 16px;
+        font-family: 'Cairo', sans-serif !important;
+
+        // font-family: 'Alkalami','serif' !important;
+    }
 }
