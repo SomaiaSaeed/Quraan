@@ -365,3 +365,9 @@ input[type="checkbox"] + span {
 .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label{
   line-height: 2 !important;
 }
+.mat-form-field-infix{
+  width: auto !important;
+}
+.mat-form-field-appearance-outline .mat-form-field-suffix{
+  top: 0 !important;
+}

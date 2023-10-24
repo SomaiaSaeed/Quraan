@@ -51,6 +51,27 @@ export class FormComponent implements OnInit {
   teamInitial = ' ';
   isOpen: boolean = false;
 
+  // Main Player Controls
+  msaapDisplayPlayList = true;
+  msaapDisablePositionSlider = true;
+  msaapDisplayRepeatControls = true;
+  msaapDisplayVolumeControls = true;
+  msaapDisplayVolumeSlider = true;
+
+  // Title Marquee
+  msaapDisplayTitle = true;
+
+  // Playlist Controls
+  // msaapPageSizeOptions = [2, 4, 6];
+  msaapDisplayArtist = true;
+  msaapDisplayDuration = true;
+
+  // For Localisation
+  msaapTableHeader = 'القائمة';
+  msaapTitleHeader = 'اسـم السورة';
+  msaapArtistHeader = 'القارئ';
+
+
   constructor(private router: Router, private http: HttpClient) {
   }
 
@@ -237,8 +258,8 @@ export class FormComponent implements OnInit {
       this.audioCount = res.data.ayahs.length;
       res.data.ayahs.forEach((aya: any) => {
         this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.number;
-        this.sorats.push(this.roow);
-        console.log(res);
+        this.sorats.push({ link: this.roow, title: aya.text, artist: 'اسـم القارئ' ,});
+        console.log("ayaaya",aya);
       });
     });
     this.fromSora = $event.value.nOFSura;

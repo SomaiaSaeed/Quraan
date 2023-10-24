@@ -5,8 +5,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ListenRoutingModule } from './listen-routing.module';
 import { ListenComponent } from './pages';
 import { FormComponent } from './components';
-import { MaterialModule } from 'src/app/shared/material';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxAudioPlayerModule } from 'ngx-audio-player';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -18,10 +19,10 @@ import { HttpClientModule } from '@angular/common/http';
     CommonModule,
     ListenRoutingModule,
     HttpClientModule,
-    MaterialModule,
     FormsModule,
+    SharedModule,
     ReactiveFormsModule,
-   
+    NgxAudioPlayerModule,
   ]
 })
 export class ListenModule { }
