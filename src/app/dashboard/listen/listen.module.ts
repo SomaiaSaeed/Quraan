@@ -8,12 +8,14 @@ import { FormComponent } from './components';
 import { HttpClientModule } from '@angular/common/http';
 import { NgxAudioPlayerModule } from 'ngx-audio-player';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { AudioPlayerComponent } from './components/audio-player/audio-player.component';
 
 
 @NgModule({
   declarations: [
     ListenComponent,
-    FormComponent
+    FormComponent,
+    AudioPlayerComponent
   ],
   imports: [
     CommonModule,

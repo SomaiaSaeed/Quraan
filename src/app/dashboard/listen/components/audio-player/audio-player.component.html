@@ -1,0 +1,27 @@
+<!-- result -->
+<!-- <div class="tw-grid tw-grid-cols-4 tw-gap-4 tw-mt-6 tw-justify-center">
+  <ng-container *ngFor="let row of data; let i = index">
+    <div class="flex-box">
+      <span class="tw-font-medium tw-bg-[#e4e4d0] tw-w-8 tw-min-w-[30px] tw-h-full flex-c-c">{{i + 1}}</span>
+      <div class="tw-rounded-none tw-border tw-border-[#e4e4d0] tw-bg-[#f1f3f4]">
+        <audio [id]="'surahPlayer' + i" controls="controls" (play)="onPlay(i)" (ended)="audioEnded(i)"
+          class="tw-max-w-[265px]">
+          <source id="activeAyah" src="{{ row }}" title="{{ 1 }}" type="audio/mp3" />
+        </audio>
+      </div>
+    </div>
+  </ng-container>
+</div> -->
+<div class="tw-max-w-3xl tw-mx-auto tw-mt-8" *ngIf="data.length > 0">
+  <ngx-audio-player [autoPlay]="false" muted="muted" [playlist]="data"
+    [disablePositionSlider]="msaapDisablePositionSlider" [displayRepeatControls]="msaapDisplayRepeatControls"
+    [displayVolumeControls]="msaapDisplayVolumeControls" 
+    [displayTitle]="msaapDisplayTitle" [displayPlaylist]="msaapDisplayPlayList" 
+    [tableHeader]="msaapTableHeader" [titleHeader]="msaapTitleHeader"
+    [expanded]="true">
+  </ngx-audio-player>
+</div>
+<div *ngIf="data.length == 0" class="tw-text-center tw-pt-20">
+  <img src="../../../../../assets/images/quran-rehal-svgrepo-com.svg" class="tw-w-24 tw-m-auto tw-opacity-40" alt="">
+  <p class="tw-text-2xl tw-font-bold tw-mt-4">لا توجد نتائج بحث !</p>
+</div>

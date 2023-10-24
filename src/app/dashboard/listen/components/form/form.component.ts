@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ListenService } from '../../services/listen.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
 import { Search } from 'src/app/core/services/search.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -50,27 +47,6 @@ export class FormComponent implements OnInit {
   repeated!: boolean;
   teamInitial = ' ';
   isOpen: boolean = false;
-
-  // Main Player Controls
-  msaapDisplayPlayList = true;
-  msaapDisablePositionSlider = true;
-  msaapDisplayRepeatControls = true;
-  msaapDisplayVolumeControls = true;
-  msaapDisplayVolumeSlider = true;
-
-  // Title Marquee
-  msaapDisplayTitle = true;
-
-  // Playlist Controls
-  // msaapPageSizeOptions = [2, 4, 6];
-  msaapDisplayArtist = true;
-  msaapDisplayDuration = true;
-
-  // For Localisation
-  msaapTableHeader = 'القائمة';
-  msaapTitleHeader = 'اسـم السورة';
-  msaapArtistHeader = 'القارئ';
-
 
   constructor(private router: Router, private http: HttpClient) {
   }

@@ -42,4 +42,7 @@
     .mat-expansion-panel .mat-expansion-panel-header{
         padding: 0 10px 0 5px
     }
+    .mat-expansion-panel{
+        min-width: auto !important;
+    }
 }
