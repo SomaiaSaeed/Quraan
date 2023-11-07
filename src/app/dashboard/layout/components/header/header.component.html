@@ -11,18 +11,20 @@
     </div>
     <!-- search -->
     <div class="flex-box tw-gap-2">
-      <!--  [(ngModel)]="searchTerm" (keyup)="searchItems($event)" -->
-      <input type="text" dir="rtl"
-        class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none"
-        placeholder="بحث عن ايات قرءانية">
+      <div> 
+        <input dir="rtl" type="text" (input)="search($event)" placeholder="بحث عن ايات قرءانية" matInput [matAutocomplete]="auto" 
+        class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none tw-bg-white">
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let aya of results" [value]="aya" (click)="$event.stopPropagation();">
+            <div (click)="test()">
+              {{ aya }}
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+      </div>
       <button type="submit"
         class="tw-bg-[#E4E4D0] tw-text-[#94A684] tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200">
         <i class="sfi sfi-search-I tw-text-base tw-block"></i> </button>
     </div>
-    <!-- <div>
-      <button (click)="addTaskForm()"
-        class="tw-bg-pink-600 tw-text-white tw-h-10 tw-px-4 hover:tw-bg-pink-800 transition-du200"> <i
-          class="icon icon-plus tw-text-xs"></i> Add Task </button>
-    </div> -->
   </div>
 </div>
