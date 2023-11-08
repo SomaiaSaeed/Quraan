@@ -1,5 +1,5 @@
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { NgModule,CUSTOM_ELEMENTS_SCHEMA  } from '@angular/core';
 import { FormsModule ,ReactiveFormsModule} from '@angular/forms';
 
 import { BrowserModule } from '@angular/platform-browser';
@@ -37,6 +37,9 @@ import { LoaderInterceptor } from './core/interceptor/loader.interceptor';
       useClass: LoaderInterceptor,
       multi: true,
     },
+  ],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
   ],
   bootstrap: [AppComponent]
 })

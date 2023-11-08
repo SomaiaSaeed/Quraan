@@ -10,21 +10,6 @@
       </nav>
     </div>
     <!-- search -->
-    <div class="flex-box tw-gap-2">
-      <div> 
-        <input dir="rtl" type="text" (input)="search($event)" placeholder="بحث عن ايات قرءانية" matInput [matAutocomplete]="auto" 
-        class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none tw-bg-white">
-        <mat-autocomplete #auto="matAutocomplete">
-          <mat-option *ngFor="let aya of results" [value]="aya" (click)="$event.stopPropagation();">
-            <div (click)="test()">
-              {{ aya }}
-            </div>
-          </mat-option>
-        </mat-autocomplete>
-      </div>
-      <button type="submit"
-        class="tw-bg-[#E4E4D0] tw-text-[#94A684] tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200">
-        <i class="sfi sfi-search-I tw-text-base tw-block"></i> </button>
-    </div>
+   <app-main-search></app-main-search>
   </div>
 </div>
