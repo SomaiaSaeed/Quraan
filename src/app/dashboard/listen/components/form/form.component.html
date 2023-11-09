@@ -7,7 +7,7 @@
           class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
           <mat-label class="tw-text-sm">من</mat-label>
           <span matSuffix
-            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
           <!-- من سورة" -->
           <mat-select (selectionChange)="fromSoraFun($event)">
             <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName }}</mat-option>
@@ -19,7 +19,7 @@
           class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
           <mat-label class="tw-text-sm">إلى</mat-label>
           <span matSuffix
-            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
           <mat-select (selectionChange)="toSoraFun($event)">
             <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName }}</mat-option>
           </mat-select>
@@ -34,7 +34,7 @@
           class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
           <mat-label class="tw-text-sm">من</mat-label>
           <span matSuffix
-            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
           <mat-select (selectionChange)="fromAyaFun($event)">
             <mat-option *ngFor="let number of fromSoraAyat" [value]="number">{{
               number.id
@@ -46,7 +46,7 @@
           class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
           <mat-label class="tw-text-sm">إلى</mat-label>
           <span matSuffix
-            class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+            class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
           <mat-select (selectionChange)="toAyaFun($event)">
             <mat-option *ngFor="let number of toSoraAyat" [value]="number">{{
               number.id
@@ -66,7 +66,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">من</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <!-- من سورة" -->
             <mat-select (selectionChange)="fromPartFun($event)">
               <mat-option *ngFor="let part of parts; let i = index" [value]="part">{{ part.elPart }}</mat-option>
@@ -78,7 +78,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">إلى</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <mat-select (selectionChange)="toPartFun($event)">
               <mat-option *ngFor="let part of parts; let i = index" [value]="part">{{ part.elPart }}</mat-option>
             </mat-select>
@@ -92,7 +92,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">من</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <!-- من سورة" -->
             <mat-select (selectionChange)="fromHezpFun($event)">
               <mat-option *ngFor="let h of hezb; let i = index" [value]="h">{{ h.nOFHezb }}</mat-option>
@@ -104,7 +104,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">إلى</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <mat-select (selectionChange)="toHezpFun($event)">
               <mat-option *ngFor="let h of hezb; let i = index" [value]="h">{{ h.nOFHezb }}</mat-option>
             </mat-select>
@@ -120,7 +120,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">من</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <!-- من سورة" -->
             <mat-select (selectionChange)="fromRobFun($event)">
               <mat-option *ngFor="let r of rob; let i = index" [value]="r">{{ r.rub }}</mat-option>
@@ -132,7 +132,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">إلى</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <mat-select (selectionChange)="toRobFun($event)">
               <mat-option *ngFor="let r of rob; let i = index" [value]="r">{{ r.rub }}</mat-option>
             </mat-select>
@@ -146,7 +146,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">من</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <!-- من سورة" -->
             <mat-select (selectionChange)="fromPageFun($event)">
               <mat-option *ngFor="let page of pages; let i = index" [value]="page">{{ page.nOFPage }}</mat-option>
@@ -158,7 +158,7 @@
             class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
             <mat-label class="tw-text-sm">إلى</mat-label>
             <span matSuffix
-              class="sfi sfi-arrow-down tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+              class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <mat-select (selectionChange)="toPageFun($event)">
               <mat-option *ngFor="let page of pages; let i = index" [value]="page">{{ page.nOFPage }}</mat-option>
             </mat-select>
@@ -170,12 +170,12 @@
   <!-- actions -->
   <div class="tw-mt-5">
     <button type="submit" (click)="isOpen = !isOpen"
-      class="tw-bg-[#E4E4D0] tw-text-[#94A684] hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+      class="tw-bg-secondColor tw-text-mainColor hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
       بحث متقدم
     </button>
     <span class="tw-mx-1"></span>
     <button type="submit" (click)="rest()"
-      class="tw-bg-[#E4E4D0] tw-text-[#94A684] hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+      class="tw-bg-secondColor tw-text-mainColor hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
       إعادة تعيين
     </button>
   </div>

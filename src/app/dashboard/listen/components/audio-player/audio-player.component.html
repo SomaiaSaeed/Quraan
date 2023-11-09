@@ -2,8 +2,8 @@
 <!-- <div class="tw-grid tw-grid-cols-4 tw-gap-4 tw-mt-6 tw-justify-center">
   <ng-container *ngFor="let row of data; let i = index">
     <div class="flex-box">
-      <span class="tw-font-medium tw-bg-[#e4e4d0] tw-w-8 tw-min-w-[30px] tw-h-full flex-c-c">{{i + 1}}</span>
-      <div class="tw-rounded-none tw-border tw-border-[#e4e4d0] tw-bg-[#f1f3f4]">
+      <span class="tw-font-medium tw-bg-secondColor tw-w-8 tw-min-w-[30px] tw-h-full flex-c-c">{{i + 1}}</span>
+      <div class="tw-rounded-none tw-border tw-border-secondColor tw-bg-[#f1f3f4]">
         <audio [id]="'surahPlayer' + i" controls="controls" (play)="onPlay(i)" (ended)="audioEnded(i)"
           class="tw-max-w-[265px]">
           <source id="activeAyah" src="{{ row }}" title="{{ 1 }}" type="audio/mp3" />
