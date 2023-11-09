@@ -6,5 +6,10 @@ import { Component, signal,computed } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  isOpenMenu : boolean = false;
   title = 'tailwaind-components';
+
+  OpenMenu(){
+    this.isOpenMenu = !this.isOpenMenu
+  }
 }

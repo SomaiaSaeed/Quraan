@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 const regex = /([\u0600-\u06FF])ِى/g; // to replace any arabic character followed by this char ِ and (ى) with (ي) 
@@ -14,15 +15,30 @@ const searchURL = "assets/jsonData/searchJson.json";
   styleUrls: ['./main-search.component.scss']
 })
 export class MainSearchComponent implements OnInit {
-
+  @ViewChild('addMatrix', { static: true }) addMatrix: ElementRef | any;
   results: string[] = [];
   searchWord!: string;
   hasTashkeel: boolean = false;
-
-  constructor(private _router: Router, private _http: HttpClient) { }
+// public dialogRef: MatDialogRef<null>
+  constructor(private _router: Router, private _http: HttpClient,public dialog: MatDialog) { }
 
   ngOnInit() {
 
+  }
+
+  openSearchResult(): void {
+    const dialogRef = this.dialog.open(this.addMatrix, {
+      width: '500px',
+      panelClass: 'popup-center',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+
+  closeDialog(){
+    // this.dialogRef.close();
   }
 
   search(event: any) {

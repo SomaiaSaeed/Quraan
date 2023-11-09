@@ -12,7 +12,6 @@ import { HeaderComponent } from './dashboard/layout/components/header/header.com
 import { FooterComponent } from './dashboard/layout/components/footer/footer.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { LoaderInterceptor } from './core/interceptor/loader.interceptor';
-
 @NgModule({
   declarations: [
     AppComponent,

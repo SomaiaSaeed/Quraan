@@ -1,16 +1,56 @@
 <div class="flex-box tw-gap-2">
-  <div> 
-    <input dir="rtl" type="text" (input)="search($event)" placeholder="بحث عن ايات قرءانية" matInput [matAutocomplete]="auto" 
-    class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none tw-bg-white">
+  <div>
+    <input dir="rtl" type="text" (input)="search($event)" placeholder="بحث عن ايات قرءانية" matInput
+      [matAutocomplete]="auto"
+      class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none tw-bg-white">
     <mat-autocomplete #auto="matAutocomplete">
       <mat-option *ngFor="let aya of results" [value]="aya" (click)="$event.stopPropagation();">
-        <div (click)="test()">
+        <div>
           {{ aya }}
         </div>
       </mat-option>
     </mat-autocomplete>
   </div>
-  <button type="submit" title="btn"
-    class="tw-bg-[#E4E4D0] tw-text-[#94A684] tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200"> 
-    <i class="sfi sfi-search-I tw-text-base tw-block"></i> </button>
+  <button type="submit" title="result-search" (click)="openSearchResult()"
+    class="tw-bg-secondColor tw-text-mainColor tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200">
+    <i class="sfi sfi-search-I tw-text-base tw-block"></i>
+  </button>
 </div>
+
+<!-- popup-result -->
+<ng-template #addMatrix>
+  <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
+    <h2 class="tw-mb-0">نتائج البحث</h2>
+    <button title="close" (click)="closeDialog()" mat-flat-button class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
+      <span class="tw-text-white tw-text-sm tw-block tw-py-px">
+        <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
+      </span>
+    </button>
+  </header>
+  <main>
+    <ul class="tw-divide-y-1">
+      <li class="flex-box tw-gap-2 tw-pb-5"> <i
+          class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center tw-not-italic ">1</i> ٱلْحَمْدُ
+        لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ</li>
+      <li class="flex-box tw-gap-2 tw-pb-5"> <i
+          class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center tw-not-italic">2</i> ٱلْحَمْدُ
+        لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ</li>
+      <li class="flex-box tw-gap-2 tw-pb-5"> <i
+          class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center tw-not-italic">3</i> ٱلْحَمْدُ
+        لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ</li>
+      <li class="flex-box tw-gap-2 tw-pb-5"> <i
+          class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center tw-not-italic">4</i> ٱلْحَمْدُ
+        لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ</li>
+      <li class="flex-box tw-gap-2 tw-pb-5"> <i
+          class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center tw-not-italic">5</i> ٱلْحَمْدُ
+        لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ</li>
+    </ul>
+    <div class="flex-box tw-justify-end">
+      <button type="submit" title="search-o"
+        class="tw-bg-mainColor tw-h-10 tw-min-w-0 tw-px-3 flex-box tw-gap-2 tw-rounded-sm hover:tw-opacity-80">
+        <span class="tw-text-base tw-text-white"> جميع النتائج </span>
+        <i class="sfi sfi-visibility tw-text-base tw-font-bold tw-block tw-text-white"></i>
+      </button>
+    </div>
+  </main>
+</ng-template>
