@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Search } from 'src/app/core/services/search.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-form',
@@ -9,6 +10,9 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./form.component.scss']
 })
 export class FormComponent implements OnInit {
+
+  toppings = new FormControl('');
+  resultsList: string[] = ['رقم_السورة', 'بداية_السورة', 'الربع', 'الربع', 'رقم_الجزء', 'الحزب','رقم_الحزب','رقم_الصفحة','بداية_الربع','بداية_الصفحة','اسم_السورة','الآية'];
 
   soar: any[] = [
     { name: 'التصنيف', code: '1' },
@@ -136,6 +140,8 @@ export class FormComponent implements OnInit {
     this.toSoraAyat.push({ id: '.' });
     this.fromSoraAyat.push({ id: '.' });
   }
+
+
 
   omomClicked($event: MouseEvent) {
     this.omomQuraan = true;

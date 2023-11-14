@@ -398,3 +398,36 @@ input[type="checkbox"] + span {
 .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-checkbox-checked.mat-accent .mat-checkbox-background{
   background-color: #94a684;
 }
+.mat-radio-label-content{
+  padding-right: 0 !important;
+}
+.mat-radio-label{
+  flex-direction: row-reverse;
+}
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle{
+  border-color: #94a684;
+}
+.mat-radio-button.mat-accent .mat-radio-inner-circle, .mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple), .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple, .mat-radio-button.mat-accent:active .mat-radio-persistent-ripple{
+  background-color: #94a684;
+}
+.mat-form-field-appearance-outline .mat-form-field-wrapper{
+  margin: 0 !important;
+}
+
+.select-w-w{
+  .mat-form-field-appearance-outline{
+    height: auto;
+  }
+  .mat-form-field{
+    border-radius: 5px;
+  }
+}
+.mat-primary .mat-pseudo-checkbox-checked, .mat-primary .mat-pseudo-checkbox-indeterminate{
+  background-color: #94a684;
+}
+.mat-option-text{
+ color: #94a684;
+}
+.mat-select-min-line{
+  font-weight: bold;
+}
