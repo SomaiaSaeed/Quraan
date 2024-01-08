@@ -38,7 +38,7 @@ export class MainSearchComponent implements OnInit {
   }
 
   closeDialog(){
-    // this.dialogRef.close();
+    this.dialog.closeAll();
   }
 
   search(event: any) {
@@ -58,9 +58,6 @@ export class MainSearchComponent implements OnInit {
     });
   }
 
-  test(){
-    console.log("fgf")
-  }
 
   applyTaskeelRegex(searchWord: string) {
     searchWord = searchWord.replace(regex, '$1ي');

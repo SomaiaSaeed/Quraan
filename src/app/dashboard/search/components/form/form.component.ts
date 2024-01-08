@@ -29,6 +29,7 @@ interface SuraInfo {
 }
 
 interface PartInfo {
+  nOFJoz: any;
   elPart: string;
 }
 
@@ -55,18 +56,28 @@ interface SuraEvent {
     nOfAyas: number;
   };
 }
-
+interface SearchSetting {
+  key: string;
+  finder: string;
+  finderKey: string;
+}
 @Component({
   selector: "app-form",
   templateUrl: "./form.component.html",
   styleUrls: ["./form.component.scss"],
 })
 export class FormComponent implements OnInit {
+x($event: any) {
+  ;
+  // this.toppings.valueChanges.subscribe((selectedValues) => {
+    this.saveToLocalStorage("dynamic_cols", $event);
+  // });
+throw new Error('Method not implemented.');
+}
   toppings = new FormControl("");
   resultsList: string[] = [
     "رقم_السورة",
     "بداية_السورة",
-    "الربع",
     "الربع",
     "رقم_الجزء",
     "الحزب",
@@ -118,6 +129,20 @@ export class FormComponent implements OnInit {
   isOpen: boolean = false;
   @ViewChild("addMatrix", { static: true }) addMatrix: ElementRef | any;
   idintical: boolean = false;
+  selectedFromSora: any;
+  selectedToSora: SuraInfo | undefined;
+  selectedFromPart: PartInfo | undefined;
+  selectedToPart: PartInfo | undefined;
+  selectedFromHezp: HezbInfo | undefined;
+  selectedToHezp: HezbInfo | undefined;
+  selectedFromRob: RobInfo | undefined;
+  selectedToRob: RobInfo | undefined;
+  selectedFromPage: PageInfo | undefined;
+  selectedToPage: PageInfo | undefined;
+  omomQuraan: any;
+  alphabitcalOrder: any;
+  selectedToAya: AyaNumbersOfSura | undefined;
+  selectedFromAya: AyaNumbersOfSura | undefined;
 
   constructor(
     private router: Router,
@@ -128,6 +153,59 @@ export class FormComponent implements OnInit {
   ngOnInit() {
     this.initializeEmptyArrays();
     this.processTableOthmani();
+    this.loadSavedSearchSettings();
+  }
+
+  loadSavedSearchSettings(){
+   
+    let savedSettingsJson = localStorage.getItem("result");
+    if(savedSettingsJson) {
+      let savedSettings = JSON.parse(savedSettingsJson);
+      let{
+        fromSora,toSora,fromPart, toPart,fromHezp,toHezp,
+        fromRob,toRob,fromPage,toPage,fromAya,toAya,
+        searchIn,orderBy,idintical } = savedSettings;
+      this.fromSora = fromSora;
+      this.selectedFromSora = this.soras.find( sora => sora.nOFSura == fromSora);
+      if(this.selectedFromSora){this.fromSoraAyat = this.populateSoraAyat(this.selectedFromSora.nOfAyas);
+        this.selectedFromAya = this.fromSoraAyat.find( ayat => ayat.id == fromAya)
+        this.fromAya = fromAya;
+      }
+      
+      this.toSora = toSora;
+      this.selectedToSora = this.soras.find( sora => sora.nOFSura == toSora)
+      if(this.selectedToSora){this.toSoraAyat = this.populateSoraAyat(this.selectedToSora.nOfAyas);
+        this.selectedToAya = this.toSoraAyat.find( ayat => ayat.id == toAya)
+        this.toAya = toAya;
+      }
+      this.fromPart = fromPart;
+      this.selectedFromPart = this.parts.find( part => part.elPart == fromPart)
+      this.toPart = toPart;
+      this.selectedToPart = this.parts.find( part => part.elPart == toPart)
+      this.fromHezp = fromHezp;
+      this.selectedFromHezp = this.hezb.find( hez => hez.nOFHezb == fromHezp)
+      this.toHezp = toHezp;
+      this.selectedToHezp = this.hezb.find( hez => hez.nOFHezb == toHezp)
+      this.fromRob = fromRob;
+      this.selectedFromRob = this.rob.find( r => r.rub == fromRob)
+      this.toRob = toRob;
+      this.selectedToRob = this.rob.find( r => r.rub == toRob)
+      this.fromPage = fromPage;
+      this.selectedFromPage = this.pages.find( page => page.nOFPage == fromPage)
+      this.toPage = toPage;
+      this.selectedToPage = this.pages.find( page => page.nOFPage == toPage)
+      this.fromAya = fromAya;
+      this.omomQuraan_AyaStart = searchIn;
+      this.orderResultBy = orderBy;
+      this.idintical = idintical;
+
+    } 
+    let dynamicCols = localStorage.getItem("dynamic_cols");
+    if(dynamicCols){
+      
+      this.toppings.setValue(JSON.parse(dynamicCols));
+    }
+
   }
 
   private initializeEmptyArrays() {
@@ -152,8 +230,8 @@ export class FormComponent implements OnInit {
       this.addUniqueItem(this.pages, aya.nOFPage, "nOFPage");
       this.addUniqueItem(this.rob, aya.rub, "rub", { ayaId: aya.id });
 
-      currentSura = aya.Sura_Name;
       nOfAyas = currentSura === aya.Sura_Name ? nOfAyas + 1 : 1;
+      currentSura = aya.Sura_Name;
     });
   }
 
@@ -190,7 +268,10 @@ export class FormComponent implements OnInit {
       this.resetArrays();
       this._search.table_othmani.forEach((aya: Aya) => {
         if (this.isWithinSuraRange(aya.nOFSura)) {
-          this.addToUniqueArray(this.parts, { elPart: aya.nOFJoz }, "elPart");
+          this.addToUniqueArray(this.parts, {
+            elPart: aya.nOFJoz,
+            nOFJoz: undefined
+          }, "elPart");
           this.addToUniqueArray(this.hezb, { nOFHezb: aya.nOFHezb }, "nOFHezb");
           this.addToUniqueArray(
             this.pages,
@@ -205,7 +286,7 @@ export class FormComponent implements OnInit {
         }
       });
 
-      this.populateSoraAyat($event.value.nOfAyas);
+     this.toSoraAyat = this.populateSoraAyat($event.value.nOfAyas);
     }
   }
 
@@ -231,18 +312,19 @@ export class FormComponent implements OnInit {
   }
 
   private populateSoraAyat(nOfAyas: number) {
+    let soraAyat = [];
     for (let index = 1; index <= nOfAyas; index++) {
-      this.toSoraAyat.push({ id: index });
+      soraAyat.push({ id: index });
     }
+    return soraAyat;
   }
 
   fromSoraFun($event: SuraEvent) {
-    this.fromSora = $event.value.nOFSura;
-    this.fromSoraAyat = [];
+    ;
+    console.log('Selected Sora:', this.selectedFromSora);
 
-    for (let index = 1; index <= $event.value.nOfAyas; index++) {
-      this.fromSoraAyat.push({ id: index });
-    }
+    this.fromSora = $event.value.nOFSura;
+    this.fromSoraAyat = this.populateSoraAyat($event.value.nOfAyas);
   }
 
   fromAyaFun($event: any) {
@@ -254,11 +336,12 @@ export class FormComponent implements OnInit {
   }
 
   fromRobFun($event: any) {
-    this.fromRob = $event.value.ayaId;
+    this.fromRob = $event.value.rub;
   }
 
   toRobFun($event: any) {
-    this.toRob = $event.value.ayaId;
+    this.toRob = $event.value.rub;
+    ;
   }
 
   fromHezpFun($event: any) {
@@ -271,12 +354,12 @@ export class FormComponent implements OnInit {
 
   fromPageFun($event: any) {
     this.fromPage = $event.value.nOFPage;
-    this.fromPart = $event.value.elPart;
+    // this.fromPart = $event.value.elPart;
   }
 
   toPageFun($event: any) {
     this.toPage = $event.value.nOFPage;
-    this.fromPart = $event.value.elPart;
+    // this.fromPart = $event.value.elPart;
   }
 
   fromPartFun($event: any) {
@@ -306,7 +389,7 @@ export class FormComponent implements OnInit {
   }
 
   saveSearchSettings(): void {
-    debugger;
+    ;
 
     const result = {
       fromSora: this.fromSora,
@@ -328,9 +411,6 @@ export class FormComponent implements OnInit {
 
     // Consider abstracting localStorage operations into a service or utility function.
     this.saveToLocalStorage("result", result);
-    this.toppings.valueChanges.subscribe((selectedValues) => {
-      this.saveToLocalStorage("dynamic_cols", selectedValues);
-    });
 
     const dialogRef = this.dialog.open(this.addMatrix, {
       width: "500px",
