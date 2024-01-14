@@ -296,6 +296,17 @@ throw new Error('Method not implemented.');
     this.pages = [];
     this.rob = [];
     this.toSoraAyat = [];
+    
+    this.fromPart = null;
+    this.toPart = null;
+    this.fromHezp = null;
+    this.toHezp = null;
+    this.fromRob = null;
+    this.toRob = null;
+    this.fromPage = null;
+    this.toPage = null;
+    this.fromAya = null;
+    this.toAya = null;
   }
 
   private isWithinSuraRange(nOFSura: string) {
