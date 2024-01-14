@@ -1,37 +1,115 @@
-import { Component, OnInit } from '@angular/core';
-import { Search } from 'src/app/core/services/search.service';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { FormControl } from '@angular/forms';
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Search } from "src/app/core/services/search.service";
+import { Router } from "@angular/router";
+import { HttpClient } from "@angular/common/http";
+import { FormControl } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 
+interface Aya {
+  id: string;
+  Sura_Name: string;
+  AyaText_Othmani: string;
+  AyaText: string;
+  Aya_N: string;
+  nOFSura: string;
+  suraStart: string;
+  rub: string;
+  joz: string;
+  nOFJoz: string;
+  hezb: string;
+  nOFHezb: string;
+  nOFPage: string;
+  rubStart: string;
+  pageStart: string;
+}
+interface SuraInfo {
+  soraName: string;
+  nOFSura: string;
+  nOfAyas: number;
+}
+
+interface PartInfo {
+  nOFJoz: any;
+  elPart: string;
+}
+
+interface HezbInfo {
+  nOFHezb: string;
+}
+
+interface PageInfo {
+  nOFPage: string;
+}
+
+interface RobInfo {
+  rub: string;
+  ayaId: string; // Assuming 'id' is a string; adjust the type accordingly
+}
+
+interface AyaNumbersOfSura {
+  id: number;
+}
+
+interface SuraEvent {
+  value: {
+    nOFSura: string;
+    nOfAyas: number;
+  };
+}
+interface SearchSetting {
+  key: string;
+  finder: string;
+  finderKey: string;
+}
 @Component({
-  selector: 'app-form',
-  templateUrl: './form.component.html',
-  styleUrls: ['./form.component.scss']
+  selector: "app-form",
+  templateUrl: "./form.component.html",
+  styleUrls: ["./form.component.scss"],
 })
 export class FormComponent implements OnInit {
+x($event: any) {
+  ;
+  // this.toppings.valueChanges.subscribe((selectedValues) => {
+    this.saveToLocalStorage("dynamic_cols", $event);
+  // });
+throw new Error('Method not implemented.');
+}
+  toppings = new FormControl("");
+  resultsList: string[] = [
+    "رقم_السورة",
+    "بداية_السورة",
+    "الربع",
+    "رقم_الجزء",
+    "الحزب",
+    "رقم_الحزب",
+    "رقم_الصفحة",
+    "بداية_الربع",
+    "بداية_الصفحة",
+    "اسم_السورة",
+    "الآية",
+  ];
 
-  toppings = new FormControl('');
-  resultsList: string[] = ['رقم_السورة', 'بداية_السورة', 'الربع', 'الربع', 'رقم_الجزء', 'الحزب','رقم_الحزب','رقم_الصفحة','بداية_الربع','بداية_الصفحة','اسم_السورة','الآية'];
+  // Assuming these are declared elsewhere in the class
+  parts: PartInfo[] = [];
+  hezb: HezbInfo[] = [];
+  pages: PageInfo[] = [];
+  rob: RobInfo[] = [];
+  soras: SuraInfo[] = [];
+  _search: Search = new Search();
+  fromSoraAyat: AyaNumbersOfSura[] = [];
+  toSoraAyat: AyaNumbersOfSura[] = [];
 
   soar: any[] = [
-    { name: 'التصنيف', code: '1' },
+    { name: "التصنيف", code: "1" },
 
-    { name: 'السور', code: '2' },
-    { name: 'elPart', code: '3' },
-
+    { name: "السور", code: "2" },
+    { name: "elPart", code: "3" },
   ];
-  soras: any[] = [];
-  rob: any[] = [];
-  hezb: any[] = [];
-  fromSoraAyat: any[] = [];
-  toSoraAyat: any[] = [];
-  pages: any[] = [];
   result: any[] = [];
-  omomQuraan: boolean = false;
+  omomQuraan_AyaStart: string = "generalQuran";
+  orderResultBy: string = "mushafOrder";
   soraSelected: boolean = false;
   partSelected: boolean = false;
-  parts: any[] = [];
   fromSora: any = {};
   toSora: any = {};
   fromPart: any = {};
@@ -44,427 +122,330 @@ export class FormComponent implements OnInit {
   toHezp: any = {};
   fromPage: any = {};
   toPage: any = {};
-  _search: Search = new Search();
-  texts!: string[];
   results!: string[];
   currentIndex!: number;
   repeated!: boolean;
-  teamInitial = ' ';
+  teamInitial = " ";
   isOpen: boolean = false;
+  @ViewChild("addMatrix", { static: true }) addMatrix: ElementRef | any;
+  idintical: boolean = false;
+  selectedFromSora: any;
+  selectedToSora: SuraInfo | undefined;
+  selectedFromPart: PartInfo | undefined;
+  selectedToPart: PartInfo | undefined;
+  selectedFromHezp: HezbInfo | undefined;
+  selectedToHezp: HezbInfo | undefined;
+  selectedFromRob: RobInfo | undefined;
+  selectedToRob: RobInfo | undefined;
+  selectedFromPage: PageInfo | undefined;
+  selectedToPage: PageInfo | undefined;
+  omomQuraan: any;
+  alphabitcalOrder: any;
+  selectedToAya: AyaNumbersOfSura | undefined;
+  selectedFromAya: AyaNumbersOfSura | undefined;
 
-  constructor(private router: Router, private http: HttpClient) {
-  }
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit() {
+    this.initializeEmptyArrays();
+    this.processTableOthmani();
+    this.loadSavedSearchSettings();
+  }
+
+  loadSavedSearchSettings(){
+   
+    let savedSettingsJson = localStorage.getItem("result");
+    if(savedSettingsJson) {
+      let savedSettings = JSON.parse(savedSettingsJson);
+      let{
+        fromSora,toSora,fromPart, toPart,fromHezp,toHezp,
+        fromRob,toRob,fromPage,toPage,fromAya,toAya,
+        searchIn,orderBy,idintical } = savedSettings;
+      this.fromSora = fromSora;
+      this.selectedFromSora = this.soras.find( sora => sora.nOFSura == fromSora);
+      if(this.selectedFromSora){this.fromSoraAyat = this.populateSoraAyat(this.selectedFromSora.nOfAyas);
+        this.selectedFromAya = this.fromSoraAyat.find( ayat => ayat.id == fromAya)
+        this.fromAya = fromAya;
+      }
+      
+      this.toSora = toSora;
+      this.selectedToSora = this.soras.find( sora => sora.nOFSura == toSora)
+      if(this.selectedToSora){this.toSoraAyat = this.populateSoraAyat(this.selectedToSora.nOfAyas);
+        this.selectedToAya = this.toSoraAyat.find( ayat => ayat.id == toAya)
+        this.toAya = toAya;
+      }
+      this.fromPart = fromPart;
+      this.selectedFromPart = this.parts.find( part => part.elPart == fromPart)
+      this.toPart = toPart;
+      this.selectedToPart = this.parts.find( part => part.elPart == toPart)
+      this.fromHezp = fromHezp;
+      this.selectedFromHezp = this.hezb.find( hez => hez.nOFHezb == fromHezp)
+      this.toHezp = toHezp;
+      this.selectedToHezp = this.hezb.find( hez => hez.nOFHezb == toHezp)
+      this.fromRob = fromRob;
+      this.selectedFromRob = this.rob.find( r => r.rub == fromRob)
+      this.toRob = toRob;
+      this.selectedToRob = this.rob.find( r => r.rub == toRob)
+      this.fromPage = fromPage;
+      this.selectedFromPage = this.pages.find( page => page.nOFPage == fromPage)
+      this.toPage = toPage;
+      this.selectedToPage = this.pages.find( page => page.nOFPage == toPage)
+      this.fromAya = fromAya;
+      this.omomQuraan_AyaStart = searchIn;
+      this.orderResultBy = orderBy;
+      this.idintical = idintical;
+
+    } 
+    let dynamicCols = localStorage.getItem("dynamic_cols");
+    if(dynamicCols){
+      
+      this.toppings.setValue(JSON.parse(dynamicCols));
+    }
+
+  }
+
+  private initializeEmptyArrays() {
     this.parts = [];
-    this.texts = [];
-    this.soras.push({ soraName: '.', nOfAyas: 0 });
-    let currentSura = 'الفاتحة';
-    let nOfAyas = 0;
-    this._search.table_othmani.forEach(aya => {
-      if (currentSura == aya.Sura_Name) {
-        nOfAyas++;
-      } else {
-        this.soras.push({
-          soraName: currentSura,
-          nOFSura: (parseInt(aya.nOFSura) - 1).toString(),
-          nOfAyas: nOfAyas
-        });
-        currentSura = aya.Sura_Name;
-        nOfAyas = 1;
-      }
-    });
-    this.parts.push({ elPart: '.' });
-    this._search.table_othmani.forEach(aya => {
-
-      let index = this.parts.findIndex(sura => {
-        return aya.nOFJoz == sura.elPart;
-      });
-
-      if (index < 0) {
-        this.parts.push({
-          elPart: aya.nOFJoz,
-
-        });
-      }
-    });
-    this.hezb.push({ nOFHezb: '.' });
-    this._search.table_othmani.forEach(aya => {
-
-      let index = this.hezb.findIndex(sura => {
-        return aya.nOFHezb == sura.nOFHezb;
-      });
-
-      if (index < 0) {
-        this.hezb.push({
-          nOFHezb: aya.nOFHezb,
-
-        });
-      }
-    });
-    this.pages.push({
-      nOFPage: '.',
-    });
-    this._search.table_othmani.forEach(aya => {
-
-      let index = this.pages.findIndex(sura => {
-        return aya.nOFPage == sura.nOFPage;
-      });
-
-      if (index < 0) {
-        this.pages.push({
-          nOFPage: aya.nOFPage,
-
-        });
-      }
-    });
-    this.rob.push({
-      rub: '.',
-
-    });
-    this._search.table_othmani.forEach(aya => {
-
-      let index = this.rob.findIndex(sura => {
-        return aya.rub == sura.rub;
-      });
-
-      if (index < 0) {
-        this.rob.push({
-          rub: aya.rub,
-          ayaId: aya.id,
-        });
-      }
-    });
+    // this.texts = [];
+    this.soras = [];
+    this.hezb = [];
+    this.pages = [];
+    this.rob = [];
     this.fromSoraAyat = [];
     this.toSoraAyat = [];
-    this.toSoraAyat.push({ id: '.' });
-    this.fromSoraAyat.push({ id: '.' });
   }
 
+  private processTableOthmani() {
+    let currentSura = "الفاتحة";
+    let nOfAyas = 0;
 
+    this._search.table_othmani.forEach((aya: Aya) => {
+      this.updateSuraInfo(aya, currentSura, nOfAyas);
+      this.addUniqueItem(this.parts, aya.nOFJoz, "elPart");
+      this.addUniqueItem(this.hezb, aya.nOFHezb, "nOFHezb");
+      this.addUniqueItem(this.pages, aya.nOFPage, "nOFPage");
+      this.addUniqueItem(this.rob, aya.rub, "rub", { ayaId: aya.id });
 
-  omomClicked($event: MouseEvent) {
-    this.omomQuraan = true;
+      nOfAyas = currentSura === aya.Sura_Name ? nOfAyas + 1 : 1;
+      currentSura = aya.Sura_Name;
+    });
   }
-  ayaId = 5;
-  roow: any;
-  audioCount!: number;
 
-  sorats: any[] = [];
+  private updateSuraInfo(
+    aya: { Sura_Name: any; nOFSura: string },
+    currentSura: string,
+    nOfAyas: number
+  ) {
+    if (currentSura !== aya.Sura_Name) {
+      this.soras.push({
+        soraName: currentSura,
+        nOFSura: (parseInt(aya.nOFSura) - 1).toString(),
+        nOfAyas: nOfAyas,
+      });
+    }
+  }
 
-  toSoraFun($event: any) {
+  private addUniqueItem(array: {}[], value: any, key: string, extraData = {}) {
+    const index = array.findIndex(
+      (item: { [x: string]: any }) => item[key] === value
+    );
+    if (index < 0) {
+      array.push({
+        [key]: value,
+        ...extraData,
+      });
+    }
+  }
+
+  toSoraFun($event: SuraEvent) {
     this.toSora = $event.value.nOFSura;
 
     if (this.toSora) {
-      this.parts = [];
-      this.hezb = [];
-      this.pages = [];
-      this.rob = [];
-      this.toSoraAyat = [];
-
-
-      this.parts.push({ elPart: '.' });
-      this.hezb.push({ nOFHezb: '.' });
-      this.rob.push({ rub: '.' });
-      this.pages.push({ nOFPage: '.' });
-      this.toSoraAyat.push({ id: '.' });
-
-      this._search.table_othmani.forEach(aya => {
-
-        if (parseInt(aya.nOFSura) <= parseInt(this.toSora) && parseInt(aya.nOFSura) >= parseInt(this.fromSora)) {
-          let index = this.parts.findIndex(sura => {
-            return aya.nOFJoz == sura.elPart;
-          });
-
-          if (index < 0) {
-            this.parts.push({
-              elPart: aya.nOFJoz,
-
-            });
-          }
-
-          index = this.hezb.findIndex(sura => {
-            return aya.nOFHezb == sura.nOFHezb;
-          });
-
-          if (index < 0) {
-            this.hezb.push({
-              nOFHezb: aya.nOFHezb,
-
-            });
-          }
-
-          index = this.pages.findIndex(sura => {
-            return aya.nOFPage == sura.nOFPage;
-          });
-
-          if (index < 0) {
-            this.pages.push({
-              nOFPage: aya.nOFPage,
-
-            });
-          }
-
-          index = this.rob.findIndex(sura => {
-            return aya.rub == sura.rub;
-          });
-
-          if (index < 0) {
-            this.rob.push({
-              rub: aya.rub,
-              ayaId: aya.id,
-            });
-          }
-
+      this.resetArrays();
+      this._search.table_othmani.forEach((aya: Aya) => {
+        if (this.isWithinSuraRange(aya.nOFSura)) {
+          this.addToUniqueArray(this.parts, {
+            elPart: aya.nOFJoz,
+            nOFJoz: undefined
+          }, "elPart");
+          this.addToUniqueArray(this.hezb, { nOFHezb: aya.nOFHezb }, "nOFHezb");
+          this.addToUniqueArray(
+            this.pages,
+            { nOFPage: aya.nOFPage },
+            "nOFPage"
+          );
+          this.addToUniqueArray(
+            this.rob,
+            { rub: aya.rub, ayaId: aya.id },
+            "rub"
+          );
         }
-
       });
-    }
-    let nOfAyas = $event.value.nOfAyas;
-    let index = 0;
-    while (index < nOfAyas) {
-      index++;
-      this.toSoraAyat.push({
-        id: index,
-      });
-    }
-    // this.result.push(this.toSora);
 
+     this.toSoraAyat = this.populateSoraAyat($event.value.nOfAyas);
+    }
   }
 
-  fromSoraFun($event: any) {
+  private resetArrays() {
+    this.parts = [];
+    this.hezb = [];
+    this.pages = [];
+    this.rob = [];
+    this.toSoraAyat = [];
+    
+    this.fromPart = null;
+    this.toPart = null;
+    this.fromHezp = null;
+    this.toHezp = null;
+    this.fromRob = null;
+    this.toRob = null;
+    this.fromPage = null;
+    this.toPage = null;
+    this.fromAya = null;
+    this.toAya = null;
+  }
 
-    this.sorats = [];
-    let url = "http://api.alquran.cloud/v1/surah/" + $event.value.nOFSura;
-    this.http.get<any>(url).subscribe(res => {
-      this.audioCount = res.data.ayahs.length;
-      res.data.ayahs.forEach((aya: any) => {
-        this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.number;
-        this.sorats.push({ link: this.roow, title: aya.text, artist: 'اسـم القارئ' ,});
-        console.log("ayaaya",aya);
-      });
-    });
-    this.fromSora = $event.value.nOFSura;
+  private isWithinSuraRange(nOFSura: string) {
+    const suraNum = parseInt(nOFSura);
+    return (
+      suraNum <= parseInt(this.toSora) && suraNum >= parseInt(this.fromSora)
+    );
+  }
 
-
-    this.fromSoraAyat = [];
-    this.fromSoraAyat.push({ id: '.' });
-    let nOfAyas = $event.value.nOfAyas;
-    let index = 0;
-    while (index < nOfAyas) {
-      index++;
-      this.fromSoraAyat.push({
-        id: index,
-      });
+  private addToUniqueArray<T>(array: T[], newValue: T, compareKey: keyof T) {
+    if (!array.some((item) => item[compareKey] === newValue[compareKey])) {
+      array.push(newValue);
     }
+  }
 
+  private populateSoraAyat(nOfAyas: number) {
+    let soraAyat = [];
+    for (let index = 1; index <= nOfAyas; index++) {
+      soraAyat.push({ id: index });
+    }
+    return soraAyat;
+  }
+
+  fromSoraFun($event: SuraEvent) {
+    ;
+    console.log('Selected Sora:', this.selectedFromSora);
+
+    this.fromSora = $event.value.nOFSura;
+    this.fromSoraAyat = this.populateSoraAyat($event.value.nOfAyas);
   }
 
   fromAyaFun($event: any) {
-
     this.fromAya = $event.value.id;
   }
-  ayat: any[] = []
+
   toAyaFun($event: any) {
-
-    this.sorats = []
-    this.ayat = []
-
     this.toAya = $event.value.id;
-    for (this.fromAya; this.fromAya < this.toAya; this.fromAya++) {
-      this.ayat.push(this.fromAya);
-    }
-    this.audioCount = this.ayat.length;
-    this.ayat.forEach((aya: any) => {
-      this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya;
-      this.sorats.push(this.roow);
-    });
   }
 
   fromRobFun($event: any) {
-    this.fromRob = $event.value.ayaId;
-    let url = "https://api.quran.com/api/v4/quran/verses/uthmani_simple?rub_number=" + $event.value.ayaId;
-    this.http.get<any>(url).subscribe(res => {
-      this.audioCount = res.verses.length;
-      res.verses.forEach((aya: any) => {
-        this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-        this.sorats.push(this.roow);
-        console.log(res);
-      });
-    });
-
+    this.fromRob = $event.value.rub;
   }
 
   toRobFun($event: any) {
-    this.toRob = $event.value.ayaId;
-    for (this.fromRob++; this.fromRob < this.toRob; this.fromRob++) {
-      let url = "http://api.quran.com/api/v4/quran/verses/uthmani_simple?rub_number=" + this.fromRob;
-
-      this.http.get<any>(url).subscribe(res => {
-        this.audioCount = res.verses.length;
-        res.verses.forEach((aya: any) => {
-          this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-          this.sorats.push(this.roow);
-          console.log(res);
-        });
-      });
-    }
-
+    this.toRob = $event.value.rub;
+    ;
   }
 
   fromHezpFun($event: any) {
     this.fromHezp = $event.value.nOFHezb;
-    let url = "https://api.quran.com/api/v4/quran/verses/uthmani_simple?hizb_number=" + $event.value.nOFHezb;
-
-    this.http.get<any>(url).subscribe(res => {
-      this.audioCount = res.verses.length;
-      res.verses.forEach((aya: any) => {
-        this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-        this.sorats.push(this.roow);
-        console.log(res);
-      });
-    });
   }
 
   toHezpFun($event: any) {
     this.toHezp = $event.value.nOFHezb;
-    for (this.fromHezp++; this.fromHezp < this.toHezp; this.fromHezp++) {
-      let url = "http://api.quran.com/api/v4/quran/verses/uthmani_simple?hizb_number=" + this.fromHezp;
-
-      this.http.get<any>(url).subscribe(res => {
-        this.audioCount = res.verses.length;
-        res.verses.forEach((aya: any) => {
-          this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-          this.sorats.push(this.roow);
-          console.log(res);
-        });
-      });
-    }
   }
 
   fromPageFun($event: any) {
-
     this.fromPage = $event.value.nOFPage;
-    this.fromPart = $event.value.elPart;
-    let url = "http://api.quran.com/api/v4/quran/verses/uthmani_simple?page_number=" + $event.value.nOFPage;
-
-    this.http.get<any>(url).subscribe(res => {
-      this.audioCount = res.verses.length;
-      res.verses.forEach((aya: any) => {
-        this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-        this.sorats.push(this.roow);
-        console.log(res);
-      });
-    });
+    // this.fromPart = $event.value.elPart;
   }
 
   toPageFun($event: any) {
     this.toPage = $event.value.nOFPage;
-    this.fromPart = $event.value.elPart;
-    for (this.fromPage++; this.fromPage < this.toPage; this.fromPage++) {
-      let url = "http://api.quran.com/api/v4/quran/verses/uthmani_simple?page_number=" + this.fromPage;
-
-      this.http.get<any>(url).subscribe(res => {
-        this.audioCount = res.verses.length;
-        res.verses.forEach((aya: any) => {
-          this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-          this.sorats.push(this.roow);
-          console.log(res);
-        });
-      });
-    }
-
+    // this.fromPart = $event.value.elPart;
   }
 
   fromPartFun($event: any) {
     this.fromPart = $event.value.elPart;
-    let url = "http://api.alquran.cloud/v1/juz/" + $event.value.elPart;
-    this.http.get<any>(url).subscribe(res => {
-      this.audioCount = res.data.ayahs.length;
-      res.data.ayahs.forEach((aya: any) => {
-        this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.number;
-        this.sorats.push(this.roow);
-        console.log(res);
-      });
-    });
-
   }
 
   toPartFun($event: any) {
     this.toPart = $event.value.elPart;
-    for (this.fromPart++; this.fromPart < this.toPart; this.fromPart++) {
-      let url = "http://api.alquran.cloud/v1/juz/" + this.fromPart;
-
-      this.http.get<any>(url).subscribe(res => {
-        this.audioCount = res.verses.length;
-        res.verses.forEach((aya: any) => {
-          this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.id;
-          this.sorats.push(this.roow);
-          console.log(res);
-        });
-      });
-    }
-  }
-
-  audio: any;
-
-  numberOfRepeated!: number;
-  count!: number;
-
-  onChange($event: any) {
-
-    this.texts.push($event);
-  }
-  wasatClicked($event: MouseEvent) {
-    // this.repeated = true;
-    // this.numberOfRepeated=3;
-    this.count = 0;
-  }
-  numberRepeatClicked(event: any) {
-    // this.repeated = true;
-
-    this.numberOfRepeated = event.target.value;
-
-    this.count = 0;
-  }
-  played!: boolean;
-  audioEnded(ayaNum: any) {
-
-    if (ayaNum < this.audioCount - 1) {
-      this.currentIndex = ayaNum + 1;
-      this.playNextAya(this.currentIndex);
-    }
-    if (ayaNum == this.audioCount - 1 && this.repeated || (ayaNum == this.audioCount - 1 && this.numberOfRepeated - 2 >= this.count)) {
-      this.count++;
-      let audio: any = document.getElementById("surahPlayer0");
-      audio.play();
-    }
-  }
-
-
-  playNextAya(ayaNum: any) {
-
-    let currentAudio: any = document.getElementById("surahPlayer" + ayaNum);
-    currentAudio.play();
-  }
-
-  onPlay(ayaNum: number) {
-
-    if (ayaNum != this.currentIndex + 1) {// handle manual play
-      for (let i = 0; i < this.audioCount; i++) {
-        if (i != ayaNum) {
-          let audio: any = document.getElementById("surahPlayer" + i);
-          audio.pause();
-          audio.currentTime = 0;
-        }
-      }
-    }
   }
 
   rest() {
-    this.sorats = [];
-    this.ayat = [];
-    this.audioCount = 0;
-    this.roow = '';
+    this.fromSora = null;
+    this.toSora = null;
+    this.fromPart = null;
+    this.toPart = null;
+    this.fromHezp = null;
+    this.toHezp = null;
+    this.fromRob = null;
+    this.toRob = null;
+    this.fromPage = null;
+    this.toPage = null;
+    this.fromAya = null;
+    this.toAya = null;
+    this.omomQuraan_AyaStart = "generalQuran";
+    this.orderResultBy = "mushafOrder";
+    this.idintical = false;
+  }
+
+  saveSearchSettings(): void {
+    ;
+
+    const result = {
+      fromSora: this.fromSora,
+      toSora: this.toSora,
+      fromPart: this.fromPart,
+      toPart: this.toPart,
+      fromHezp: this.fromHezp,
+      toHezp: this.toHezp,
+      fromRob: this.fromRob,
+      toRob: this.toRob,
+      fromPage: this.fromPage,
+      toPage: this.toPage,
+      fromAya: this.fromAya,
+      toAya: this.toAya,
+      searchIn: this.omomQuraan_AyaStart,
+      orderBy: this.orderResultBy,
+      idintical: this.idintical,
+    };
+
+    // Consider abstracting localStorage operations into a service or utility function.
+    this.saveToLocalStorage("result", result);
+
+    const dialogRef = this.dialog.open(this.addMatrix, {
+      width: "500px",
+      panelClass: "popup-center",
+    });
+  }
+
+  private saveToLocalStorage(key: string, value: any): void {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  searchIn(e: any) {
+    this.omomQuraan_AyaStart = e.value;
+  }
+
+  orderBy(e: any) {
+    this.orderResultBy = e.value;
+  }
+
+  OnIdinticalChange(e: any) {
+    this.idintical = e.checked;
   }
 }
