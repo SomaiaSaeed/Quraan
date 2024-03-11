@@ -1,3 +1,44 @@
+<!-- main-menu -->
+<div class="tw-fixed tw-bottom-[60px] tw-right-[30px]">
+	<button type="" title="menu" mat-mini-fab (click)="OpenMenu()"
+		class="tw-m-[35px] tw-w-12 tw-h-12 tw-bg-mainColor tw-min-w-0 tw-text-2xl tw-justify-center flex-box tw-rounded-full tw-shadow-xl3 tw-shadow-gray-400">
+		<span class="sfi sfi-stack tw-text-white" *ngIf="!isOpenMenu"></span>
+		<span class="sfi sfi-cancel-1 tw-text-white" *ngIf="isOpenMenu"></span>
+	</button>
+	<div *ngIf="isOpenMenu"
+		class="tw-bg-white tw-py-3 tw-w-48 tw-h-auto tw-border tw-border-gray-200 tw-rounded-md tw-absolute tw-top-[-350px] tw-right-[30px] tw-shadow-xl3 tw-shadow-gray-200">
+		<button type="" mat-flat-button
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			عدد المتشابهات
+		</button>
+		<button type="" mat-flat-button
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			تفـسـير
+		</button>
+		<button type="" mat-flat-button  (click)="openReads()"
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			القراء
+		</button>
+		<button type="" mat-flat-button
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			متشابهات السـور
+		</button>
+		<button type="" mat-flat-button
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			السجدات
+		</button>
+		<button type="" mat-flat-button
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			طباعة
+		</button>
+		<button type="" mat-flat-button
+			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			المفضلة
+		</button>
+	</div>
+</div>
+
+
 <div class="footer tw-bg-white tw-p-4 tw-text-center tw-mt-2">
-  <span class="tw-text-gray-700">Footer! <i class="icon icon-like-f tw-text-red-500"></i> </span>
+	<span class="tw-text-gray-700">Footer! <i class="icon icon-like-f tw-text-red-500"></i> </span>
 </div>

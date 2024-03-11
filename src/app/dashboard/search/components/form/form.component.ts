@@ -127,7 +127,7 @@ throw new Error('Method not implemented.');
   repeated!: boolean;
   teamInitial = " ";
   isOpen: boolean = false;
-  @ViewChild("addMatrix", { static: true }) addMatrix: ElementRef | any;
+  @ViewChild("searchResult", { static: true }) searchResult: ElementRef | any;
   idintical: boolean = false;
   selectedFromSora: any;
   selectedToSora: SuraInfo | undefined;
@@ -423,7 +423,7 @@ throw new Error('Method not implemented.');
     // Consider abstracting localStorage operations into a service or utility function.
     this.saveToLocalStorage("result", result);
 
-    const dialogRef = this.dialog.open(this.addMatrix, {
+    const dialogRef = this.dialog.open(this.searchResult, {
       width: "500px",
       panelClass: "popup-center",
     });

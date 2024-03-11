@@ -16,7 +16,7 @@ const searchURL = "assets/jsonData/searchJson.json";
   styleUrls: ["./main-search.component.scss"],
 })
 export class MainSearchComponent implements OnInit {
-  @ViewChild("addMatrix", { static: true }) addMatrix: ElementRef | any;
+  @ViewChild("searchResult", { static: true }) searchResult: ElementRef | any;
   @ViewChild('auto', { static: false }) autoComplete: MatAutocomplete| any;
   results: string[] = [];
   searchWord!: string;
@@ -33,7 +33,7 @@ export class MainSearchComponent implements OnInit {
   openSearchResult(): void {
     this.saveSearchToLocalStorage();
 
-    const dialogRef = this.dialog.open(this.addMatrix, {
+    const dialogRef = this.dialog.open(this.searchResult, {
       width: "500px",
       panelClass: "popup-center",
     });

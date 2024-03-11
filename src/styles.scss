@@ -72,6 +72,12 @@ input[type="checkbox"] + span {
   }
 }
 @layer components {
+  .activeItem{
+    @apply tw-bg-secondColor;
+    span{
+      @apply tw-bg-mainColor tw-text-white #{!important}
+    }
+  }
   .flex-box {
     @apply tw-flex;
     @apply tw-items-center;
