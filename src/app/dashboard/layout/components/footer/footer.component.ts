@@ -1,5 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { Router } from '@angular/router';
+import { PrintComponent } from 'src/app/shared/print/print.component';
 import { ReadersComponent } from 'src/app/shared/readers/readers.component';
 
 @Component({
@@ -10,7 +12,7 @@ import { ReadersComponent } from 'src/app/shared/readers/readers.component';
 export class FooterComponent implements OnInit {
   isOpenMenu: boolean = false;
 
-  constructor(public dialog: MatDialog) { }
+  constructor(public dialog: MatDialog,private router: Router) { }
 
   ngOnInit() {
   }
@@ -29,5 +31,22 @@ export class FooterComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       console.log("The dialog was closed");
     });
+  }
+
+  openPrint(): void {
+    const dialogRef = this.dialog.open(PrintComponent, {
+      width: "600px",
+      panelClass: "popup-center",
+      data:this.isOpenMenu = false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("The dialog was closed");
+    });
+  }
+
+  openFavorite(){
+    this.router.navigate(['/favorite']);
+    this.isOpenMenu = false
   }
 }
