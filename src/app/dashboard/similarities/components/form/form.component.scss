@@ -1,0 +1,57 @@
+:host ::ng-deep{
+    .mat-elevation-z2{
+        margin: 0px;
+        margin-bottom: 1px;
+        box-shadow: none !important;
+        border: 1px solid #eee;
+        border-radius: 0;
+        background: #fafafa;
+        button{
+            border-radius: 0;
+            border: 0;
+        }
+        .mat-slider.mat-accent .mat-slider-track-fill, .mat-slider.mat-accent .mat-slider-thumb, .mat-slider.mat-accent .mat-slider-thumb-label{
+            background-color: #94a684;
+        }
+        .skip-next{
+            transform: rotate(180deg);
+        }
+        .skip-next{
+            transform: rotate(180deg);
+        }
+        button:first-of-type{
+            transform: rotate(-180deg);
+        }
+    }
+    .mat-elevation-z1{
+        margin: 5px 0 0 0px;
+        margin-bottom: 1px;
+        box-shadow: none !important;
+        border: 1px solid #eee;
+        border-radius: 0;
+        background: #E4E4D0;
+
+    }
+    .mat-expansion-panel{
+        background: #fff;
+        padding: 0px 26px;
+        border: 1px solid #eee;
+        margin-top: 5px !important;
+        border-radius: 0 !important;
+    }
+    .mat-expansion-panel .mat-expansion-panel-header{
+        padding: 0 10px 0 5px
+    }
+    .mat-expansion-panel{
+        min-width: auto !important;
+    }
+    table tr td{
+        padding-top: 10px;
+        padding-bottom: 10px;
+        line-height: 2;
+        font-size: 16px;
+        font-family: 'Cairo', sans-serif !important;
+
+        // font-family: 'Alkalami','serif' !important;
+    }
+}

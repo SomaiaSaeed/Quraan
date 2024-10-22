@@ -7,7 +7,7 @@
 	</button>
 	<div *ngIf="isOpenMenu"
 		class="tw-bg-white tw-py-3 tw-w-48 tw-h-auto tw-border tw-border-gray-200 tw-rounded-md tw-absolute tw-top-[-350px] tw-right-[30px] tw-shadow-xl3 tw-shadow-gray-200">
-		<button type="" mat-flat-button
+		<button (click)="openSimilarities()" type="" mat-flat-button
 			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
 			عدد المتشابهات
 		</button>
@@ -19,10 +19,10 @@
 			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
 			القراء
 		</button>
-		<button type="" mat-flat-button
+		<!-- <button type="" mat-flat-button
 			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
 			متشابهات السـور
-		</button>
+		</button> -->
 		<button type="" mat-flat-button
 			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
 			السجدات

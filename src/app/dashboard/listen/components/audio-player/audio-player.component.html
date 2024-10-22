@@ -21,7 +21,7 @@
     [expanded]="true">
   </ngx-audio-player>
 </div>
-<div *ngIf="data.length == 0" class="tw-text-center tw-pt-20">
-  <img src="../../../../../assets/images/quran-rehal-svgrepo-com.svg" class="tw-w-24 tw-m-auto tw-opacity-40" alt="">
-  <p class="tw-text-2xl tw-font-bold tw-mt-4">لا توجد نتائج بحث !</p>
+<div  class="tw-text-center tw-pt-20">
+  <app-no-results *ngIf="data.length == 0"></app-no-results>
 </div>
+

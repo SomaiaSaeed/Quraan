@@ -15,7 +15,7 @@ import { AudioPlayerComponent } from './components/audio-player/audio-player.com
   declarations: [
     ListenComponent,
     FormComponent,
-    AudioPlayerComponent
+    AudioPlayerComponent,
   ],
   imports: [
     CommonModule,
