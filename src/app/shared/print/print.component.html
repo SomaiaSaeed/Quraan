@@ -1,0 +1,33 @@
+<div>
+  <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
+    <h2 class="tw-mb-0">طبـاعة</h2>
+    <button title="close" (click)="closeDialog()" mat-flat-button class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
+      <span class="tw-text-white tw-text-sm tw-block tw-py-px">
+        <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
+      </span>
+    </button>
+  </header>
+  <section>
+    <h4 class="tw-font-medium">اسـم السورة</h4>
+    <div class="tw-flex tw-items-center tw-gap-5">
+      <div class="form-group group">
+        <div class="relative">
+          <label for="" class="labelInput">مـن</label>
+          <input type="text" name="search" placeholder="رقم الاية" class="input">
+        </div>
+      </div>
+      <div class="form-group group">
+        <div class="relative">
+          <label for="" class="labelInput">إلى</label>
+          <input type="text" name="search" placeholder="رقم الاية" class="input">
+        </div>
+      </div>
+    </div>
+    <div class="tw-flex tw-justify-end">
+      <button type="submit"
+        class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-7 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+        طباعة
+      </button>
+    </div>
+  </section>
+</div>
