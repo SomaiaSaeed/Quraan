@@ -54,4 +54,9 @@ export class FooterComponent implements OnInit {
     this.router.navigate(['/similarities']);
     this.isOpenMenu = false
   }
+
+  openAlsajadat(){
+    this.router.navigate(['/alsajadat']);
+    this.isOpenMenu = false
+  }
 }
