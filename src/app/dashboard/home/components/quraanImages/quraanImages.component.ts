@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { OwlOptions } from "ngx-owl-carousel-o";
+import { OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 
 const QuranInJsonURL = "assets/jsonData/QuranInJson.json";
 const QuranPagesURL = "assets/jsonData/QuranPages.json";
@@ -92,8 +92,19 @@ interface AllAya {
   styleUrls: ["./quraanImages.component.scss"],
 })
 export class QuraanImagesComponent implements OnInit {
+  onPageChange($event: SlidesOutputData) {
+    this.pageNumber = parseInt($event?.slides?.[0]?.id ?? "1");
+    this.resetDrawing();
+    if (this._quranInJson == null || this._quranPages == null) {
+      this.loadQuranJson();
+    } else {
+      this.generateMotashabehatOfSelectedPage(this.pageNumber);
+      this.determineHighlight();
+      this.drawColoredWords();
+    }
+  }
   @Input() images: any[] = [];
-  @Input() pageNumber: number = 1;
+  pageNumber: number = 1;
 
   @Input("selectedMotashabeh2")
   set setNofMotashabeh(num: number | null) {
@@ -128,7 +139,6 @@ export class QuraanImagesComponent implements OnInit {
   lastTop: number = 10;
   marginTop: number = 50;
   isShiftedVertically: boolean = false;
-  quranPageImage: string = "";
   arrOfAyaWords: string[] = [];
   motashabehatSpans: MotashabehatSpan[] = [];
   lastTopRight: number = 0;
@@ -157,24 +167,21 @@ export class QuraanImagesComponent implements OnInit {
 
   constructor(private _http: HttpClient) {}
 
-  ngOnInit(): void {
-    this.quranPageImage = `assets/QuranImages_50/${this.pageNumber}.png`;
-    this.loadQuranPages();
-    this.loadQuranJson();
-    this.generateMotashabehatOfSelectedPage(this.pageNumber);
-    this.determineHighlight();
-    this.drawColoredWords();
-  }
+  ngOnInit(): void {}
 
   loadQuranPages(): void {
     this._http.get<any>(QuranPagesURL).subscribe((response) => {
       this._quranPages = response;
+      this.generateMotashabehatOfSelectedPage(this.pageNumber);
+      this.determineHighlight();
+      this.drawColoredWords();
     });
   }
 
   loadQuranJson(): void {
     this._http.get<any>(QuranInJsonURL).subscribe((response) => {
       this._quranInJson = response;
+      this.loadQuranPages();
     });
   }
 
@@ -271,7 +278,7 @@ export class QuraanImagesComponent implements OnInit {
   }
 
   private generateMotashabehatOfSelectedPage(pageNumber: number): void {
-    this._quranPages.pages[pageNumber - 1].ayas.forEach((ayaInPage: any) => {
+    this._quranPages[pageNumber].ayas.forEach((ayaInPage: any) => {
       this.arrOfAyaWords = ayaInPage.text.split(" ");
       this.searchWord = this.arrOfAyaWords[0];
       let isCheckIn = false;
@@ -305,7 +312,7 @@ export class QuraanImagesComponent implements OnInit {
           this.searchWord = this.searchWord + " " + this.arrOfAyaWords[i];
         }
 
-        this._quranInJson.suras.forEach((sura: any) => {
+        this._quranInJson.forEach((sura: any) => {
           sura.aya.forEach((aya: any) => {
             if (aya.text.startsWith(this.searchWord)) {
               this.x.push({
@@ -483,6 +490,7 @@ export class QuraanImagesComponent implements OnInit {
       // ayaDetails = this.addStaticMotashabehat(ayaInPage, ayaDetails);
       this.allAyas.push(ayaDetails);
     });
+    console.log(`generated Ayas: ${JSON.stringify(this.allAyas)}`);
   }
 
   private determineHighlight(): void {
@@ -597,6 +605,7 @@ export class QuraanImagesComponent implements OnInit {
       });
       this.drawMotashabehat(aya, ayaStart, ayaEnd);
     });
+    console.log(`generated motsahbeh: ${JSON.stringify(this.inputs)}`);
   }
 
   private drawMotashabehat(

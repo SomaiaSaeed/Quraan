@@ -1,4 +1,4 @@
-<owl-carousel-o [options]="customOptions">
+<owl-carousel-o [options]="customOptions" (change)="onPageChange($event)">
   <ng-container *ngFor="let img of images">
       <ng-template carouselSlide [id]="img.id">
           <img [src]="img.src" [alt]="img.alt" [title]="img.title" class="tw-w-auto">
