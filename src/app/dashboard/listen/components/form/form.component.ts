@@ -260,20 +260,46 @@ export class FormComponent implements OnInit {
   }
   ayat: any[] = []
   toAyaFun($event: any) {
+    this.sorats = [];
+    this.ayat = [];
+         
 
-    this.sorats = []
-    this.ayat = []
 
+    
+    // Resetting toAya to the selected value from the event
     this.toAya = $event.value.id;
-    for (this.fromAya; this.fromAya < this.toAya; this.fromAya++) {
-      this.ayat.push(this.fromAya);
-    }
-    this.audioCount = this.ayat.length;
-    this.ayat.forEach((aya: any) => {
-      this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya;
-      this.sorats.push(this.roow);
+  
+    // Ensure fromAya is a number and less than or equal to toAya
+    let fromAyaNum = parseInt(this.fromAya);
+    let toAyaNum = parseInt(this.toAya);
+  
+    // Fetch the surah's ayahs using the correct API to get accurate ayah numbers
+    let surahUrl = "http://api.alquran.cloud/v1/surah/" + this.fromSora; // Fetch from the current surah
+  
+    this.http.get<any>(surahUrl).subscribe(res => {
+      // Get the list of ayahs from the surah
+      let ayahs = res.data.ayahs;
+  
+      // Filter the ayahs based on fromAya and toAya
+      let filteredAyahs = ayahs.filter((aya: any) => aya.numberInSurah >= fromAyaNum && aya.numberInSurah <= toAyaNum);
+  
+      // Set the total number of Ayahs to play
+      this.audioCount = filteredAyahs.length;
+  
+      // Construct the URLs for the ayah audio files
+      filteredAyahs.forEach((aya: any) => {
+        this.roow = 'http://cdn.alquran.cloud/media/audio/ayah/ar.alafasy/' + aya.number;
+  
+        // Push the correct ayah audio link into sorats
+        this.sorats.push({
+          link: this.roow,
+          title: aya.text,  // Use the actual Ayah text
+          artist: 'اسـم القارئ'
+        });
+      });
     });
   }
+  
 
   fromRobFun($event: any) {
     this.fromRob = $event.value.ayaId;
