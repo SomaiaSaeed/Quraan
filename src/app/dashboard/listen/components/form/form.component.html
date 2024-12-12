@@ -10,10 +10,10 @@
 						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 					<!-- من سورة" -->
 					<!-- (selectionChange)="fromSoraFun($event)" -->
-					<mat-select formControlName="FromSora">
+					<mat-select formControlName="fromSoraSelect" (selectionChange)="updateFromAya()">
 						<!-- *ngFor="let sora of soras; let i = index" [value]="sora" -->
 						<!-- {{ sora.soraName }} -->
-						<mat-option  *ngFor="let sora of soras" [value]="sora">{{ sora.name }}</mat-option>
+						<mat-option  *ngFor="let sora of soras" [value]="sora" [disabled]="sora === toSora">{{ sora.name }}</mat-option>
 					</mat-select>
 				</mat-form-field>
 
@@ -25,9 +25,9 @@
 						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 					<!--  (selectionChange)="toSoraFun($event)" -->
 					<!-- *ngFor="let sora of soras; let i = index" [value]="sora" -->
-					<mat-select>
+					<mat-select formControlName="toSoraSelect" (selectionChange)="updateToAya()">
 						<!-- {{ sora.soraName }} -->
-						<mat-option></mat-option>
+						<mat-option  *ngFor="let sora of soras" [value]="sora" [disabled]="sora === fromSora">{{ sora.name }}</mat-option>
 					</mat-select>
 				</mat-form-field>
 			</div>
@@ -42,10 +42,10 @@
 					<span matSuffix
 						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 					<!-- (selectionChange)="fromAyaFun($event)" -->
-					<mat-select>
+					<mat-select formControlName="fromAyaSelect">
 						<!-- *ngFor="let number of fromSoraAyat" [value]="number" -->
 						<!-- {{ number.id }} -->
-						<mat-option></mat-option>
+						<mat-option *ngFor="let ayah of ayahs" [value]="ayah" [disabled]="ayah === toAya">{{ ayah }}</mat-option>
 					</mat-select>
 				</mat-form-field>
 				<!-- إلى اية -->
@@ -55,10 +55,10 @@
 					<span matSuffix
 						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 					<!-- (selectionChange)="toAyaFun($event)" -->
-					<mat-select>
+					<mat-select formControlName="toAyaSelect" (selectionChange)="u()">
 						<!-- *ngFor="let number of toSoraAyat" [value]="number" -->
 						<!-- {{number.id}} -->
-						<mat-option></mat-option>
+						<mat-option *ngFor="let ayah of ayahs" [value]="ayah" [disabled]="ayah === fromAya">{{ ayah }}</mat-option>
 					</mat-select>
 				</mat-form-field>
 			</div>
@@ -215,8 +215,10 @@
 			class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
 			إعادة تعيين
 		</button>
+
+		<button type="submit" [disabled]="form.invalid">إرسال</button>
 	</div>
 </form>
 <!-- result -->
  <!--  [data]="sorats" -->
-<app-audio-player></app-audio-player>
+<app-audio-player [data]="selectedAyahs"></app-audio-player>

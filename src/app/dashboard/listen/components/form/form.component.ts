@@ -13,11 +13,24 @@ import { ListenService } from '../../services/listen.service';
 export class FormComponent implements OnInit {
 	form: FormGroup; // تعريف النموذج
 	soras: any[] = []; // قائمة الخيارات
+	fromSora: any; // القيمة المختارة من ال select الأول
+	toSora: any; // القيمة المختارة من ال select الثاني
+	fromAya: any; // القيمة المختارة من ال select الأول
+	toAya: any; // القيمة المختارة من ال select الثاني
+	selectedSurah: any; // السورة المختارة
+	selectedAyah: number | null = null; // الآية المختارة
+	ayahs: number[] = []; // قائمة الآيات
+	sounds: any;
+	selectedAyahs: any[] = [];
+
 
 	constructor(private fb: FormBuilder, private _listenService: ListenService) {
 		// إنشاء النموذج باستخدام FormBuilder
 		this.form = this.fb.group({
-			FromSora: ['', Validators.required] // استخدام التحقق من الصحة
+			fromSoraSelect: ['', Validators.required],
+			toSoraSelect: [''],
+			fromAyaSelect: ['', Validators.required],
+			toAyaSelect: ['', Validators.required],
 		});
 	}
 
@@ -25,15 +38,55 @@ export class FormComponent implements OnInit {
 		this.getSoras()
 	}
 
-	// Get soras
+	//Get soras
 	getSoras() {
-		this._listenService.getSoras().subscribe((response: any) => {
+		this._listenService.getAllSoras().subscribe((response: any) => {
 			this.soras = response.data; // تحميل الخيارات
-			console.log("response",response)
+			console.log("response", response)
 		});
 	}
 
+	//Get ayas
+	onSurahChange(id: number): void {
+		this._listenService.getSurahById(id).subscribe((response) => {
+			const totalAyahs = response.data.numberOfAyahs;
+			this.ayahs = Array.from({ length: totalAyahs }, (_, i) => i + 1);
+		});
+	}
+
+	generateAudioLinks(): void {
+		const fromAya = this.form.get('fromAya')?.value;
+		const toAya = this.form.get('toAya')?.value;
+
+		this.selectedAyahs = [];  // مصفوفة لتخزين روابط الصوت
+
+		// إنشاء روابط الصوت لكل آية من الآية المحددة
+		for (let ayah = fromAya; ayah <= toAya; ayah++) {
+			const audioLink = `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayah}.mp3`; // رابط الصوت للآية
+			this.selectedAyahs.push(audioLink);  // إضافة الرابط للمصفوفة
+		}
+
+		console.log(this.selectedAyahs);  // تحقق من المصفوفة النهائية
+	}
+
+	updateFromAya() {
+		this.fromSora = this.form.get('fromSoraSelect')?.value;
+		this.onSurahChange(this.fromSora.number)
+	}
+
+	updateToAya() {
+		this.toSora = this.form.get('toSoraSelect')?.value;
+		this.onSurahChange(this.toSora.number)
+
+	}
+
+	u() {
+		this.generateAudioLinks();
+		console.log("sds", this.selectedAyahs)
+	}
+
 	onSubmit(): void {
+		this.generateAudioLinks();
 		console.log(this.form.value); // إخراج بيانات النموذج عند الإرسال
 	}
 }
