@@ -45,7 +45,7 @@
 					<mat-select formControlName="fromAyaSelect">
 						<!-- *ngFor="let number of fromSoraAyat" [value]="number" -->
 						<!-- {{ number.id }} -->
-						<mat-option *ngFor="let ayah of ayahs" [value]="ayah" [disabled]="ayah === toAya">{{ ayah }}</mat-option>
+						<mat-option *ngFor="let ayah of ayahs" [value]="ayah" [disabled]="ayah === toAya">{{ ayah.number }}</mat-option>
 					</mat-select>
 				</mat-form-field>
 				<!-- إلى اية -->
@@ -58,7 +58,7 @@
 					<mat-select formControlName="toAyaSelect" (selectionChange)="u()">
 						<!-- *ngFor="let number of toSoraAyat" [value]="number" -->
 						<!-- {{number.id}} -->
-						<mat-option *ngFor="let ayah of ayahs" [value]="ayah" [disabled]="ayah === fromAya">{{ ayah }}</mat-option>
+						<mat-option *ngFor="let ayah of ayahs" [value]="ayah" [disabled]="ayah === fromAya">{{ ayah.number }}</mat-option>
 					</mat-select>
 				</mat-form-field>
 			</div>

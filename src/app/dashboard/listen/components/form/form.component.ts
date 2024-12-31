@@ -19,10 +19,12 @@ export class FormComponent implements OnInit {
 	toAya: any; // القيمة المختارة من ال select الثاني
 	selectedSurah: any; // السورة المختارة
 	selectedAyah: number | null = null; // الآية المختارة
-	ayahs: number[] = []; // قائمة الآيات
+	ayahs: any[] = []; // قائمة الآيات
 	sounds: any;
 	selectedAyahs: any[] = [];
 
+	ayahLinks: string[] = [];
+	suras: any[] = []; // أسماء السور
 
 	constructor(private fb: FormBuilder, private _listenService: ListenService) {
 		// إنشاء النموذج باستخدام FormBuilder
@@ -35,8 +37,26 @@ export class FormComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.getSoras()
+		this.getSoras();
+		this.loadAllAyahs()
 	}
+
+	  // تحميل جميع الروابط الصوتية
+	  loadAllAyahs(): void {
+		this._listenService.getAllAyahs().subscribe((links) => {
+		  this.ayahLinks = links;
+			console.log("this.ayahLinks",this.ayahLinks)
+		});
+	  }
+	
+	  // تحميل السور
+	  loadSuras(id: number): void {
+		this._listenService.getSurahAyahs(id).subscribe((response: any) => {
+		  this.ayahs = [...response];
+		  console.log("this.suras",this.ayahs)
+		});
+	  }
+
 
 	//Get soras
 	getSoras() {
@@ -47,12 +67,12 @@ export class FormComponent implements OnInit {
 	}
 
 	//Get ayas
-	onSurahChange(id: number): void {
-		this._listenService.getSurahById(id).subscribe((response) => {
-			const totalAyahs = response.data.numberOfAyahs;
-			this.ayahs = Array.from({ length: totalAyahs }, (_, i) => i + 1);
-		});
-	}
+	// onSurahChange(id: number): void {
+	// 	this._listenService.getSurahById(id).subscribe((response) => {
+	// 		const totalAyahs = response.data.numberOfAyahs;
+	// 		this.ayahs = Array.from({ length: totalAyahs }, (_, i) => i + 1);
+	// 	});
+	// }
 
 	generateAudioLinks(): void {
 		const fromAya = this.form.get('fromAya')?.value;
@@ -71,12 +91,12 @@ export class FormComponent implements OnInit {
 
 	updateFromAya() {
 		this.fromSora = this.form.get('fromSoraSelect')?.value;
-		this.onSurahChange(this.fromSora.number)
+		this.loadSuras(this.fromSora.number)
 	}
 
 	updateToAya() {
 		this.toSora = this.form.get('toSoraSelect')?.value;
-		this.onSurahChange(this.toSora.number)
+		this.loadSuras(this.toSora.number)
 
 	}
 
