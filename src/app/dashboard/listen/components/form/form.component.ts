@@ -4,12 +4,16 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ListenService } from '../../services/listen.service';
-
+interface Track {
+	title: string;
+	src: string;
+}
 @Component({
 	selector: 'app-form',
 	templateUrl: './form.component.html',
 	styleUrls: ['./form.component.scss']
 })
+
 export class FormComponent implements OnInit {
 	form: FormGroup; // تعريف النموذج
 	soras: any[] = []; // قائمة الخيارات
@@ -26,87 +30,89 @@ export class FormComponent implements OnInit {
 	ayahLinks: string[] = [];
 	suras: any[] = []; // أسماء السور
 
+
+	searchInstance = new Search();  // إنشاء كائن من الكلاس
+	suraNames: string[] = [];
+	ayaNumbersFrom: number[] = [];
+	ayaNumbersTo: number[] = [];
+	selectedAyaNumbers: number[] = []; // مصفوفة لحفظ الأيات بين من و إلى
+	audioFiles: Track[] = []; // مصفوفة ملفات الصوت
+
+
 	constructor(private fb: FormBuilder, private _listenService: ListenService) {
 		// إنشاء النموذج باستخدام FormBuilder
 		this.form = this.fb.group({
-			fromSoraSelect: ['', Validators.required],
-			toSoraSelect: [''],
-			fromAyaSelect: ['', Validators.required],
-			toAyaSelect: ['', Validators.required],
+			suraFrom: [''],
+			ayaFrom: [''],
+			suraTo: [''],
+			ayaTo: ['']
 		});
 	}
 
 	ngOnInit(): void {
-		this.getSoras();
-		this.loadAllAyahs()
+		this.getSuraNames()
 	}
 
-	  // تحميل جميع الروابط الصوتية
-	  loadAllAyahs(): void {
-		this._listenService.getAllAyahs().subscribe((links) => {
-		  this.ayahLinks = links;
-			console.log("this.ayahLinks",this.ayahLinks)
-		});
-	  }
-	
-	  // تحميل السور
-	  loadSuras(id: number): void {
-		this._listenService.getSurahAyahs(id).subscribe((response: any) => {
-		  this.ayahs = [...response];
-		  console.log("this.suras",this.ayahs)
-		});
-	  }
-
-
-	//Get soras
-	getSoras() {
-		this._listenService.getAllSoras().subscribe((response: any) => {
-			this.soras = response.data; // تحميل الخيارات
-			console.log("response", response)
-		});
+	getSuraNames() {
+		this.suraNames = [...new Set(this.searchInstance.table_othmani.map(item => item.Sura_Name))];
 	}
 
-	//Get ayas
-	// onSurahChange(id: number): void {
-	// 	this._listenService.getSurahById(id).subscribe((response) => {
-	// 		const totalAyahs = response.data.numberOfAyahs;
-	// 		this.ayahs = Array.from({ length: totalAyahs }, (_, i) => i + 1);
-	// 	});
-	// }
+	// تحديث أرقام الآيات بناءً على السورة المختارة
+	updateAyaNumbers(type: 'from' | 'to') {
+		const selectedSura = this.form.get(`sura${type.charAt(0).toUpperCase() + type.slice(1)}`)?.value;
 
-	generateAudioLinks(): void {
-		const fromAya = this.form.get('fromAya')?.value;
-		const toAya = this.form.get('toAya')?.value;
+		console.log("selectedSura", selectedSura)
 
-		this.selectedAyahs = [];  // مصفوفة لتخزين روابط الصوت
+		if (selectedSura) {
+			// إيجاد كل الآيات الخاصة بالسورة المختارة
+			const suraData = this.searchInstance.table_othmani.filter(item => item.Sura_Name === selectedSura);
 
-		// إنشاء روابط الصوت لكل آية من الآية المحددة
-		for (let ayah = fromAya; ayah <= toAya; ayah++) {
-			const audioLink = `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayah}.mp3`; // رابط الصوت للآية
-			this.selectedAyahs.push(audioLink);  // إضافة الرابط للمصفوفة
+			// استخراج أرقام الآيات الفعلية
+			const ayaNumbers = suraData.map(item => Number(item.Aya_N));
+
+			if (type === 'from') {
+				this.ayaNumbersFrom = ayaNumbers;
+				this.form.get('ayaFrom')?.setValue('');  // إعادة تعيين القيمة
+			} else {
+				this.ayaNumbersTo = ayaNumbers;
+				this.form.get('ayaTo')?.setValue('');
+			}
+		} else {
+			// إذا لم يتم اختيار السورة
+			if (type === 'from') {
+				this.ayaNumbersFrom = [];
+			} else {
+				this.ayaNumbersTo = [];
+			}
 		}
-
-		console.log(this.selectedAyahs);  // تحقق من المصفوفة النهائية
 	}
 
-	updateFromAya() {
-		this.fromSora = this.form.get('fromSoraSelect')?.value;
-		this.loadSuras(this.fromSora.number)
-	}
+	// تحديث المصفوفة بناءً على الأرقام المختارة (من - إلى)
+  generateAyaNumbers() {
+    const ayaFrom = this.form.get('ayaFrom')?.value;
+    const ayaTo = this.form.get('ayaTo')?.value;
 
-	updateToAya() {
-		this.toSora = this.form.get('toSoraSelect')?.value;
-		this.loadSuras(this.toSora.number)
+    if (ayaFrom && ayaTo) {
+      this.selectedAyaNumbers = Array.from({ length: ayaTo - ayaFrom + 1 }, (_, i) => i + ayaFrom);
+      
+      // إنشاء مصفوفة Track تحتوي على { title, src }
+      this.audioFiles = this.selectedAyaNumbers.map(ayahNumber => {
+        // البحث عن نص الآية في table_othmani باستخدام Aya_N
+        const aya =  this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber)); // التأكد من أن Aya_N هو string
+        const title = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`; // استخدام AyaText_Othmani إذا وجد
 
-	}
+        return {
+          title: title, // النص المستخرج
+          src: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
+        };
+      });
+      
+      console.log(this.audioFiles);  // تحقق من المصفوفة
+    }
+  }
 
-	u() {
-		this.generateAudioLinks();
-		console.log("sds", this.selectedAyahs)
-	}
-
-	onSubmit(): void {
-		this.generateAudioLinks();
-		console.log(this.form.value); // إخراج بيانات النموذج عند الإرسال
-	}
+	updateToAya() { }
+	updateFromAya() { }
+	u() { }
+	onSubmit() { }
 }
