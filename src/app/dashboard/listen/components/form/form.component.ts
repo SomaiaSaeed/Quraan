@@ -88,28 +88,28 @@ export class FormComponent implements OnInit {
 	}
 
 	// تحديث المصفوفة بناءً على الأرقام المختارة (من - إلى)
-  generateAyaNumbers() {
-    const ayaFrom = this.form.get('ayaFrom')?.value;
-    const ayaTo = this.form.get('ayaTo')?.value;
+	generateAyaNumbers() {
+		const ayaFrom = this.form.get('ayaFrom')?.value;
+		const ayaTo = this.form.get('ayaTo')?.value;
 
-    if (ayaFrom && ayaTo) {
-      this.selectedAyaNumbers = Array.from({ length: ayaTo - ayaFrom + 1 }, (_, i) => i + ayaFrom);
-      
-      // إنشاء مصفوفة Track تحتوي على { title, src }
-      this.audioFiles = this.selectedAyaNumbers.map(ayahNumber => {
-        // البحث عن نص الآية في table_othmani باستخدام Aya_N
-        const aya =  this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber)); // التأكد من أن Aya_N هو string
-        const title = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`; // استخدام AyaText_Othmani إذا وجد
+		if (ayaFrom && ayaTo) {
+			this.selectedAyaNumbers = Array.from({ length: ayaTo - ayaFrom + 1 }, (_, i) => i + ayaFrom);
 
-        return {
-          title: title, // النص المستخرج
-          src: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
-        };
-      });
-      
-      console.log(this.audioFiles);  // تحقق من المصفوفة
-    }
-  }
+			// إنشاء مصفوفة Track تحتوي على { title, src }
+			this.audioFiles = this.selectedAyaNumbers.map(ayahNumber => {
+				// البحث عن نص الآية في table_othmani باستخدام Aya_N
+				const aya = this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber)); // التأكد من أن Aya_N هو string
+				const title = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`; // استخدام AyaText_Othmani إذا وجد
+
+				return {
+					title: title, // النص المستخرج
+					src: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
+				};
+			});
+
+			console.log(this.audioFiles);  // تحقق من المصفوفة
+		}
+	}
 
 	updateToAya() { }
 	updateFromAya() { }
