@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ListenService } from '../../services/listen.service';
 interface Track {
 	title: string;
-	src: string;
+	link: string;
 }
 @Component({
 	selector: 'app-form',
@@ -103,7 +103,7 @@ export class FormComponent implements OnInit {
 
 				return {
 					title: title, // النص المستخرج
-					src: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
+					link: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
 				};
 			});
 
