@@ -78,10 +78,10 @@
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
 						<!-- (selectionChange)="fromPartFun($event)" -->
-						<mat-select>
+						<mat-select formControlName="JozFrom"> 
 							<!-- *ngFor="let part of parts; let i = index" [value]="part"> -->
 							<!-- {{part.elPart}} -->
-							<mat-option></mat-option>
+							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
 						</mat-select>
 					</mat-form-field>
 
@@ -92,10 +92,10 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- (selectionChange)="toPartFun($event)" -->
-						<mat-select>
+						<mat-select formControlName="JozTo"  (selectionChange)="getHezbNumbersInRange()">
 							<!--  *ngFor="let part of parts; let i = index" [value]="part" -->
 							<!-- {{part.elPart}} -->
-							<mat-option></mat-option>
+							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
 						</mat-select>
 					</mat-form-field>
 				</div>
@@ -111,9 +111,9 @@
 						<!-- من سورة" -->
 						<!-- (selectionChange)="fromHezpFun($event)" -->
 						<!-- *ngFor="let h of hezb; let i = index" [value]="h" -->
-						<mat-select>
+						<mat-select formControlName="hezbFrom">
 							<!-- {{ h.nOFHezb }} -->
-							<mat-option></mat-option>
+							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
 						</mat-select>
 					</mat-form-field>
 
@@ -123,11 +123,11 @@
 						<mat-label class="tw-text-sm">إلى</mat-label>
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- (selectionChange)="toHezpFun($event)" -->
+						<!--(selectionChange)="getRubbNumbersInRange()" -->
 						<!--  *ngFor="let h of hezb; let i = index" [value]="h" -->
-						<mat-select>
+						<mat-select formControlName="hezbTo" (selectionChange)="getRubbNumbersInRange()">
 							<!-- {{ h.nOFHezb }} -->
-							<mat-option></mat-option>
+							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
 						</mat-select>
 					</mat-form-field>
 				</div>
@@ -144,10 +144,10 @@
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
 						<!-- (selectionChange)="fromRobFun($event)" -->
-						<mat-select>
+						<mat-select formControlName="rubFrom">
 							<!-- *ngFor="let r of rob; let i = index" [value]="r" -->
 							<!-- {{ r.rub }} -->
-							<mat-option></mat-option>
+							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
 						</mat-select>
 					</mat-form-field>
 
@@ -158,10 +158,10 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- (selectionChange)="toRobFun($event)" -->
-						<mat-select>
+						<mat-select formControlName="rubTo" (selectionChange)="getPagesNumbersInRange()">
 							<!-- *ngFor="let r of rob; let i = index" [value]="r" -->
 							<!-- {{ r.rub }} -->
-							<mat-option></mat-option>
+							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
 						</mat-select>
 					</mat-form-field>
 				</div>
@@ -177,9 +177,9 @@
 						<!-- من سورة" -->
 						<!-- (selectionChange)="fromPageFun($event)" -->
 						<!--  *ngFor="let page of pages; let i = index" [value]="page" -->
-						<mat-select>
+						<mat-select formControlName="pageFrom">
 							<!-- {{ page.nOFPage}} -->
-							<mat-option>
+							<mat-option  *ngFor="let page of pagesList" [value]="page">{{page}}
 							</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -192,9 +192,9 @@
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!--  (selectionChange)="toPageFun($event)" -->
 						<!-- *ngFor="let page of pages; let i = index" [value]="page" -->
-						<mat-select>
+						<mat-select formControlName="pageTo">
 							<!-- {{ page.nOFPage}} -->
-							<mat-option>
+							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}>
 							</mat-option>
 						</mat-select>
 					</mat-form-field>
