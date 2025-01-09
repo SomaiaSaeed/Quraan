@@ -1,4 +1,4 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-mt-8 tw-border tw-border-gray-200 tw-p-4">
+<form [formGroup]="form" class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-mt-8 tw-border tw-border-gray-200 tw-p-4">
 	<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
 		<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
 			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">اسم السورة</label>
@@ -77,10 +77,7 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
-						<!-- (selectionChange)="fromPartFun($event)" -->
 						<mat-select formControlName="JozFrom"> 
-							<!-- *ngFor="let part of parts; let i = index" [value]="part"> -->
-							<!-- {{part.elPart}} -->
 							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -93,8 +90,6 @@
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- (selectionChange)="toPartFun($event)" -->
 						<mat-select formControlName="JozTo"  (selectionChange)="getHezbNumbersInRange()">
-							<!--  *ngFor="let part of parts; let i = index" [value]="part" -->
-							<!-- {{part.elPart}} -->
 							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -109,8 +104,6 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
-						<!-- (selectionChange)="fromHezpFun($event)" -->
-						<!-- *ngFor="let h of hezb; let i = index" [value]="h" -->
 						<mat-select formControlName="hezbFrom">
 							<!-- {{ h.nOFHezb }} -->
 							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
@@ -123,8 +116,6 @@
 						<mat-label class="tw-text-sm">إلى</mat-label>
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!--(selectionChange)="getRubbNumbersInRange()" -->
-						<!--  *ngFor="let h of hezb; let i = index" [value]="h" -->
 						<mat-select formControlName="hezbTo" (selectionChange)="getRubbNumbersInRange()">
 							<!-- {{ h.nOFHezb }} -->
 							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
@@ -143,10 +134,7 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
-						<!-- (selectionChange)="fromRobFun($event)" -->
 						<mat-select formControlName="rubFrom">
-							<!-- *ngFor="let r of rob; let i = index" [value]="r" -->
-							<!-- {{ r.rub }} -->
 							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -157,10 +145,7 @@
 						<mat-label class="tw-text-sm">إلى</mat-label>
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- (selectionChange)="toRobFun($event)" -->
 						<mat-select formControlName="rubTo" (selectionChange)="getPagesNumbersInRange()">
-							<!-- *ngFor="let r of rob; let i = index" [value]="r" -->
-							<!-- {{ r.rub }} -->
 							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -175,10 +160,7 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
-						<!-- (selectionChange)="fromPageFun($event)" -->
-						<!--  *ngFor="let page of pages; let i = index" [value]="page" -->
 						<mat-select formControlName="pageFrom">
-							<!-- {{ page.nOFPage}} -->
 							<mat-option  *ngFor="let page of pagesList" [value]="page">{{page}}
 							</mat-option>
 						</mat-select>
@@ -190,11 +172,8 @@
 						<mat-label class="tw-text-sm">إلى</mat-label>
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!--  (selectionChange)="toPageFun($event)" -->
-						<!-- *ngFor="let page of pages; let i = index" [value]="page" -->
-						<mat-select formControlName="pageTo">
-							<!-- {{ page.nOFPage}} -->
-							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}>
+						<mat-select formControlName="pageTo" (selectionChange)="getAyatOfOages()">
+							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}
 							</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -211,12 +190,10 @@
 		</button>
 		<span class="tw-mx-1"></span>
 		<!-- (click)="rest()" -->
-		<button type="submit" 
+		<button type="submit"  (click)="resetForm()"
 			class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
 			إعادة تعيين
 		</button>
-
-		<button type="submit" [disabled]="form.invalid">إرسال</button>
 	</div>
 </form>
 
