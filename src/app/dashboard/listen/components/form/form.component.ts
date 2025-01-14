@@ -16,27 +16,12 @@ interface Track {
 
 export class FormComponent implements OnInit {
 	form: FormGroup; // تعريف النموذج
-	soras: any[] = []; // قائمة الخيارات
-	fromSora: any; // القيمة المختارة من ال select الأول
-	toSora: any; // القيمة المختارة من ال select الثاني
-	fromAya: any; // القيمة المختارة من ال select الأول
-	toAya: any; // القيمة المختارة من ال select الثاني
-	selectedSurah: any; // السورة المختارة
-	selectedAyah: number | null = null; // الآية المختارة
-	ayahs: any[] = []; // قائمة الآيات
-	sounds: any;
-	selectedAyahs: any[] = [];
-
-	ayahLinks: string[] = [];
-	suras: any[] = []; // أسماء السور
-
-
-	searchInstance = new Search();  // إنشاء كائن من الكلاس
+	searchInstance = new Search(); 
 	suraNames: string[] = [];
 	ayaNumbersFrom: number[] = [];
 	ayaNumbersTo: number[] = [];
-	selectedAyaNumbers: number[] = []; // مصفوفة لحفظ الأيات بين من و إلى
-	audioFiles: Track[] = []; // مصفوفة ملفات الصوت
+	selectedAyaNumbers: number[] = []; 
+	audioFiles: Track[] = []; 
 	ayaIdsFrom: any[] = [];
 	ayaIdsTo: any[] = [];
 	selectedAyaIds: number[] = [];
@@ -47,7 +32,6 @@ export class FormComponent implements OnInit {
 	ayatListOfPages: number[] = []
 
 	constructor(private fb: FormBuilder, private _listenService: ListenService) {
-		// إنشاء النموذج باستخدام FormBuilder
 		this.form = this.fb.group({
 			suraFrom: ['', Validators.required],
 			ayaFrom: ['', Validators.required],
