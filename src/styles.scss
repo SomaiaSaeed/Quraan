@@ -523,3 +523,8 @@ input[type="checkbox"]+span {
 .owl-theme .owl-nav {
   padding-bottom: 20px;
 }
+
+.mat-option-disabled{
+  opacity: 0.5;
+  cursor: no-drop !important;
+}

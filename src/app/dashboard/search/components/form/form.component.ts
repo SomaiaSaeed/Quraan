@@ -1,451 +1,334 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Search } from "src/app/core/services/search.service";
-import { Router } from "@angular/router";
-import { HttpClient } from "@angular/common/http";
-import { FormControl } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-
-interface Aya {
-  id: string;
-  Sura_Name: string;
-  AyaText_Othmani: string;
-  AyaText: string;
-  Aya_N: string;
-  nOFSura: string;
-  suraStart: string;
-  rub: string;
-  joz: string;
-  nOFJoz: string;
-  hezb: string;
-  nOFHezb: string;
-  nOFPage: string;
-  rubStart: string;
-  pageStart: string;
-}
-interface SuraInfo {
-  soraName: string;
-  nOFSura: string;
-  nOfAyas: number;
-}
-
-interface PartInfo {
-  nOFJoz: any;
-  elPart: string;
-}
-
-interface HezbInfo {
-  nOFHezb: string;
-}
-
-interface PageInfo {
-  nOFPage: string;
-}
-
-interface RobInfo {
-  rub: string;
-  ayaId: string; // Assuming 'id' is a string; adjust the type accordingly
-}
-
-interface AyaNumbersOfSura {
-  id: number;
-}
-
-interface SuraEvent {
-  value: {
-    nOFSura: string;
-    nOfAyas: number;
-  };
-}
-interface SearchSetting {
-  key: string;
-  finder: string;
-  finderKey: string;
+import { ListenService } from "src/app/dashboard/listen/services/listen.service";
+import { DataSharingService } from "../../services/data-sharing.service";
+interface Track {
+	// ayaText: string;
+	// name: string;
+	data: string;
 }
 @Component({
-  selector: "app-form",
-  templateUrl: "./form.component.html",
-  styleUrls: ["./form.component.scss"],
+	selector: "app-form",
+	templateUrl: "./form.component.html",
+	styleUrls: ["./form.component.scss"],
 })
 export class FormComponent implements OnInit {
-x($event: any) {
-  ;
-  // this.toppings.valueChanges.subscribe((selectedValues) => {
-    this.saveToLocalStorage("dynamic_cols", $event);
-  // });
-throw new Error('Method not implemented.');
-}
-  toppings = new FormControl("");
-  resultsList: string[] = [
-    "رقم_السورة",
-    "بداية_السورة",
-    "الربع",
-    "رقم_الجزء",
-    "الحزب",
-    "رقم_الحزب",
-    "رقم_الصفحة",
-    "بداية_الربع",
-    "بداية_الصفحة",
-    "اسم_السورة",
-    "الآية",
-  ];
+	form: FormGroup;
+	searchInstance = new Search();
+	suraNames: string[] = [];
+	ayaNumbersFrom: number[] = [];
+	ayaNumbersTo: number[] = [];
+	selectedAyaNumbers: number[] = [];
+	dataAya: Track[] = [];
+	ayaIdsFrom: any[] = [];
+	ayaIdsTo: any[] = [];
+	selectedAyaIds: number[] = [];
+	uniqueJozNumbersList: number[] = [];
+	hezbList: number[] = [];
+	rubList: string[] = [];
+	pagesList: number[] = [];
+	ayatListOfPages: number[] = []
 
-  // Assuming these are declared elsewhere in the class
-  parts: PartInfo[] = [];
-  hezb: HezbInfo[] = [];
-  pages: PageInfo[] = [];
-  rob: RobInfo[] = [];
-  soras: SuraInfo[] = [];
-  _search: Search = new Search();
-  fromSoraAyat: AyaNumbersOfSura[] = [];
-  toSoraAyat: AyaNumbersOfSura[] = [];
+	constructor(private fb: FormBuilder, private _listenService: ListenService, private dataSharingService: DataSharingService) {
+		this.form = this.fb.group({
+			suraFrom: ['', Validators.required],
+			ayaFrom: ['', Validators.required],
+			suraTo: ['', Validators.required],
+			ayaTo: ['', Validators.required],
+			JozFrom: ['', Validators.required],
+			JozTo: ['', Validators.required],
+			hezbFrom: ['', Validators.required],
+			hezbTo: ['', Validators.required],
+			rubFrom: ['', Validators.required],
+			rubTo: ['', Validators.required],
+			pageFrom: ['', Validators.required],
+			pageTo: ['', Validators.required],
+		});
+	}
 
-  soar: any[] = [
-    { name: "التصنيف", code: "1" },
+	ngOnInit(): void {
+		this.getSuraNames()
+	}
 
-    { name: "السور", code: "2" },
-    { name: "elPart", code: "3" },
-  ];
-  result: any[] = [];
-  omomQuraan_AyaStart: string = "generalQuran";
-  orderResultBy: string = "mushafOrder";
-  soraSelected: boolean = false;
-  partSelected: boolean = false;
-  fromSora: any = {};
-  toSora: any = {};
-  fromPart: any = {};
-  toPart: any = {};
-  fromAya: any = {};
-  toAya: any = {};
-  fromRob: any = {};
-  toRob: any = {};
-  fromHezp: any = {};
-  toHezp: any = {};
-  fromPage: any = {};
-  toPage: any = {};
-  results!: string[];
-  currentIndex!: number;
-  repeated!: boolean;
-  teamInitial = " ";
-  isOpen: boolean = false;
-  @ViewChild("searchResult", { static: true }) searchResult: ElementRef | any;
-  idintical: boolean = false;
-  selectedFromSora: any;
-  selectedToSora: SuraInfo | undefined;
-  selectedFromPart: PartInfo | undefined;
-  selectedToPart: PartInfo | undefined;
-  selectedFromHezp: HezbInfo | undefined;
-  selectedToHezp: HezbInfo | undefined;
-  selectedFromRob: RobInfo | undefined;
-  selectedToRob: RobInfo | undefined;
-  selectedFromPage: PageInfo | undefined;
-  selectedToPage: PageInfo | undefined;
-  omomQuraan: any;
-  alphabitcalOrder: any;
-  selectedToAya: AyaNumbersOfSura | undefined;
-  selectedFromAya: AyaNumbersOfSura | undefined;
+	getSuraNames() {
+		this.suraNames = [...new Set(this.searchInstance.table_othmani.map(item => item.Sura_Name))];
+	}
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-    private dialog: MatDialog
-  ) {}
 
-  ngOnInit() {
-    this.initializeEmptyArrays();
-    this.processTableOthmani();
-    this.loadSavedSearchSettings();
-  }
+	// تحديث الايات بناء على اختيار السور
+	updateAyaNumbers(type: 'from' | 'to') {
+		const selectedSura = this.form.get(`sura${type.charAt(0).toUpperCase() + type.slice(1)}`)?.value;
 
-  loadSavedSearchSettings(){
-   
-    let savedSettingsJson = localStorage.getItem("result");
-    if(savedSettingsJson) {
-      let savedSettings = JSON.parse(savedSettingsJson);
-      let{
-        fromSora,toSora,fromPart, toPart,fromHezp,toHezp,
-        fromRob,toRob,fromPage,toPage,fromAya,toAya,
-        searchIn,orderBy,idintical } = savedSettings;
-      this.fromSora = fromSora;
-      this.selectedFromSora = this.soras.find( sora => sora.nOFSura == fromSora);
-      if(this.selectedFromSora){this.fromSoraAyat = this.populateSoraAyat(this.selectedFromSora.nOfAyas);
-        this.selectedFromAya = this.fromSoraAyat.find( ayat => ayat.id == fromAya)
-        this.fromAya = fromAya;
-      }
-      
-      this.toSora = toSora;
-      this.selectedToSora = this.soras.find( sora => sora.nOFSura == toSora)
-      if(this.selectedToSora){this.toSoraAyat = this.populateSoraAyat(this.selectedToSora.nOfAyas);
-        this.selectedToAya = this.toSoraAyat.find( ayat => ayat.id == toAya)
-        this.toAya = toAya;
-      }
-      this.fromPart = fromPart;
-      this.selectedFromPart = this.parts.find( part => part.elPart == fromPart)
-      this.toPart = toPart;
-      this.selectedToPart = this.parts.find( part => part.elPart == toPart)
-      this.fromHezp = fromHezp;
-      this.selectedFromHezp = this.hezb.find( hez => hez.nOFHezb == fromHezp)
-      this.toHezp = toHezp;
-      this.selectedToHezp = this.hezb.find( hez => hez.nOFHezb == toHezp)
-      this.fromRob = fromRob;
-      this.selectedFromRob = this.rob.find( r => r.rub == fromRob)
-      this.toRob = toRob;
-      this.selectedToRob = this.rob.find( r => r.rub == toRob)
-      this.fromPage = fromPage;
-      this.selectedFromPage = this.pages.find( page => page.nOFPage == fromPage)
-      this.toPage = toPage;
-      this.selectedToPage = this.pages.find( page => page.nOFPage == toPage)
-      this.fromAya = fromAya;
-      this.omomQuraan_AyaStart = searchIn;
-      this.orderResultBy = orderBy;
-      this.idintical = idintical;
+		if (selectedSura) {
+			const suraData = this.searchInstance.table_othmani.filter(item => item.Sura_Name === selectedSura);
+			// console.log("suraData", suraData);
 
-    } 
-    let dynamicCols = localStorage.getItem("dynamic_cols");
-    if(dynamicCols){
-      
-      this.toppings.setValue(JSON.parse(dynamicCols));
-    }
+			const ayaNumbers = suraData.map(item => Number(item.Aya_N));
+			const ayaIds = suraData.map(item => Number(item.id));
 
-  }
+			if (type === 'from') {
+				this.ayaNumbersFrom = ayaNumbers;
+				this.ayaIdsFrom = ayaIds;
+				this.form.get('ayaFrom')?.setValue('');
+			} else {
+				this.ayaNumbersTo = ayaNumbers;
+				this.ayaIdsTo = ayaIds;
+				this.form.get('ayaTo')?.setValue('');
+			}
+		}
+		else {
+			if (type === 'from') {
+				this.ayaNumbersFrom = [];
+				this.ayaIdsFrom = [];
+			} else {
+				this.ayaNumbersTo = [];
+				this.ayaIdsTo = [];
+			}
+		}
 
-  private initializeEmptyArrays() {
-    this.parts = [];
-    // this.texts = [];
-    this.soras = [];
-    this.hezb = [];
-    this.pages = [];
-    this.rob = [];
-    this.fromSoraAyat = [];
-    this.toSoraAyat = [];
-  }
+		console.log("ayaIdsFrom", this.ayaIdsFrom);
+		console.log("ayaIdsTo", this.ayaIdsTo);
+	}
 
-  private processTableOthmani() {
-    let currentSura = "الفاتحة";
-    let nOfAyas = 0;
+	// تحديث مصفوفة ملفات الصوت بعد اختيار عدد الايات من - إلى
+	generateAyaNumbers() {
+		const ayaFrom = Number(this.form.get('ayaFrom')?.value);
+		const ayaTo = Number(this.form.get('ayaTo')?.value);
+		const selectedSuraFrom = this.form.get('suraFrom')?.value;
+		const selectedSuraTo = this.form.get('suraTo')?.value;
 
-    this._search.table_othmani.forEach((aya: Aya) => {
-      this.updateSuraInfo(aya, currentSura, nOfAyas);
-      this.addUniqueItem(this.parts, aya.nOFJoz, "elPart");
-      this.addUniqueItem(this.hezb, aya.nOFHezb, "nOFHezb");
-      this.addUniqueItem(this.pages, aya.nOFPage, "nOFPage");
-      this.addUniqueItem(this.rob, aya.rub, "rub", { ayaId: aya.id });
+		console.log("ayaFrom:", ayaFrom);
+		console.log("ayaTo:", ayaTo);
+		console.log("selectedSuraFrom:", selectedSuraFrom);
+		console.log("selectedSuraTo:", selectedSuraTo);
 
-      nOfAyas = currentSura === aya.Sura_Name ? nOfAyas + 1 : 1;
-      currentSura = aya.Sura_Name;
-    });
-  }
+		//  جميع الآيات مرتبة حسب الـ ID
+		const allAyatSorted = this.searchInstance.table_othmani.sort((a, b) => Number(a.id) - Number(b.id));
 
-  private updateSuraInfo(
-    aya: { Sura_Name: any; nOFSura: string },
-    currentSura: string,
-    nOfAyas: number
-  ) {
-    if (currentSura !== aya.Sura_Name) {
-      this.soras.push({
-        soraName: currentSura,
-        nOFSura: (parseInt(aya.nOFSura) - 1).toString(),
-        nOfAyas: nOfAyas,
-      });
-    }
-  }
+		const startAya = allAyatSorted.find(item =>
+			item.Sura_Name === selectedSuraFrom && Number(item.Aya_N) === ayaFrom
+		);
 
-  private addUniqueItem(array: {}[], value: any, key: string, extraData = {}) {
-    const index = array.findIndex(
-      (item: { [x: string]: any }) => item[key] === value
-    );
-    if (index < 0) {
-      array.push({
-        [key]: value,
-        ...extraData,
-      });
-    }
-  }
+		const endAya = allAyatSorted.find(item =>
+			item.Sura_Name === selectedSuraTo && Number(item.Aya_N) === ayaTo
+		);
 
-  toSoraFun($event: SuraEvent) {
-    this.toSora = $event.value.nOFSura;
+		const startId = Number(startAya.id);
+		const endId = Number(endAya.id);
 
-    if (this.toSora) {
-      this.resetArrays();
-      this._search.table_othmani.forEach((aya: Aya) => {
-        if (this.isWithinSuraRange(aya.nOFSura)) {
-          this.addToUniqueArray(this.parts, {
-            elPart: aya.nOFJoz,
-            nOFJoz: undefined
-          }, "elPart");
-          this.addToUniqueArray(this.hezb, { nOFHezb: aya.nOFHezb }, "nOFHezb");
-          this.addToUniqueArray(
-            this.pages,
-            { nOFPage: aya.nOFPage },
-            "nOFPage"
-          );
-          this.addToUniqueArray(
-            this.rob,
-            { rub: aya.rub, ayaId: aya.id },
-            "rub"
-          );
-        }
-      });
+		// تصفية الآيات التي تقع بين الآيتين بناءً على ID
+		const filteredAyat = allAyatSorted.filter(item => {
+			const itemId = Number(item.id);
+			return itemId >= startId && itemId <= endId;
+		});
 
-     this.toSoraAyat = this.populateSoraAyat($event.value.nOfAyas);
-    }
-  }
+		const ayaNumbers = filteredAyat.map(item => Number(item.Aya_N));
 
-  private resetArrays() {
-    this.parts = [];
-    this.hezb = [];
-    this.pages = [];
-    this.rob = [];
-    this.toSoraAyat = [];
-    
-    this.fromPart = null;
-    this.toPart = null;
-    this.fromHezp = null;
-    this.toHezp = null;
-    this.fromRob = null;
-    this.toRob = null;
-    this.fromPage = null;
-    this.toPage = null;
-    this.fromAya = null;
-    this.toAya = null;
-  }
+		console.log("Generated Aya Numbers:", ayaNumbers);
 
-  private isWithinSuraRange(nOFSura: string) {
-    const suraNum = parseInt(nOFSura);
-    return (
-      suraNum <= parseInt(this.toSora) && suraNum >= parseInt(this.fromSora)
-    );
-  }
+		if (ayaFrom && ayaTo) {
+			this.selectedAyaNumbers = ayaNumbers
+			this.generateJozNumbers()
+			console.log(this.dataAya);
+		}
+	}
 
-  private addToUniqueArray<T>(array: T[], newValue: T, compareKey: keyof T) {
-    if (!array.some((item) => item[compareKey] === newValue[compareKey])) {
-      array.push(newValue);
-    }
-  }
+	// اختيار عدد الاجزاء بناء على تحديد الايات
+	generateJozNumbers() {
+		const ayaFrom = Number(this.form.get('ayaFrom')?.value);
+		const ayaTo = Number(this.form.get('ayaTo')?.value);
+		const selectedSuraFrom = this.form.get('suraFrom')?.value;
+		const selectedSuraTo = this.form.get('suraTo')?.value;
 
-  private populateSoraAyat(nOfAyas: number) {
-    let soraAyat = [];
-    for (let index = 1; index <= nOfAyas; index++) {
-      soraAyat.push({ id: index });
-    }
-    return soraAyat;
-  }
+		const startIndex = this.searchInstance.table_othmani.findIndex(
+			item => item.Sura_Name === selectedSuraFrom && Number(item.Aya_N) === ayaFrom
+		);
+		const endIndex = this.searchInstance.table_othmani.findIndex(
+			item => item.Sura_Name === selectedSuraTo && Number(item.Aya_N) === ayaTo
+		);
 
-  fromSoraFun($event: SuraEvent) {
-    ;
-    console.log('Selected Sora:', this.selectedFromSora);
+		if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+			const ayatRange = this.searchInstance.table_othmani.slice(startIndex, endIndex + 1);
 
-    this.fromSora = $event.value.nOFSura;
-    this.fromSoraAyat = this.populateSoraAyat($event.value.nOfAyas);
-  }
+			const uniqueJozNumbers = Array.from(
+				new Set(ayatRange.map(item => item.nOFJoz))
+			);
 
-  fromAyaFun($event: any) {
-    this.fromAya = $event.value.id;
-  }
+			console.log("الأجزاء الفريدة:", uniqueJozNumbers);
 
-  toAyaFun($event: any) {
-    this.toAya = $event.value.id;
-  }
+			this.uniqueJozNumbersList = uniqueJozNumbers
+		} else {
+			console.error('تأكد من اختيار الآيات بشكل صحيح');
+		}
+	}
 
-  fromRobFun($event: any) {
-    this.fromRob = $event.value.rub;
-  }
+	// الفانكشن دي بتجيب عدد الاحزاب بناء على الايات الى انت اختارتها
+	getHezbNumbersInRange() {
+		const JozFrom = Number(this.form.get('JozFrom')?.value);
+		const JozTo = Number(this.form.get('JozTo')?.value);
 
-  toRobFun($event: any) {
-    this.toRob = $event.value.rub;
-    ;
-  }
+		const selectedSuraFrom = this.form.get('suraFrom')?.value;
+		const selectedSuraTo = this.form.get('suraTo')?.value;
 
-  fromHezpFun($event: any) {
-    this.fromHezp = $event.value.nOFHezb;
-  }
+		const filteredAyat = this.searchInstance.table_othmani.filter(item => {
+			const suraOrder = Number(item.nOFSura);
+			const ayaNumber = Number(item.nOFJoz);
 
-  toHezpFun($event: any) {
-    this.toHezp = $event.value.nOFHezb;
-  }
+			if (item.Sura_Name === selectedSuraFrom && ayaNumber >= JozFrom) {
+				return true;
+			}
 
-  fromPageFun($event: any) {
-    this.fromPage = $event.value.nOFPage;
-    // this.fromPart = $event.value.elPart;
-  }
+			if (item.Sura_Name === selectedSuraTo && ayaNumber <= JozTo) {
+				return true;
+			}
 
-  toPageFun($event: any) {
-    this.toPage = $event.value.nOFPage;
-    // this.fromPart = $event.value.elPart;
-  }
+			if (suraOrder > Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraFrom)?.nOFSura) &&
+				suraOrder < Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraTo)?.nOFSura)) {
+				return true;
+			}
 
-  fromPartFun($event: any) {
-    this.fromPart = $event.value.elPart;
-  }
+			return false;
+		});
 
-  toPartFun($event: any) {
-    this.toPart = $event.value.elPart;
-  }
+		const hezbNumbers = [...new Set(filteredAyat.map(item => Number(item.nOFHezb)))];
 
-  rest() {
-    this.fromSora = null;
-    this.toSora = null;
-    this.fromPart = null;
-    this.toPart = null;
-    this.fromHezp = null;
-    this.toHezp = null;
-    this.fromRob = null;
-    this.toRob = null;
-    this.fromPage = null;
-    this.toPage = null;
-    this.fromAya = null;
-    this.toAya = null;
-    this.omomQuraan_AyaStart = "generalQuran";
-    this.orderResultBy = "mushafOrder";
-    this.idintical = false;
-  }
+		this.hezbList = hezbNumbers
 
-  saveSearchSettings(): void {
-    ;
+		console.log('الأحزاب الموجودة بين الاجزاء التي تم اختيارها:', hezbNumbers);
+		return hezbNumbers;
+	}
 
-    const result = {
-      fromSora: this.fromSora,
-      toSora: this.toSora,
-      fromPart: this.fromPart,
-      toPart: this.toPart,
-      fromHezp: this.fromHezp,
-      toHezp: this.toHezp,
-      fromRob: this.fromRob,
-      toRob: this.toRob,
-      fromPage: this.fromPage,
-      toPage: this.toPage,
-      fromAya: this.fromAya,
-      toAya: this.toAya,
-      searchIn: this.omomQuraan_AyaStart,
-      orderBy: this.orderResultBy,
-      idintical: this.idintical,
-    };
 
-    // Consider abstracting localStorage operations into a service or utility function.
-    this.saveToLocalStorage("result", result);
+	// عدد الاربع بناء على الاحزاب الى تم اختيارها
+	getRubbNumbersInRange() {
+		const hezbFrom = Number(this.form.get('hezbFrom')?.value);
+		const hezbTo = Number(this.form.get('hezbTo')?.value);
 
-    const dialogRef = this.dialog.open(this.searchResult, {
-      width: "500px",
-      panelClass: "popup-center",
-    });
-  }
+		const selectedSuraFrom = this.form.get('suraFrom')?.value;
+		const selectedSuraTo = this.form.get('suraTo')?.value;
 
-  private saveToLocalStorage(key: string, value: any): void {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
+		const filteredAyat = this.searchInstance.table_othmani.filter(item => {
+			const suraOrder = Number(item.nOFSura);
+			const hezbNumber = Number(item.nOFHezb);
 
-  closeDialog() {
-    this.dialog.closeAll();
-  }
+			if (item.Sura_Name === selectedSuraFrom && hezbNumber >= hezbFrom) {
+				return true;
+			}
 
-  searchIn(e: any) {
-    this.omomQuraan_AyaStart = e.value;
-  }
+			if (item.Sura_Name === selectedSuraTo && hezbNumber <= hezbTo) {
+				return true;
+			}
 
-  orderBy(e: any) {
-    this.orderResultBy = e.value;
-  }
+			if (suraOrder > Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraFrom)?.nOFSura) &&
+				suraOrder < Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraTo)?.nOFSura)) {
+				return true;
+			}
 
-  OnIdinticalChange(e: any) {
-    this.idintical = e.checked;
-  }
+			return false;
+		});
+
+		const rubNumbers = [...new Set(filteredAyat.map(item => item.rub))];
+
+		this.rubList = rubNumbers
+
+		console.log('الأرباع الموجودة بين الاحزاب التي تم اختيارها:', rubNumbers);
+		return rubNumbers;
+	}
+
+	// عدد الصفحات بناء على الاربع الى تم اختيارها
+	getPagesNumbersInRange() {
+		const rubFrom = Number(this.form.get('rubFrom')?.value);
+		const rubTo = Number(this.form.get('rubTo')?.value);
+
+		const selectedSuraFrom = this.form.get('suraFrom')?.value;
+		const selectedSuraTo = this.form.get('suraTo')?.value;
+
+		const filteredAyat = this.searchInstance.table_othmani.filter(item => {
+			const suraOrder = Number(item.nOFSura);
+			const hezbNumber = Number(item.nOFHezb);
+
+			if (item.Sura_Name === selectedSuraFrom && hezbNumber >= rubFrom) {
+				return true;
+			}
+
+			if (item.Sura_Name === selectedSuraTo && hezbNumber <= rubTo) {
+				return true;
+			}
+
+			if (suraOrder > Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraFrom)?.nOFSura) &&
+				suraOrder < Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraTo)?.nOFSura)) {
+				return true;
+			}
+
+			return false;
+		});
+
+		const pagesNumbers = [...new Set(filteredAyat.map(item => item.nOFPage))];
+
+		this.pagesList = pagesNumbers
+
+		console.log('الصفحات الموجودة بين الأربع التي تم اختيارها:', pagesNumbers);
+		return pagesNumbers;
+	}
+
+	// عدد الأيات بعد اختيار عدد الصفحات 
+	getAyatOfOages() {
+		const pageFrom = Number(this.form.get('pageFrom')?.value);
+		const pageTo = Number(this.form.get('pageTo')?.value);
+
+		const selectedSuraFrom = this.form.get('suraFrom')?.value;
+		const selectedSuraTo = this.form.get('suraTo')?.value;
+
+		const filteredAyat = this.searchInstance.table_othmani.filter(item => {
+			const suraOrder = Number(item.nOFSura);
+			const pages = Number(item.nOFPage);
+
+			if (item.Sura_Name === selectedSuraFrom && pages >= pageFrom) {
+				return true;
+			}
+
+			if (item.Sura_Name === selectedSuraTo && pages <= pageTo) {
+				return true;
+			}
+
+			if (suraOrder > Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraFrom)?.nOFSura) &&
+				suraOrder < Number(this.searchInstance.table_othmani.find(sura => sura.Sura_Name === selectedSuraTo)?.nOFSura)) {
+				return true;
+			}
+
+			return false;
+		});
+
+		const pagesNumbers = [...new Set(filteredAyat.map(item => item.Aya_N))];
+
+		this.ayatListOfPages = pagesNumbers;
+
+		console.log('الآيات الموجودة في الصفحات المختارة:', this.ayatListOfPages);
+
+		if (this.ayatListOfPages) {
+			this.dataAya = this.ayatListOfPages.map(ayahNumber => {
+				const ayaInfo = this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber));
+				// const ayaText = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`;
+				// const sura_Name = aya ? aya.Sura_Name : `Ayah ${ayahNumber}`;
+
+				return {
+					// ayaText: ayaText,
+					// name: sura_Name,
+					data: ayaInfo
+				};
+			});
+			console.log("this.dataAya222222", this.dataAya)
+		}
+	}
+
+	onSubmit() {
+		const selectedData = this.form.value;
+		const additionalData = this.dataAya;
+		this.dataSharingService.updateSelectedData(selectedData, additionalData);
+	}
+
+	resetForm() {
+		this.form.reset();
+	}
 }

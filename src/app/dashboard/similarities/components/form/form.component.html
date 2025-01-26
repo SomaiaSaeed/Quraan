@@ -11,9 +11,8 @@
             <span matSuffix
                 class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
             <!-- من سورة" -->
-            <mat-select (selectionChange)="fromSoraFun($event)">
-                <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName
-                    }}</mat-option>
+            <mat-select>
+                <mat-option>name</mat-option>
             </mat-select>
         </mat-form-field>
     </div>
@@ -28,9 +27,8 @@
                     <span matSuffix
                         class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
                     <!-- من سورة" -->
-                    <mat-select (selectionChange)="fromSoraFun($event)">
-                        <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName
-                            }}</mat-option>
+                    <mat-select>
+                        <mat-option>from</mat-option>
                     </mat-select>
                 </mat-form-field>
 
@@ -40,9 +38,8 @@
                     <mat-label class="tw-text-sm">إلى</mat-label>
                     <span matSuffix
                         class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-                    <mat-select (selectionChange)="toSoraFun($event)">
-                        <mat-option *ngFor="let sora of soras; let i = index" [value]="sora">{{ sora.soraName
-                            }}</mat-option>
+                    <mat-select>
+                        <mat-option>to</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -56,9 +53,8 @@
                     <span matSuffix
                         class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
                     <!-- من سورة" -->
-                    <mat-select (selectionChange)="fromPartFun($event)">
-                        <mat-option *ngFor="let part of parts; let i = index" [value]="part">{{ part.elPart
-                            }}</mat-option>
+                    <mat-select>
+                        <mat-option>from</mat-option>
                     </mat-select>
                 </mat-form-field>
 
@@ -68,9 +64,8 @@
                     <mat-label class="tw-text-sm">إلى</mat-label>
                     <span matSuffix
                         class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-                    <mat-select (selectionChange)="toPartFun($event)">
-                        <mat-option *ngFor="let part of parts; let i = index" [value]="part">{{ part.elPart
-                            }}</mat-option>
+                    <mat-select>
+                        <mat-option>to</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
