@@ -15,10 +15,7 @@
 		</div>
 		<div>
 			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
-				<option value="quranGeneral">عموم القرآن</option>
-				<option value="startOfAyah">بداية الآيات</option>
-				<option value="alphabetical">ترتيب أبجدي</option>
-				<option value="mushafOrder">ترتيب المصحف</option>
+				<option value="name" *ngFor="let name of resultsList">{{name}} </option>
 			</select>
 		</div>
 	</div>

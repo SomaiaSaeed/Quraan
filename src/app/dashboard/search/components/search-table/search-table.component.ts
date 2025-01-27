@@ -9,6 +9,19 @@ import { DataSharingService } from '../../services/data-sharing.service';
 export class SearchTableComponent implements OnInit {
   selectedData?: { data: any[], result: any[] };
   data?: any[];
+  resultsList: string[] = [
+    "رقم_السورة",
+    "بداية_السورة",
+    "الربع",
+    "رقم_الجزء",
+    "الحزب",
+    "رقم_الحزب",
+    "رقم_الصفحة",
+    "بداية_الربع",
+    "بداية_الصفحة",
+    "اسم_السورة",
+    "الآية",
+  ];
 
   constructor(private dataSharingService: DataSharingService, private cdr: ChangeDetectorRef) { }
 
