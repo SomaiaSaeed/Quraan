@@ -575,9 +575,9 @@ export class QuraanImagesComponent implements OnInit {
           left:
             temp.length !== 0
               ? i === 0
-                ? "51px"
-                : `${51 + (86 - ayasLines[i]) * 5}px`
-              : `${51 + (86 - ayasLines[i]) * 5}px`,
+                ? "39px"
+                : `${39 + (86 - ayasLines[i]) * 5}px`
+              : `${39 + (86 - ayasLines[i]) * 5}px`,
           width: `${ayasLines[i] * 5}px`,
           height: "35px",
         });
