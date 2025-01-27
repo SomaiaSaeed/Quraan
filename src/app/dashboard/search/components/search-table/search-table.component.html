@@ -1,5 +1,5 @@
-<!--  *ngIf="selectedData?.result?.length != 0" -->
-<div class="flex-c-b tw-mt-6">
+<!--   -->
+<div class="flex-c-b tw-mt-6" *ngIf="selectedData?.result?.length != 0">
 	<div>
 		<span class="tw-font-bold tw-text-sm tw-block">عدد النتائج {{selectedData?.result?.length}}</span>
 	</div>
@@ -8,16 +8,17 @@
 		<div>
 			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
 				<option value="quranGeneral">عموم القرآن</option>
-				<option value="startOfAyah">بداية الآيات</option>
 				<option value="alphabetical">ترتيب أبجدي</option>
 				<option value="mushafOrder">ترتيب المصحف</option>
+				<option value="startOfAyah">بداية الآيات</option>
 			</select>
 		</div>
-		<div>
+		<!-- <div>
+			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">حدد ما تريد ظهوره فى جدول النتائج</label>
 			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
 				<option value="name" *ngFor="let name of resultsList">{{name}} </option>
 			</select>
-		</div>
+		</div> -->
 	</div>
 </div>
 
