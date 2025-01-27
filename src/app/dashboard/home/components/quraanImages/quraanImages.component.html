@@ -2,6 +2,27 @@
   <ng-container *ngFor="let img of images">
       <ng-template carouselSlide [id]="img.id">
           <img [src]="img.src" [alt]="img.alt" [title]="img.title" class="tw-w-auto">
+           <div *ngFor="let inp of inputs">
+          <app-dynamic-aya
+            (onClick)="onAyaClick($event)"
+            (onMotahabehClick)="onMotahabehClick($event)"
+            (onRight)="onRightClick($event)"
+            [activeAya]="inp.activeAya"
+            [arrOfColoredWords]="inp.spansOfColoredWords"
+            [ayaId]="inp.ayaId"
+            [pageNum]="pageNumber"
+            [aya]="inp.aya"
+            [ayat]="inp.ayat"
+            [href]="inp.href"
+            [isActive]="inp.isActive"
+            [motashabehatSpans]="inp.motashabehatSpans"
+            [motashabehat]="inp.motashabehat"
+            [spans]="inp.spans"
+            [errorFactor]="inp.errorFactor"
+          >
+
+        </app-dynamic-aya>
+           </div>
       </ng-template>
   </ng-container>
 </owl-carousel-o>

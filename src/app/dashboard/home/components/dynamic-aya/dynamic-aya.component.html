@@ -1,0 +1,126 @@
+<!--<div dir="rtl" style="margin-top: 5px;font-family: Othmani ;font-size: 26px">{{aya}}</div>-->
+<a (click)="aya_clicked($event)" (mouseenter)="onMouseEnter($event)" (mouseout)="onMouseOut($event)"
+  [class.active]="activeAya === 17" [style.left]="'35%'" class="aya_link" (contextmenu)="onRightClick($event)">
+  <div class="help-block containerSVG" draggable=false oncontextmenu="return false;">
+    <!-- <p-menu *ngIf="showAyaList" [model]="listAyaItems" [ngStyle]="listMenuStyle">
+    </p-menu> -->
+  </div>
+  <span *ngFor="let s of spans;let i = index" [style.background]="isActive?bakgroundStyle2.background:bakgroundStyle.background"
+    [style.height]="s.height" [style.left]="s.left" [style.opacity]="bakgroundStyle.opacity" [style.top]="s.top"
+    [style.width]="s.width" class="aya"><span *ngIf="i==spans.length-1" style=" width: 50px;top: -17px;position: absolute;">
+      <span  (click)="maximizeHighlightedAya($event)" style=" color: rgb(15, 15, 15); width: 30px; cursor: pointer; top:-20px"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+      <span (click)="minimizeHighlightedAya($event)" style=" color: rgba(254, 0, 0, 0.456); width: 30px; cursor: pointer;"><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+      </span>
+
+
+    </span>
+
+  <span *ngFor="let word of arrOfColoredWords" [style.border]="word.isStatic?'2px solid '+word.color:''"
+    [style.border-bottom]="'3px solid '+word.color" [style.height]="word.isStatic?'35px':''" [style.left]="word.left"
+    [style.top]="word.isStatic?getTopBorder(word.top):word.top" [style.width]="word.width" class="aya"
+    style="cursor: pointer" [title]="title">
+
+  </span>
+</a>
+<span *ngIf="moade3&&moade3.length>0">
+  <span *ngFor="let mot of moade3" dir="rtl" href="#aa" style="width: 200px;" [style.height]="motashabehat.height">
+    <span class="motashabeh" style="width: 120px" [style.left]="!motashabehat.isRight?'510px':'-120px'"
+      [style.top]="mot.top">
+      <a (contextmenu)="onMotashabehRightClick($event,mot)" [style.color]="mot.color && mot.color!=''?mot.color:'black'"
+        [style.font-weight]="mot.color && mot.color!=''?'bold':'normal'"
+        [style.background]="isActive?bakgroundStyle2.background:bakgroundStyle.background"
+        [style.opacity]="bakgroundStyle.motashOpacity" style="width: 120px;">
+        {{mot.suraWithIndex}}
+      </a>
+    </span>
+    <svg height="10" width="100" [style.top]="lineTop" [style.left]="!motashabehat.isRight?'510px':'-120px'"
+      class="motashabeh">
+      <line style="stroke:rgb(0,0,0);stroke-width:2" x1="0" x2="120" y1="0" y2="0"></line>
+    </svg>
+  </span>
+</span>
+<!--<span *ngFor="let mot of motashabehatSpans" >-->
+<!--  <a (contextmenu)="onMotashabehRightClick($event,mot)"-->
+<!--     [style.background]="isActive?bakgroundStyle2.background:bakgroundStyle.background"-->
+<!--     [style.height]="mot.height"-->
+<!--     [style.left]="!mot.isRight?'530px':'-90px'"-->
+<!--     [style.opacity]="bakgroundStyle.motashOpacity"-->
+<!--     [style.overflow-y]="'auto'"-->
+<!--     [style.top]="mot.top"-->
+<!--     class="motashabeh" dir="rtl" href="#aa"-->
+<!--     style="width: 120px;color: black;">-->
+<!--      {{mot.moade3}}-->
+<!--      </a>-->
+<!--    </span>-->
+
+
+<!--        <a *ngIf="activeAya == 17" href="#aa" dir="rtl" class="motashabeh" style="height: 20px;width: 80px;left: 470px;top: 80px;color: black" [style.background]="bakgroundStyle.background"  [style.opacity]="bakgroundStyle.motashOpacity" >-->
+<!--          البقرة (15) البقرة (15)البقرة (15)-->
+<!--          البقرة (15)-->
+<!--          البقرة (15)-->
+<!--          البقرة (15)-->
+
+
+<!--  </a>-->
+<!--  <a *ngIf="activeAya == 17" href="#uud" >-->
+<!--    <span  class="motashabeh"  style="height: 20px;width: 80px;left: 470px;top: 68px"[style.background]="bakgroundStyle.background"  [style.opacity]="bakgroundStyle.motashOpacity">-->
+<!--      النساء(25)-->
+<!--    </span>-->
+<!--  </a>-->
+<!--  <a *ngIf="activeAya == 17">-->
+<!--    <span class="motashabeh"  style="height: 30px;width: 80px;left: -50px;top: 45px;color: black">-->
+<!--      البقرة(15)-->
+<!--    </span>-->
+<!--  </a>-->
+
+<!--  <a *ngIf="activeAya == 17">-->
+<!--    <span  class="motashabeh"  style="height: 30px;left: -50px;top: 68px">-->
+<!--      النساء(25)-->
+<!--    </span>-->
+<!--  </a>-->
+
+<div #container class="help-block containerSVG" draggable=false oncontextmenu="return false;">
+  <!-- <p-menu *ngIf="showList" [model]="listMenuItems" [ngStyle]="listMenuStyle">
+  </p-menu> -->
+  <!--  <p-contextMenu  [global]="true" [model]="listMenuItems"></p-contextMenu>-->
+
+</div>
+<!-- <p-dialog header="">
+  <div style="width: 700px ; height: 500px">
+    <div *ngFor="let aya of ayas;let i = index">
+      <div>
+        <span class="arabicText" style="margin-top:10px;padding-bottom: 10px">
+          {{aya.aya}}
+        </span>
+        <br>
+        <span>{{aya.sura}}</span>
+        <svg *ngIf="aya!='' && i < ayas.length-1" height="10" width="700">
+          <line style="stroke:rgb(0,0,0);stroke-width:2" x1="0" x2="700" y1="0" y2="0"></line>
+        </svg>
+      </div>
+    </div>
+    <!--    <div style="margin-top:10px;padding-bottom: 10px;border-bottom: 1px solid black ; float: right" >-->
+    <!--      {{aya}}-->
+    <!--    </div>-->
+  <!-- </div>
+</p-dialog> --> 
+<div style="width: 400px;height: 50px;position: absolute;bottom:600px;left: 550px">{{title}}</div>
+
+<!-- <p-dialog header="إضافة ملاحظات" [(visible)]="addNote" [modal]="true" showEffect="fade" [style]="{width: '40%',direction: 'rtl'}">
+    <div >
+      ملاحظات
+      <textarea class="h-50 w-100" pInputTextarea [rows]="5" [cols]="30" [(ngModel)]="bookmakNote"></textarea>
+    </div>
+  <ng-template pTemplate="footer">
+    <button pButton icon="pi pi-save" (click)="addToFav()" label="حفظ" class="p-button-outlined"></button>
+
+    <button type="text" (click)="addNote=false" pButton icon="pi pi-times" label="إلغاء" class="p-button-danger"
+      style="width:auto;"></button>
+
+  </ng-template>
+</p-dialog> -->
+
+
+<!-- <span *ngIf="isActive" style=" top: 80px;position: fixed;">
+  <p-inputNumber [(ngModel)]="val"></p-inputNumber>
+</span> -->

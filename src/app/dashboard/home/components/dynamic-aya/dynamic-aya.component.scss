@@ -1,0 +1,41 @@
+a{
+    //position: absolute;
+    //top: 150px;//left: 45px; width: 392px; height: 35px;
+    left: 45px;
+    height: 200px;
+    width: 480px;
+    margin: 0;
+    padding: 0;
+    //background-color:  antiquewhite;
+  }
+  .aya {
+    position: absolute;
+  }
+  .motashabeh {
+    position: absolute;
+  }
+  //a:hover span {
+  //  background: yellow;
+  //  opacity: .2;
+  //  //filter: alpha(opacity=25);
+  //
+  //}
+  
+  // a.active span {
+  //  background: blue;
+  //  opacity: .2;
+  //  filter: alpha(opacity=25);
+  //}
+  
+  .arabicText{
+    float: right;
+    text-align: justify;
+    direction: rtl
+  }
+  :host {
+    ::ng-deep .p-inputtext {
+      width: 50px !important;
+      height: 25px;
+    }
+  }
+  

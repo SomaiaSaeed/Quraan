@@ -20,14 +20,14 @@ interface Span {
   height: string;
 }
 
-interface MotashabehatSpan {
+export interface MotashabehatSpan {
   isRight: boolean;
   moade3: string;
   height: string;
   top: string;
 }
 
-interface SpansOfColoredWords {
+export interface SpansOfColoredWords {
   top: string;
   left: string;
   width: string;
@@ -35,7 +35,7 @@ interface SpansOfColoredWords {
   isStatic?: boolean;
 }
 
-interface InputItem {
+export interface InputItem {
   motashabehat: Motashabehat;
   ayat: any[]; // Replace 'any' with the proper type if known
   aya: string;
@@ -102,6 +102,8 @@ export class QuraanImagesComponent implements OnInit {
       this.determineHighlight();
       this.drawColoredWords();
     }
+    this.motshabehat.emit(this.inputs);
+    debugger
   }
   @Input() images: any[] = [];
   pageNumber: number = 1;
@@ -115,6 +117,7 @@ export class QuraanImagesComponent implements OnInit {
   @Output() onClick = new EventEmitter<number>(); // Assuming ayaId is a number
   @Output() onRight = new EventEmitter<any>(); // Replace 'any' with the proper type if known
   @Output() motahabehClick = new EventEmitter<any>(); // Replace 'any' with the proper type if known
+  @Output() motshabehat = new EventEmitter<InputItem[]>(); // Assuming ayaId is a number
 
   customOptions: OwlOptions = {
     loop: true,
@@ -175,6 +178,7 @@ export class QuraanImagesComponent implements OnInit {
       this.generateMotashabehatOfSelectedPage(this.pageNumber);
       this.determineHighlight();
       this.drawColoredWords();
+  
     });
   }
 
@@ -571,9 +575,9 @@ export class QuraanImagesComponent implements OnInit {
           left:
             temp.length !== 0
               ? i === 0
-                ? "60px"
-                : `${60 + (86 - ayasLines[i]) * 5}px`
-              : `${60 + (86 - ayasLines[i]) * 5}px`,
+                ? "51px"
+                : `${51 + (86 - ayasLines[i]) * 5}px`
+              : `${51 + (86 - ayasLines[i]) * 5}px`,
           width: `${ayasLines[i] * 5}px`,
           height: "35px",
         });

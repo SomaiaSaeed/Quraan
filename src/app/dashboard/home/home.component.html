@@ -2,101 +2,67 @@
 
     <div class="tw-grid tw-grid-cols-7 tw-gap-10">
         <div class="tw-col-span-2 tw-space-y-10">
-            <div
+            <div  *ngFor="let inp of leftMotashabehatSpans"
                 class="tw-border-2 tw-border-green-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y ">
-                <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">لقمان (2)</span>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">لقمان (2)</span>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">لقمان (2)</span>
+                <!-- <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3> -->
+                <span *ngFor="let mot of inp.moade3" class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">{{mot}})</span>
             </div>
-            <div
-                class="tw-border-2 tw-border-yellow-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y">
-                <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-yellow-700">لقمان (2)</span>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-yellow-700">لقمان (2)</span>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-yellow-700">لقمان (2)</span>
-            </div>
-            <div
-                class="tw-border-2 tw-border-cyan-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y">
-                <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-cyan-700">لقمان (2)</span>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-cyan-700">لقمان (2)</span>
-                <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-cyan-700">لقمان (2)</span>
-            </div>
+          
         </div>
         <div class="tw-col-span-3 tw-border-4 tw-border-[#e4e4d0] tw-pt-5">
             <!-- images -->
-            <app-quraan-images [images]="images"></app-quraan-images>
+            <app-quraan-images [images]="images"
+            (motshabehat)="onMotshbehatGenerated($event)"
+            
+            ></app-quraan-images>
         </div>
         <div class="tw-col-span-2">
             <!-- details -->
             <div class="tw-col-span-2 tw-space-y-10">
-                <div
-                    class="tw-border-2 tw-border-indigo-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y ">
-                    <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-indigo-700">لقمان
-                        (2)</span>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-indigo-700">لقمان
-                        (2)</span>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-indigo-700">لقمان
-                        (2)</span>
+                <div *ngFor="let inp of rightMotashabehatSpans"
+                    class="tw-border-2 tw-border-green-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y ">
+                   <span *ngFor="let mot of inp.moade3" class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">
+                    {{mot}})</span>
                 </div>
-                <div
-                    class="tw-border-2 tw-border-pink-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y">
-                    <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-pink-700">لقمان
-                        (2)</span>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-pink-700">لقمان
-                        (2)</span>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-pink-700">لقمان
-                        (2)</span>
-                </div>
-                <div
-                    class="tw-border-2 tw-border-amber-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y">
-                    <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-amber-700">لقمان
-                        (2)</span>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-amber-700">لقمان
-                        (2)</span>
-                    <span class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-amber-700">لقمان
-                        (2)</span>
-                </div>
+            
             </div>
         </div>
     </div>
         <!-- info-colors -->
         <div class="flex-box tw-gap-x-7 tw-gap-y-3 tw-flex-wrap tw-justify-end tw-border tw-border-gray-300 tw-p-5 tw-mt-10">
+           
+            <div class="flex-box tw-gap-2">
+                <span>ثلاث مواضع وسط الأية</span>
+                <div class="tw-bg-blue-300 tw-w-4 tw-h-4"></div> <!-- light blue -->
+            </div>
+            <div class="flex-box tw-gap-2">
+                <span>موضعين وسط الأية</span>
+                <div class="tw-bg-green-300 tw-w-4 tw-h-4"></div> <!-- light green -->
+            </div>
+            <div class="flex-box tw-gap-2">
+                <span>كلمة وحيدة وسط الأية</span>
+                <div class="tw-bg-orange-400 tw-w-4 tw-h-4"></div>
+            </div>
+            <div class="flex-box tw-gap-2">
+                <span>أكثر من أربع مواضع</span>
+                <div class="tw-bg-purple-700 tw-w-4 tw-h-4"></div> <!-- purple -->
+            </div>
+            <div class="flex-box tw-gap-2">
+                <span>أربع مواضع</span>
+                <div class="tw-bg-yellow-300 tw-w-4 tw-h-4"></div>
+            </div>
             <div class="flex-box tw-gap-2">
                 <span>ثلاث مواضع</span>
+                <div class="tw-bg-blue-700 tw-w-4 tw-h-4"></div>
+            </div>
+            <div class="flex-box tw-gap-2">
+                <span>موضعين</span>
                 <div class="tw-bg-green-700 tw-w-4 tw-h-4"></div>
             </div>
             <div class="flex-box tw-gap-2">
-                <span>اربع مواضع</span>
+                <span>كلمة وحيدة بداية الأية</span>
                 <div class="tw-bg-red-700 tw-w-4 tw-h-4"></div>
             </div>
-            <div class="flex-box tw-gap-2">
-                <span>موضعين </span>
-                <div class="tw-bg-yellow-700 tw-w-4 tw-h-4"></div>
-            </div>
-            <div class="flex-box tw-gap-2">
-                <span>كلمة وحيده بداية الاية </span>
-                <div class="tw-bg-orange-700 tw-w-4 tw-h-4"></div>
-            </div>
-            <div class="flex-box tw-gap-2">
-                <span>ثلاث مواضع وسط الأية </span>
-                <div class="tw-bg-amber-700 tw-w-4 tw-h-4"></div>
-            </div>
-            <div class="flex-box tw-gap-2">
-                <span>موضعين وسط الاية </span>
-                <div class="tw-bg-cyan-700 tw-w-4 tw-h-4"></div>
-            </div>
-            <div class="flex-box tw-gap-2">
-                <span>كلمة وحيده وسط الأية </span>
-                <div class="tw-bg-indigo-700 tw-w-4 tw-h-4"></div>
-            </div>
-            <div class="flex-box tw-gap-2">
-                <span>اكثر من اربعة مواضع </span>
-                <div class="tw-bg-pink-700 tw-w-4 tw-h-4"></div>
-            </div>
         </div>
+        
 </div>
