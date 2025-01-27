@@ -1,21 +1,27 @@
+<!--   -->
 <div class="flex-c-b tw-mt-6" *ngIf="selectedData?.result?.length != 0">
-	<span class="tw-font-bold tw-text-sm tw-block">عدد النتائج (32)</span>
-	<!-- <button type="submit"
-    class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-    بحث متقدم
-  </button> -->
-	<div class="tw-flex tw-items-center tw-gap-3">
-		<label class="tw-text-xs tw-font-medium tw-block">حدد ما تريد ظهوره فى جدول النتائج</label>
-		<mat-form-field appearance="outline" class="tw-min-w-[200px]">
-			<mat-label>أختـر ...</mat-label>
-			<span matSuffix
-				class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-			<mat-select multiple>
-				<mat-option>test</mat-option>
-			</mat-select>
-		</mat-form-field>
+	<div>
+		<span class="tw-font-bold tw-text-sm tw-block">عدد النتائج {{selectedData?.result?.length}}</span>
+	</div>
+	<div class="tw-flex tw-items-center tw-gap-2">
+		<span class="tw-text-xs tw-text-gray-600">ترتيب المحتوي : </span>
+		<div>
+			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
+				<option value="quranGeneral">عموم القرآن</option>
+				<option value="alphabetical">ترتيب أبجدي</option>
+				<option value="mushafOrder">ترتيب المصحف</option>
+				<option value="startOfAyah">بداية الآيات</option>
+			</select>
+		</div>
+		<!-- <div>
+			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">حدد ما تريد ظهوره فى جدول النتائج</label>
+			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
+				<option value="name" *ngFor="let name of resultsList">{{name}} </option>
+			</select>
+		</div> -->
 	</div>
 </div>
+
 <div class="tw-overflow-auto tw-mt-6 tw-max-h-96">
 	<section class="tw-table tw-w-full tw-whitespace-nowrap" *ngIf="selectedData?.result?.length != 0">
 		<header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
