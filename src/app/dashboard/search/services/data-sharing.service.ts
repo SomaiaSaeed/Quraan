@@ -5,12 +5,11 @@ import { BehaviorSubject } from 'rxjs';
     providedIn: 'root'
 })
 export class DataSharingService {
-    private selectedDataSubject = new BehaviorSubject<{ data: any[], result: any[] }>({ data: [], result: [] });
+    private selectedDataSubject = new BehaviorSubject<{ data: any[], searchQuery: string }>({ data: [], searchQuery: '' });
     selectedData$ = this.selectedDataSubject.asObservable();
 
-    updateSelectedData(data: any[], result: any[]) {
-        // هنا نقوم بإرسال كائن يحتوي على data و result
-        const combinedData = { data, result };
+    updateSelectedData(data: any[], searchQuery: string) {
+        const combinedData = { data, searchQuery };
         this.selectedDataSubject.next(combinedData);
     }
 }

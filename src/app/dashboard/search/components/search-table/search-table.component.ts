@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DataSharingService } from '../../services/data-sharing.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-search-table',
@@ -7,8 +8,9 @@ import { DataSharingService } from '../../services/data-sharing.service';
   styleUrls: ['./search-table.component.scss']
 })
 export class SearchTableComponent implements OnInit {
-  selectedData?: { data: any[], result: any[] };
+  selectedData?: { data: any[]};
   data?: any[];
+  searchQuery: string = '';
   resultsList: string[] = [
     "رقم_السورة",
     "بداية_السورة",
@@ -23,12 +25,13 @@ export class SearchTableComponent implements OnInit {
     "الآية",
   ];
 
-  constructor(private dataSharingService: DataSharingService, private cdr: ChangeDetectorRef) { }
+  constructor(private dataSharingService: DataSharingService, private cdr: ChangeDetectorRef,private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     this.dataSharingService.selectedData$.subscribe(combinedData => {
       this.selectedData = combinedData;
-      console.log("this.selectedData", this.selectedData.result)
+      this.searchQuery = combinedData.searchQuery;
+      console.log("this.selectedData", this.selectedData.data)
     });
   }
 
@@ -57,9 +60,9 @@ export class SearchTableComponent implements OnInit {
 
   sortByStartOfAyah(): void {
     console.log("Sorting by start of Ayah...");
-    console.log("Data before sorting: ", this.selectedData?.result);
-    if (this.selectedData?.result && this.selectedData.result.length > 0) {
-      this.selectedData?.result.sort((a: any, b: any) => {
+    console.log("Data before sorting: ", this.selectedData?.data);
+    if (this.selectedData?.data && this.selectedData.data.length > 0) {
+      this.selectedData?.data.sort((a: any, b: any) => {
         const valueA = a.data?.AyaText_Othmani ? a.data.AyaText_Othmani.trim().toLowerCase() : '';
         const valueB = b.data?.AyaText_Othmani ? b.data.AyaText_Othmani.trim().toLowerCase() : '';
         if (valueA < valueB) return -1;
@@ -67,25 +70,25 @@ export class SearchTableComponent implements OnInit {
         return 0;
       });
     }
-    console.log("Data after sorting: ", this.selectedData?.result);
+    console.log("Data after sorting: ", this.selectedData?.data);
   }
 
   sortByQuranGeneral(): void {
     console.log("Sorting by Quran General...");
-    this.selectedData?.result.sort((a: any, b: any) => {
+    this.selectedData?.data.sort((a: any, b: any) => {
       if (a.data.nOFSura === b.data.nOFSura) {
         return parseInt(a.data.Aya_N) - parseInt(b.data.Aya_N);
       }
       return parseInt(a.data.nOFSura) - parseInt(b.data.nOFSura);
     });
-    console.log(this.selectedData?.result);
+    console.log(this.selectedData?.data);
   }
 
   sortAlphabetically(): void {
     console.log("Sorting alphabetically...");
-    console.log("Data before sorting: ", this.selectedData?.result);
-    if (this.selectedData?.result && this.selectedData.result.length > 0) {
-      this.selectedData?.result.sort((a: any, b: any) => {
+    console.log("Data before sorting: ", this.selectedData?.data);
+    if (this.selectedData?.data && this.selectedData.data.length > 0) {
+      this.selectedData?.data.sort((a: any, b: any) => {
         const valueA = a.data?.Sura_Name ? a.data.Sura_Name.trim().toLowerCase() : '';
         const valueB = b.data?.Sura_Name ? b.data.Sura_Name.trim().toLowerCase() : '';
         if (valueA < valueB) return -1;
@@ -93,24 +96,39 @@ export class SearchTableComponent implements OnInit {
         return 0;
       });
     }
-    console.log("Data after sorting alphabetically: ", this.selectedData?.result);
+    console.log("Data after sorting alphabetically: ", this.selectedData?.data);
     this.cdr.detectChanges();
   }
 
 
   sortByMushafOrder(): void {
     console.log("Sorting by Mushaf Order...");
-    console.log("Data before sorting: ", this.selectedData?.result);
-    if (this.selectedData?.result && this.selectedData.result.length > 0) {
-      this.selectedData?.result.sort((a: any, b: any) => {
+    console.log("Data before sorting: ", this.selectedData?.data);
+    if (this.selectedData?.data && this.selectedData.data.length > 0) {
+      this.selectedData?.data.sort((a: any, b: any) => {
         if (a.data?.nOFSura === b.data?.nOFSura) {
           return parseInt(a.data?.Aya_N) - parseInt(b.data?.Aya_N);
         }
         return parseInt(a.data?.nOFSura) - parseInt(b.data?.nOFSura);
       });
     }
-    console.log("Data after sorting: ", this.selectedData?.result);
+    console.log("Data after sorting: ", this.selectedData?.data);
     this.cdr.detectChanges();
   }
+
+  highlightText(text: string, search: string): SafeHtml {
+    if (!search || search.trim() === '') {
+      return text;
+    }
+  
+    const regex = new RegExp(`(${search})`, 'gi');
+    const highlightedText = text.replace(regex, `<span class="highlight">$1</span>`);
+  
+    console.log('Original:', text);
+    console.log('Highlighted:', highlightedText);
+  
+    return this.sanitizer.bypassSecurityTrustHtml(highlightedText);
+  }
+  
 
 }
