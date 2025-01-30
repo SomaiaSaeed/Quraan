@@ -1,57 +1,65 @@
-<form [formGroup]="form" class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-mt-8 tw-border tw-border-gray-200 tw-p-4 tw-space-y-5">
-	<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-		<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">اسم السورة</label>
-			<div class="flex-box tw-gap-2">
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">من</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<!-- من سورة" -->
-					<mat-select formControlName="suraFrom" (selectionChange)="updateAyaNumbers('from')">
-						<mat-option  *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
-					</mat-select>
-				</mat-form-field>
+<div class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-mt-8" *ngIf="!isOpenForm" (click)="isOpenForm = !isOpenForm">
+	<span class="tw-font-bold tw-text-sm tw-mb-2 tw-cursor-pointer tw-underline">
+		<i class="sfi sfi-pen-f tw-text-gray-600"></i>
+		<span class="tw-mx-0.5"></span>
+		تعديل إعدادات البحث
+	</span>
+</div>
+<div class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-border tw-border-gray-200 tw-p-4 tw-mt-2">
+	<form [formGroup]="form" class="tw-space-y-5" *ngIf="isOpenForm">
+		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
+			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
+				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">اسم السورة</label>
+				<div class="flex-box tw-gap-2">
+					<mat-form-field appearance="outline"
+						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
+						<mat-label class="tw-text-sm">من</mat-label>
+						<span matSuffix
+							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+						<!-- من سورة" -->
+						<mat-select formControlName="suraFrom" (selectionChange)="updateAyaNumbers('from')">
+							<mat-option *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
+						</mat-select>
+					</mat-form-field>
 
-				<!-- إلى سورة -->
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">إلى</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<mat-select formControlName="suraTo" (selectionChange)="updateAyaNumbers('to')">
-						<mat-option  *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
-					</mat-select>
-				</mat-form-field>
+					<!-- إلى سورة -->
+					<mat-form-field appearance="outline"
+						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
+						<mat-label class="tw-text-sm">إلى</mat-label>
+						<span matSuffix
+							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+						<mat-select formControlName="suraTo" (selectionChange)="updateAyaNumbers('to')">
+							<mat-option *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
+						</mat-select>
+					</mat-form-field>
+				</div>
+			</div>
+			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
+				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">رقـم الاية</label>
+				<div class="flex-box tw-gap-2">
+					<!-- من اية -->
+					<mat-form-field appearance="outline"
+						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
+						<mat-label class="tw-text-sm">من</mat-label>
+						<span matSuffix
+							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+						<mat-select formControlName="ayaFrom">
+							<mat-option *ngFor="let ayah of ayaNumbersFrom" [value]="ayah">{{ ayah }}</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<!-- إلى اية -->
+					<mat-form-field appearance="outline"
+						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
+						<mat-label class="tw-text-sm">إلى</mat-label>
+						<span matSuffix
+							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
+						<mat-select formControlName="ayaTo" (selectionChange)="generateAyaNumbers()">
+							<mat-option *ngFor="let ayah of ayaNumbersTo" [value]="ayah">{{ ayah }}</mat-option>
+						</mat-select>
+					</mat-form-field>
+				</div>
 			</div>
 		</div>
-		<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">رقـم الاية</label>
-			<div class="flex-box tw-gap-2">
-				<!-- من اية -->
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">من</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<mat-select formControlName="ayaFrom">
-						<mat-option *ngFor="let ayah of ayaNumbersFrom" [value]="ayah" >{{ ayah }}</mat-option>
-					</mat-select>
-				</mat-form-field>
-				<!-- إلى اية -->
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">إلى</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<mat-select formControlName="ayaTo" (selectionChange)="generateAyaNumbers()">
-						<mat-option *ngFor="let ayah of ayaNumbersTo" [value]="ayah">{{ ayah }}</mat-option>
-					</mat-select>
-				</mat-form-field>
-			</div>
-		</div>
-	</div>	
 		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
 			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
 				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الجـزء</label>
@@ -62,7 +70,7 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
-						<mat-select formControlName="JozFrom"> 
+						<mat-select formControlName="JozFrom">
 							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -74,7 +82,7 @@
 						<span matSuffix
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- (selectionChange)="toPartFun($event)" -->
-						<mat-select formControlName="JozTo"  (selectionChange)="getHezbNumbersInRange()">
+						<mat-select formControlName="JozTo" (selectionChange)="getHezbNumbersInRange()">
 							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -146,7 +154,7 @@
 							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
 						<!-- من سورة" -->
 						<mat-select formControlName="pageFrom">
-							<mat-option  *ngFor="let page of pagesList" [value]="page">{{page}}
+							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}
 							</mat-option>
 						</mat-select>
 					</mat-form-field>
@@ -165,34 +173,61 @@
 				</div>
 			</div>
 		</div>
-	<!-- actions -->
-	<div class="tw-mt-10 flex-c-b">
-		<div class="tw-mt-4">
-			<mat-checkbox class="tw-text-sm">
-				<label for="" class="tw-font-medium tw-whitespace-break-spaces">
-					متطابق
-				</label>
-			</mat-checkbox>
+		<!-- actions -->
+		<div class="tw-mt-10 flex-c-b">
+			<div class="tw-mt-4">
+				<mat-checkbox class="tw-text-sm">
+					<label for="" class="tw-font-medium tw-whitespace-break-spaces">
+						متطابق
+					</label>
+				</mat-checkbox>
+			</div>
+			<div>
+				<button type="submit" (click)="onSubmit()" [disabled]="this.form.invalid"
+					class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+					حفظ إعدادت البحث
+				</button>
+				<span class="tw-mx-1"></span>
+				<button type="submit" (click)="resetForm()"
+					class="tw-bg-white tw-border-gray-300 tw-border tw-border-solid tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+					إعادة تعيين
+				</button>
+			</div>
 		</div>
-		<div>
-			<button type="submit" (click)="onSubmit()"
-				class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-				بحث
-			</button>
-			<span class="tw-mx-1"></span>
-			<button type="submit" (click)="resetForm()"
-				class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-				إعادة تعيين
-			</button>
-		</div>
+	</form>
+	<!-- Search after choosing -->
+	<div class="search-container tw-flex tw-items-center tw-gap-3" *ngIf="!isOpenForm">
+		<input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" (keyup)="onClearSearch()" placeholder="ابحث هنا..."
+			class="search-input focus:tw-border-secondColor">
+		<button type="submit" (click)="onSearch()"
+			class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-[45px] tw-px-8 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
+			بحـث
+		</button>
 	</div>
-</form>
+</div>
+<!-- <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="ابحث هنا..." class="search-input"> -->
+
+
+<!-- <mat-form-field class="example-full-width">
+		<mat-label>Number</mat-label>
+		<input type="text"
+		[(ngModel)]="searchQuery"
+			   placeholder="Pick one"
+			   aria-label="Number"
+			   matInput
+			  
+			   [matAutocomplete]="auto"
+			   (keyup.enter)="onSearch()">
+		<mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+			<mat-option *ngFor="let aya of results" [value]="aya">{{aya}}</mat-option>
+		</mat-autocomplete>
+	  </mat-form-field> -->
 
 <!-- popup-result -->
-<!-- <ng-template #searchResult>
+<ng-template #searchResult>
 	<header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
 		<h2 class="tw-mb-0">اعدادات البحث</h2>
-		<button title="close" (click)="closeDialog()" mat-flat-button
+		<button title="close" (click)="closeDialog()"  mat-flat-button
 			class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
 			<span class="tw-text-white tw-text-sm tw-block tw-py-px">
 				<i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
@@ -200,6 +235,6 @@
 		</button>
 	</header>
 	<main>
-		<h2 class="tw-p-2"> تم حفظ اعدادات البحث </h2>
+		<p class="tw-text-center"> تم حفظ اعدادات البحث </p>
 	</main>
-</ng-template> -->
+</ng-template>

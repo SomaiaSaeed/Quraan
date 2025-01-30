@@ -1,7 +1,7 @@
 <!--   -->
-<div class="flex-c-b tw-mt-6" *ngIf="selectedData?.result?.length != 0">
+<div class="flex-c-b tw-mt-6" *ngIf="selectedData?.data?.length != 0">
 	<div>
-		<span class="tw-font-bold tw-text-sm tw-block">عدد النتائج {{selectedData?.result?.length}}</span>
+		<span class="tw-font-bold tw-text-sm tw-block">عدد النتائج {{selectedData?.data?.length}}</span>
 	</div>
 	<div class="tw-flex tw-items-center tw-gap-2">
 		<span class="tw-text-xs tw-text-gray-600">ترتيب المحتوي : </span>
@@ -23,7 +23,7 @@
 </div>
 
 <div class="tw-overflow-auto tw-mt-6 tw-max-h-96">
-	<section class="tw-table tw-w-full tw-whitespace-nowrap" *ngIf="selectedData?.result?.length != 0">
+	<section class="tw-table tw-w-full tw-whitespace-nowrap" *ngIf="selectedData?.data?.length != 0">
 		<header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
 			<div
 				class="tw-table-cell tw-text-gary-700 tw-font-bold tw-text-sm tw-px-6 tw-py-4 ltr:tw-text-left rtl:tw-text-right">
@@ -39,15 +39,16 @@
 			</div>
 		</header>
 		<!-- content -->
-		<ng-container *ngFor="let item of selectedData?.result">
+		<ng-container *ngFor="let item of selectedData?.data">
 			<div class="tw-table-row tw-bg-white tw-w-full tw-rounded tw-mb-3">
 				<div class="tw-table-cell tw-border-b tw-border-gray-200">
 					<div class="flex-box tw-gap-1 tw-py-3">
 						<div class="tw-w-0.5 tw-h-10 tw-bg-mainColor tw-rounded-md"></div>
 						<span class="tw-mx-1"></span>
-						<p class="tw-mb-0 tw-max-w-[400px] tw-whitespace-break-spaces tw-leading-8">
-							{{item.data.AyaText_Othmani}}
-						</p>
+						<!-- <p class="tw-mb-0 tw-max-w-[400px] tw-whitespace-break-spaces tw-leading-8">
+							{{item.data.AyaText}}
+						</p> -->
+						<p class="tw-mb-0 tw-max-w-[400px] tw-whitespace-break-spaces tw-leading-8" [innerHTML]="highlightText(item.data.AyaText, searchQuery)"></p>
 					</div>
 				</div>
 				<div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
@@ -66,5 +67,5 @@
 			</div>
 		</ng-container>
 	</section>
-	<app-no-results *ngIf="selectedData?.result?.length == 0"></app-no-results>
+	<app-no-results *ngIf="selectedData?.data?.length == 0"></app-no-results>
 </div>

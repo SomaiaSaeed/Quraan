@@ -1,8 +1,9 @@
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Search } from "src/app/core/services/search.service";
 import { ListenService } from "src/app/dashboard/listen/services/listen.service";
 import { DataSharingService } from "../../services/data-sharing.service";
+import { MatDialog } from "@angular/material/dialog";
 interface Track {
 	// ayaText: string;
 	// name: string;
@@ -28,9 +29,14 @@ export class FormComponent implements OnInit {
 	hezbList: number[] = [];
 	rubList: string[] = [];
 	pagesList: number[] = [];
-	ayatListOfPages: number[] = []
+	ayatListOfPages: number[] = [];
+	searchQuery: string = '';
+	results: any[] = [];
+	isOpenForm: boolean = true;
+	@ViewChild('searchResult', { static: true }) searchResult!: TemplateRef<any>;
 
-	constructor(private fb: FormBuilder, private _listenService: ListenService, private dataSharingService: DataSharingService) {
+
+	constructor(private fb: FormBuilder, private _listenService: ListenService, private dataSharingService: DataSharingService, public dialog: MatDialog) {
 		this.form = this.fb.group({
 			suraFrom: ['', Validators.required],
 			ayaFrom: ['', Validators.required],
@@ -48,13 +54,32 @@ export class FormComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.getSuraNames()
+		this.getSuraNames();
+		const savedData = localStorage.getItem('searchFormData');
+		if (savedData) {
+		  const formData = JSON.parse(savedData);
+		  console.log('Form data retrieved from localStorage:', formData);  // طباعة البيانات المسترجعة
+		  this.form.patchValue(formData);  // تحديث الفورم
+		  this.updateAyaNumbers('from');  // تحديث selectbox بناءً على الاختيارات المحفوظة
+		  this.updateAyaNumbers('to');
+		  this.form.controls['ayaFrom'].setValue(formData.ayaFrom);
+		  this.form.controls['ayaTo'].setValue(formData.ayaTo);
+		  this.generateAyaNumbers();
+		  this.generateJozNumbers();
+		  this.getHezbNumbersInRange();
+		  this.getRubbNumbersInRange();
+		  this.getAyatOfOages();
+		  this.form.controls['pageFrom'].setValue(formData.pageFrom);
+		  this.form.controls['pageTo'].setValue(formData.pageTo);
+		} else {
+		  console.log('No data found in localStorage');
+		}
+		  
 	}
 
 	getSuraNames() {
 		this.suraNames = [...new Set(this.searchInstance.table_othmani.map(item => item.Sura_Name))];
 	}
-
 
 	// تحديث الايات بناء على اختيار السور
 	updateAyaNumbers(type: 'from' | 'to') {
@@ -311,10 +336,7 @@ export class FormComponent implements OnInit {
 				const ayaInfo = this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber));
 				// const ayaText = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`;
 				// const sura_Name = aya ? aya.Sura_Name : `Ayah ${ayahNumber}`;
-
 				return {
-					// ayaText: ayaText,
-					// name: sura_Name,
 					data: ayaInfo
 				};
 			});
@@ -324,11 +346,58 @@ export class FormComponent implements OnInit {
 
 	onSubmit() {
 		const selectedData = this.form.value;
-		const additionalData = this.dataAya;
-		this.dataSharingService.updateSelectedData(selectedData, additionalData);
+		localStorage.setItem('searchFormData', JSON.stringify(selectedData));
+		localStorage.setItem('dataAya', JSON.stringify(this.dataAya));
+		this.openDialog();
+		this.isOpenForm = false
 	}
+
+	openDialog(): void {
+		const dialogRef = this.dialog.open(this.searchResult, {
+			width: '400px',
+		});
+
+		dialogRef.afterClosed().subscribe(() => {
+			console.log("after");
+		});
+	}
+
+	closeDialog(): void {
+		this.dialog.closeAll();
+	}
+
+	onSearch(): void {
+		const storedFormData = localStorage.getItem('dataAya');
+		const dataArray = storedFormData ? JSON.parse(storedFormData) : [];
+
+		console.log("Data from localStorage:", dataArray);
+
+		if (this.searchQuery && this.searchQuery.trim() !== '') {
+			const searchResults = dataArray.filter((item: any) => {
+				const ayaText = (item.data.AyaText || '').toLowerCase().trim();
+				const query = this.searchQuery.toLowerCase().trim();
+
+				return ayaText.includes(query);
+			});
+			this.dataSharingService.updateSelectedData(searchResults,this.searchQuery);
+			this.results = searchResults
+			console.log("Search results:", searchResults);
+		} else {
+			console.log("No search query, showing all data:", dataArray);
+		}
+	}
+
+	onClearSearch(): void {
+		if (!this.searchQuery || this.searchQuery.trim() === '') {
+		  this.results = [];
+		  this.dataSharingService.updateSelectedData([],'');
+		  console.log("Search query is empty, hiding table.");
+		}
+	  }
 
 	resetForm() {
 		this.form.reset();
+		localStorage.removeItem('searchFormData');
+		localStorage.removeItem('dataAya');
 	}
 }
