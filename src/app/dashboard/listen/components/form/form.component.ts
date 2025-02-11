@@ -62,11 +62,8 @@ export class FormComponent implements OnInit {
 		const selectedSura = this.form.get(`sura${type.charAt(0).toUpperCase() + type.slice(1)}`)?.value;
 
 		if (selectedSura) {
-			// إيجاد كل الآيات الخاصة بالسورة المختارة
 			const suraData = this.searchInstance.table_othmani.filter(item => item.Sura_Name === selectedSura);
-			// console.log("suraData", suraData);
 
-			// استخراج أرقام الآيات الفعلية
 			const ayaNumbers = suraData.map(item => Number(item.Aya_N));
 			const ayaIds = suraData.map(item => Number(item.id)); 
 
@@ -106,7 +103,6 @@ export class FormComponent implements OnInit {
 		console.log("selectedSuraFrom:", selectedSuraFrom);
 		console.log("selectedSuraTo:", selectedSuraTo);
 
-		//  جميع الآيات مرتبة حسب الـ ID
 		const allAyatSorted = this.searchInstance.table_othmani.sort((a, b) => Number(a.id) - Number(b.id));
 
 		const startAya = allAyatSorted.find(item =>
@@ -120,7 +116,6 @@ export class FormComponent implements OnInit {
 		const startId = Number(startAya.id);
 		const endId = Number(endAya.id);
 
-		// تصفية الآيات التي تقع بين الآيتين بناءً على ID
 		const filteredAyat = allAyatSorted.filter(item => {
 			const itemId = Number(item.id);
 			return itemId >= startId && itemId <= endId;
