@@ -1,5 +1,7 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { MenuModule } from 'primeng/menu';
 
 import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
@@ -17,7 +19,10 @@ import { DynamicAyaComponent } from './components/dynamic-aya/dynamic-aya.compon
   imports: [
     CommonModule,
     HomeRoutingModule,
-    CarouselModule
-  ]
+    CarouselModule,
+    ContextMenuModule,
+    MenuModule
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HomeModule { }

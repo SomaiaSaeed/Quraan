@@ -1,4 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MenuItem } from 'primeng/api';
+import { Menu } from 'primeng/menu';
 import { SpansOfColoredWords,MotashabehatSpan } from 'src/app/core/constants/quraanImages.constant';
 
 interface Span {
@@ -67,7 +69,7 @@ export class DynamicAyaComponent implements OnInit {
   @Input() aya: string = '';
 
   @ViewChild('container', { static: false }) contain!: ElementRef;
-
+  @ViewChild('cm') cm!: Menu;
   val: number = 5;
   bakgroundStyle = { background: 'white', opacity: 0.0, motashOpacity: 1 };
   bakgroundStyle2 = { background: 'blue', opacity: 0.2, motashOpacity: 0.2 };
@@ -193,15 +195,16 @@ export class DynamicAyaComponent implements OnInit {
 
   onRightClick(event: MouseEvent): void {
     event.preventDefault();
-    this.showAyaList = true;
+    this.showAyaList = false;
 
-    const containerRect = this.contain.nativeElement.getBoundingClientRect();
-    const XL = event.clientX - containerRect.left + this.contain.nativeElement.scrollLeft - 200;
-    const YL = event.clientY - containerRect.top + this.contain.nativeElement.scrollTop;
-
-    // this.listMenuStyle.top = `${YL}px`;
-    // this.listMenuStyle.left = `${XL}px`;
+    let XL = event.clientX - this.contain.nativeElement.getBoundingClientRect().left + this.contain.nativeElement.scrollLeft - 200;
+    let YL = event.clientY - this.contain.nativeElement.getBoundingClientRect().top + this.contain.nativeElement.scrollTop;
+    this.listMenuStyle['top'] = YL + 'px';
+    this.listMenuStyle['left'] = XL + 'px';
     this.onRight.emit(event);
+    setTimeout(() => {
+      this.showAyaList = true;
+    }, 0);
   }
 
   aya_clicked(event: Event): void {

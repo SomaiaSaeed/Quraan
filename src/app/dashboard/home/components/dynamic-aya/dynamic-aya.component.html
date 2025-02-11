@@ -2,8 +2,8 @@
 <a (click)="aya_clicked($event)" (mouseenter)="onMouseEnter($event)" (mouseout)="onMouseOut($event)"
   [class.active]="activeAya === 17" [style.left]="'35%'" class="aya_link" (contextmenu)="onRightClick($event)">
   <div class="help-block containerSVG" draggable=false oncontextmenu="return false;">
-    <!-- <p-menu *ngIf="showAyaList" [model]="listAyaItems" [ngStyle]="listMenuStyle">
-    </p-menu> -->
+    <p-menu *ngIf="showAyaList" [model]="listAyaItems" [ngStyle]="listMenuStyle">
+    </p-menu>
   </div>
   <span *ngFor="let s of spans;let i = index" [style.background]="isActive?bakgroundStyle2.background:bakgroundStyle.background"
     [style.height]="s.height" [style.left]="s.left" [style.opacity]="bakgroundStyle.opacity" [style.top]="s.top"
