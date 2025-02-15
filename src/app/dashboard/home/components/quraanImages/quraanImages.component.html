@@ -1,7 +1,15 @@
 <owl-carousel-o [options]="customOptions">
-  <ng-container *ngFor="let img of images">
-      <ng-template carouselSlide [id]="img.id">
-          <img [src]="img.src" [alt]="img.alt" [title]="img.title" class="tw-w-auto">
+  <ng-container *ngFor="let page of quranPages">
+      <ng-template carouselSlide>
+          <!-- <img [src]="img.src" [alt]="img.alt" [title]="img.title" class="tw-w-auto"> -->
+          <div class="quran-page">
+            <h3>📖 صفحة رقم: {{ page.pageNumber }}</h3>
+            <div class="ayat">
+              <p *ngFor="let aya of page.ayat">
+                {{ aya.text }}
+              </p>
+            </div>
+          </div>
       </ng-template>
   </ng-container>
 </owl-carousel-o>

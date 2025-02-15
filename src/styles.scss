@@ -12,6 +12,21 @@
 /* You can add global styles to this file, and also import other style files */
 @import "assets/scss/base.scss";
 
+@font-face {
+  font-family: 'uthmanic_hafs_v20';
+  src: url('./assets/fonts/uthmanic_hafs_v20.ttf') format('truetype');
+  font-style: normal;
+}
+.quran-page {
+  text-align: center;
+  p{
+    font-family: 'uthmanic_hafs_v20', sans-serif !important;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 2;
+  }
+}
+
 body {
   background: #f3f3f3;
   font-family: 'Cairo', sans-serif !important;

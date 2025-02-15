@@ -27,15 +27,12 @@ export class ListenService {
 		return `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`;
 	}
 
-
-	  // جلب جميع الروابط الصوتية لكل آية
 	  getAllAyahs(): Observable<string[]> {
 		return this.http.get(this.Quraan_URL).pipe(
 		  map((response: any) => {
 			const ayahLinks: string[] = [];
 			let ayahNumber = 1;
 	
-			// بناء مصفوفة الروابط لكل آية
 			response.data.forEach((surah: any) => {
 			  for (let i = 0; i < surah.numberOfAyahs; i++) {
 				ayahLinks.push(`${this.Quraan_SOUND}/${ayahNumber}.mp3`);
@@ -48,7 +45,6 @@ export class ListenService {
 		);
 	  }
 	
-	  // جلب عدد الآيات بناءً على رقم السورة
 	  getSurahAyahs(surahNumber: number): Observable<number> {
 		return this.http.get(`${this.Quraan_URL}/${surahNumber}`).pipe(
 		  map((response: any) => response.data.ayahs)
