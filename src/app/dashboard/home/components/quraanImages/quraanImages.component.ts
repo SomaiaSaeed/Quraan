@@ -13,10 +13,11 @@ export class QuraanImagesComponent implements OnInit {
 
   customOptions: OwlOptions = {
     loop: true,
-    mouseDrag: true,
-    touchDrag: true,
+    mouseDrag: false,
+    touchDrag: false,
     pullDrag: false,
-    dots: true,
+    autoHeight: true,
+    dots: false,
     navSpeed: 700,
     navText: ["", ""],
     responsive: {
@@ -40,6 +41,7 @@ export class QuraanImagesComponent implements OnInit {
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
+    console.log("this.quranPages", this.quranPages);
   }
 
   groupQuranPages(): any[] {

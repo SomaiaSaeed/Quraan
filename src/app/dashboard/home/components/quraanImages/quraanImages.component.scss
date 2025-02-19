@@ -1,2 +1,28 @@
+:host ::ng-deep{
+  .owl-carousel,.owl-stage-outer,.owl-stage{
+    height: 100%;
+  }
+  .owl-theme .owl-nav{
+    z-index: 99999;
+    position: relative;
+    top: -45px;
+  }
+}
 
-  
+.aya-text{
+  direction: rtl;
+}
+
+.aya-aya {
+  width: 24px; 
+  height: 24px;
+  background-image: url('./../../../../../assets/images/aya.png');
+  background-size: cover;
+  background-position: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: normal;
+
+}
