@@ -5,6 +5,7 @@ import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { QuraanImagesComponent } from './components/quraanImages/quraanImages.component';
+import { ContextMenuModule } from 'primeng/contextmenu';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { QuraanImagesComponent } from './components/quraanImages/quraanImages.co
   imports: [
     CommonModule,
     HomeRoutingModule,
-    CarouselModule
+    CarouselModule,
+    ContextMenuModule
   ]
 })
 export class HomeModule { }

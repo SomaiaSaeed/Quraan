@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import { OwlOptions } from "ngx-owl-carousel-o";
+import { MenuItem } from "primeng/api";
 import { Search } from "src/app/core/services/search.service";
 
 @Component({
@@ -10,7 +11,9 @@ import { Search } from "src/app/core/services/search.service";
 export class QuraanImagesComponent implements OnInit {
   @Input() images: string | any;
   quranPages: any[] = [];
-
+  @ViewChild('menu') contextMenu: any;
+  contextMenuItems: MenuItem[] = [];
+  selectedAya: any = null;
   customOptions: OwlOptions = {
     loop: true,
     mouseDrag: false,
@@ -37,11 +40,16 @@ export class QuraanImagesComponent implements OnInit {
     nav: true,
   };
 
-  constructor(private _searchInstance: Search) {}
+  constructor(private _searchInstance: Search) { }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
     console.log("this.quranPages", this.quranPages);
+  }
+
+  convertToArabicNumbers(num: string | number): string {
+    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return num.toString().replace(/\d/g, (d) => arabicNumbers[parseInt(d, 10)]);
   }
 
   groupQuranPages(): any[] {
@@ -66,5 +74,30 @@ export class QuraanImagesComponent implements OnInit {
     });
 
     return Object.values(pages).sort((a, b) => a.pageNumber - b.pageNumber);
+  }
+
+  onRightClick(event: MouseEvent, aya: any) {
+    event.preventDefault();
+    this.selectedAya = aya;
+
+    this.contextMenuItems = [
+      {
+        label: '📋 تفسير الآية',
+        icon: 'pi pi-copy',
+        // command: () => this.copyAya()
+      },
+      {
+        label: '🔗 مشاركة الآية',
+        icon: 'pi pi-share-alt',
+        // command: () => this.shareAya()
+      },
+      {
+        label: '⭐ حفظ الآية',
+        icon: 'pi pi-bookmark',
+        // command: () => this.bookmarkAya()
+      }
+    ];
+
+    this.contextMenu.show(event);
   }
 }

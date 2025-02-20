@@ -1,23 +1,24 @@
 <owl-carousel-o [options]="customOptions">
   <ng-container *ngFor="let page of quranPages">
       <ng-template carouselSlide>
-        <div class="tw-w-8 tw-h-8 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-border-2 tw-border-neutral-800"> 
+        <!-- <div class="tw-w-8 tw-h-8 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-border-2 tw-border-neutral-800"> 
           <h3 class="tw-text-neutral-700 tw-mb-0">{{ page.pageNumber }}</h3>
-        </div>
-          <div class="quran-page tw-mx-5 tw-relative">
+        </div> -->
+          <div class="quran-page tw-mx-3 tw-relative">
             <div class="tw-relative tw-mb-5">
-              <img src="../../../../../assets/images/head.jpg" class="tw-h-24" alt="">
-              <div class="tw-absolute tw-top-[13px] tw-left-0 tw-right-0">
+              <img src="../../../../../assets/images/head.png" class="tw-h-20" alt="">
+              <div class="tw-absolute tw-top-[6px] tw-left-0 tw-right-0">
                 <span class="tw-text-4xl">{{ page.ayat[0]?.suraName }}</span>
               </div>
             </div>
             <!-- tw-flex  tw-items-center tw-justify-center tw-flex-wrap tw-flex-row-reverse -->
-            <div class="tw-text-justify" dir="rtl" style="text-align: justify;"> 
-              <span *ngFor="let aya of page.ayat" class="aya-text" [attr.data-aya-number]="aya.ayaNumber">
-                {{ aya.text }} <span class="aya-aya">{{aya.ayaNumber}}</span>
+            <div class="tw-text-justify tw-mx-6" dir="rtl" style="text-align: justify;"> 
+              <span *ngFor="let aya of page.ayat" class="aya-text" (contextmenu)="onRightClick($event, aya)">
+                {{ aya.text }} <span class="aya-aya tw-text-3xl">{{ convertToArabicNumbers(aya.ayaNumber) }}</span>
               </span>
             </div>
           </div>
       </ng-template>
   </ng-container>
 </owl-carousel-o>
+<p-contextMenu #menu [model]="contextMenuItems"></p-contextMenu>
