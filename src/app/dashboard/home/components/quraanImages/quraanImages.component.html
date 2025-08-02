@@ -1,6 +1,6 @@
-<owl-carousel-o [options]="customOptions">
-  <ng-container *ngFor="let page of quranPages">
-      <ng-template carouselSlide>
+<owl-carousel-o [options]="customOptions"  (change)="onPageChange($event)">
+  <ng-container *ngFor="let page of quranPages;let id=index">
+      <ng-template carouselSlide [id]="(id+1)+''">
         <!-- <div class="tw-w-8 tw-h-8 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-border-2 tw-border-neutral-800"> 
           <h3 class="tw-text-neutral-700 tw-mb-0">{{ page.pageNumber }}</h3>
         </div> -->
