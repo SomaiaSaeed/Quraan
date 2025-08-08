@@ -14,29 +14,55 @@ export class HomeComponent {
     this.inputs = $event;
     this.rightMotashabehatSpans = [];
     this.leftMotashabehatSpans = [];
-
-    if ($event != null && $event.length > 0) {
+  
+    if ($event && $event.length > 0) {
       this.inputs.forEach((input) => {
         if (input.motashabehatSpans.length > 0) {
           input.motashabehatSpans.forEach((motabehat) => {
-            if(motabehat.moade3!=null&&motabehat.moade3!=""){
-              debugger
+            if (motabehat.moade3 != null && motabehat.moade3 !== "") {
               let x = JSON.parse(JSON.stringify(motabehat));
-              x.moade3 = motabehat.moade3.split(')');
-              if (x.moade3.length > 0 && x.moade3[x.moade3.length - 1] === '') {
-                x.moade3.pop(); // Remove the last element if it is an empty string
-              }
-              if (motabehat.isRight) 
+  
+              // Step 1: Split by `)` and filter out empty strings
+              const parts = motabehat.moade3
+                .split(")")
+                .map(part => part.trim())
+                .filter(part => part !== "");
+  
+              // Step 2: Group aya indexes by sura name
+              const suraMap: { [sura: string]: number[] } = {};
+  
+              parts.forEach(part => {
+                const [sura, ayaStr] = part.split("(");
+                if (sura && ayaStr) {
+                  const suraName = sura.trim();
+                  const ayaNum = parseInt(ayaStr.trim(), 10);
+                  if (!suraMap[suraName]) {
+                    suraMap[suraName] = [];
+                  }
+                  suraMap[suraName].push(ayaNum);
+                }
+              });
+  
+              // Step 3: Reconstruct moade3 as array of "SuraName (1, 2, 3)"
+              x.moade3 = Object.entries(suraMap).map(([sura, ayas]) => {
+                return `${sura} (${ayas.join(", ")}`;
+              });
+  
+              // Push to correct side
+              if (motabehat.isRight) {
                 this.rightMotashabehatSpans.push(x);
-              else this.leftMotashabehatSpans.push(x);
+              } else {
+                this.leftMotashabehatSpans.push(x);
+              }
             }
-           
           });
         }
       });
     }
-    debugger
+  
+    debugger;
   }
+  
   images: any[] = IMAGES;
   inputs: InputItem[] = [];
   rightMotashabehatSpans: any[] = [];
