@@ -11,7 +11,7 @@ const QuranPagesURL = "assets/jsonData/QuranPages.json";
 
 interface Motashabehat {
   isRight: boolean;
-  moade3: any[];  
+  moade3: any[];
   height: string;
   top: string;
 }
@@ -36,13 +36,13 @@ export interface SpansOfColoredWords {
   left: string;
   width: string;
   color: string;
-  coloredWord:string,
+  coloredWord: string,
   isStatic?: boolean;
 }
 
 export interface InputItem {
   motashabehat: Motashabehat;
-  ayat: any[];  
+  ayat: any[];
   aya: string;
   ayaId: string;
   spans: Span[];
@@ -51,7 +51,7 @@ export interface InputItem {
   isActive: boolean;
   href: string;
   activeAya: number;
-  matchedWord:string;
+  matchedWord: string;
   errorFactor: string;
 }
 
@@ -104,7 +104,7 @@ export class QuraanImagesComponent implements OnInit {
     debugger
     // this.inputs = [];
     // this.resetDrawing();
-    this.pageNumber = parseInt($event?.slides?.[0]?.id ?? "0")+1;
+    this.pageNumber = parseInt($event?.slides?.[0]?.id ?? "0") + 1;
     this.resetDrawing();
     if (this._quranInJson == null || this._quranPages == null) {
       this.loadQuranJson();
@@ -125,12 +125,12 @@ export class QuraanImagesComponent implements OnInit {
 
   @Output() onClick = new EventEmitter<number>(); // Assuming ayaId is a number
   @Output() onRight = new EventEmitter<any>();
-  @Output() motahabehClick = new EventEmitter<any>();  
+  @Output() motahabehClick = new EventEmitter<any>();
   @Output() motshabehat = new EventEmitter<InputItem[]>(); // Assuming ayaId is a number
 
 
-  private _quranPages: any;  
-  private _quranInJson: any;  
+  private _quranPages: any;
+  private _quranInJson: any;
 
   lastTop: number = 10;
   marginTop: number = 50;
@@ -155,7 +155,7 @@ export class QuraanImagesComponent implements OnInit {
     { color: "#90ee90", text: "موضعين وسط الأية" },
     { color: "#ADD8E6", text: "ثلاث مواضع وسط الأية" },
   ];
-  
+
   inputs: InputItem[] = [];
   private searchWord: string = "";
   private x: AyaDetail[] = [];
@@ -193,7 +193,7 @@ export class QuraanImagesComponent implements OnInit {
   };
 
 
-  constructor(private _searchInstance: Search,private _http: HttpClient) { }
+  constructor(private _searchInstance: Search, private _http: HttpClient) { }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
@@ -210,7 +210,6 @@ export class QuraanImagesComponent implements OnInit {
 
     this._searchInstance.table_othmani.forEach((aya) => {
       const pageNum = aya.nOFPage;
-      this.pageNumber = pageNum;
 
       if (!pages[pageNum]) {
         pages[pageNum] = {
@@ -224,10 +223,15 @@ export class QuraanImagesComponent implements OnInit {
         text: aya.AyaText_Othmani,
         ayaNumber: aya.Aya_N,
         suraName: aya.Sura_Name,
+        highlighted: false
       });
     });
 
     return Object.values(pages).sort((a, b) => a.pageNumber - b.pageNumber);
+  }
+
+  toggleHighlight(aya: any) {
+    aya.highlighted = !aya.highlighted;
   }
 
   onRightClick(event: MouseEvent, aya: any) {
@@ -262,7 +266,7 @@ export class QuraanImagesComponent implements OnInit {
       this.generateMotashabehatOfSelectedPage(this.pageNumber);
       this.determineHighlight();
       this.drawColoredWords();
-  
+
     });
   }
 
@@ -363,34 +367,34 @@ export class QuraanImagesComponent implements OnInit {
   }
 
   private generateMotashabehatOfSelectedPage(pageNumber: number): void {
-  this._quranPages[pageNumber-1].ayas.forEach((ayaInPage: any) => {
-    this.arrOfAyaWords = ayaInPage.text.split(" ");
-    this.searchWord = this.arrOfAyaWords[0];
-    let isCheckIn = false;
-    let ayaDetails: AllAya = {
-      arrOfColoredWords: [],
-      errorFactor: "",
-      top: "",
-      id: 0,
-      mooade3: [],
-      suraWithIndex: "",
-      matchedWord:'',
-      sura: "",
-      aya: "",
-      ayaIndex: 0,
-      numOfCharsInWholeAya: 0,
-    };
-    let arrayOfMot: {
-      id: number;
-      suraWithIndex: string;
-      aya: string;
-      color: string;
-    }[] = [];
-    let arrayOfWordsWithColors: ArrOfColoredWords[] = [];
+    this._quranPages[pageNumber - 1].ayas.forEach((ayaInPage: any) => {
+      this.arrOfAyaWords = ayaInPage.text.split(" ");
+      this.searchWord = this.arrOfAyaWords[0];
+      let isCheckIn = false;
+      let ayaDetails: AllAya = {
+        arrOfColoredWords: [],
+        errorFactor: "",
+        top: "",
+        id: 0,
+        mooade3: [],
+        suraWithIndex: "",
+        matchedWord: '',
+        sura: "",
+        aya: "",
+        ayaIndex: 0,
+        numOfCharsInWholeAya: 0,
+      };
+      let arrayOfMot: {
+        id: number;
+        suraWithIndex: string;
+        aya: string;
+        color: string;
+      }[] = [];
+      let arrayOfWordsWithColors: ArrOfColoredWords[] = [];
 
-    for (let i = 0; i <= this.arrOfAyaWords.length; i++) {
-      this.x = [];
-      let countSuras: any[] = [];
+      for (let i = 0; i <= this.arrOfAyaWords.length; i++) {
+        this.x = [];
+        let countSuras: any[] = [];
 
         if (i === 0) {
           this.searchWord = this.arrOfAyaWords[0];
@@ -398,26 +402,26 @@ export class QuraanImagesComponent implements OnInit {
           this.searchWord = this.searchWord + " " + this.arrOfAyaWords[i];
         }
 
-      this._quranInJson.forEach((sura: any) => {
-        sura.aya.forEach((aya: any) => {
-          if (aya.text.startsWith(this.searchWord)) {
-            this.x.push({
-              id: ayaInPage.id,
-              errorFactor: ayaInPage.errorFactor,
-              top: ayaInPage.top,
-              text: aya.text,
-              index: aya.index,
-              suraWithIndex: `${sura.name} (${aya.index})`,
-              sura: sura.name,
-              lastWord: this.searchWord,
-            });
+        this._quranInJson.forEach((sura: any) => {
+          sura.aya.forEach((aya: any) => {
+            if (aya.text.startsWith(this.searchWord)) {
+              this.x.push({
+                id: ayaInPage.id,
+                errorFactor: ayaInPage.errorFactor,
+                top: ayaInPage.top,
+                text: aya.text,
+                index: aya.index,
+                suraWithIndex: `${sura.name} (${aya.index})`,
+                sura: sura.name,
+                lastWord: this.searchWord,
+              });
               if (countSuras.indexOf(sura.name) < 0) {
-              countSuras.push(sura.name);
-            }
+                countSuras.push(sura.name);
+              }
             }
           });
         });
-            
+
         if (this.x.length === 1) {
           arrayOfWordsWithColors.push({
             word: this.x[0].lastWord,
@@ -438,7 +442,7 @@ export class QuraanImagesComponent implements OnInit {
               sura: this.x[0].sura,
               suraWithIndex: this.x[0].suraWithIndex,
               mooade3: arrayOfMot,
-              matchedWord:this.searchWord
+              matchedWord: this.searchWord
             };
             isCheckIn = true;
           } else {
@@ -449,7 +453,7 @@ export class QuraanImagesComponent implements OnInit {
           arrayOfWordsWithColors.push({
             word: this.x[0].lastWord,
             color: this.colors[1].color,
-        });
+          });
           if (!isCheckIn) {
             this.x.forEach((mode3) => {
               arrayOfMot.push({
@@ -470,7 +474,7 @@ export class QuraanImagesComponent implements OnInit {
               suraWithIndex: this.x[0].suraWithIndex,
               arrOfColoredWords: arrayOfWordsWithColors,
               mooade3: arrayOfMot,
-              matchedWord:this.searchWord
+              matchedWord: this.searchWord
             };
             isCheckIn = true;
           } else {
@@ -480,41 +484,9 @@ export class QuraanImagesComponent implements OnInit {
           arrayOfWordsWithColors.push({
             word: this.x[0].lastWord,
             color: this.colors[2].color,
-      });
-
-        if (!isCheckIn) {
-            this.x.forEach((mode3) => {
-            arrayOfMot.push({
-                id: mode3.id,
-                suraWithIndex: mode3.suraWithIndex,
-                aya: mode3.text,
-              color: "",
-            });
           });
-          ayaDetails = {
-            errorFactor: this.x[0].errorFactor,
-            top: this.x[0].top,
-            id: this.x[0].id,
-            aya: this.x[0].text,
-            numOfCharsInWholeAya: this.x[0].text.length,
-            ayaIndex: this.x[0].index,
-            sura: this.x[0].sura,
-            suraWithIndex: this.x[0].suraWithIndex,
-            arrOfColoredWords: arrayOfWordsWithColors,
-            mooade3: arrayOfMot,
-            matchedWord:this.searchWord
-          };
-          isCheckIn = true;
-        } else {
-          ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
-        }
-        } else if (this.x.length == 4) {
-        arrayOfWordsWithColors.push({
-          word: this.x[0].lastWord,
-            color: this.colors[3].color,
-        });
 
-        if (!isCheckIn) {
+          if (!isCheckIn) {
             this.x.forEach((mode3) => {
               arrayOfMot.push({
                 id: mode3.id,
@@ -523,29 +495,61 @@ export class QuraanImagesComponent implements OnInit {
                 color: "",
               });
             });
-          ayaDetails = {
-            errorFactor: this.x[0].errorFactor,
-            top: this.x[0].top,
-            id: this.x[0].id,
-            aya: this.x[0].text,
-            numOfCharsInWholeAya: this.x[0].text.length,
-            ayaIndex: this.x[0].index,
-            sura: this.x[0].sura,
-            suraWithIndex: this.x[0].suraWithIndex,
+            ayaDetails = {
+              errorFactor: this.x[0].errorFactor,
+              top: this.x[0].top,
+              id: this.x[0].id,
+              aya: this.x[0].text,
+              numOfCharsInWholeAya: this.x[0].text.length,
+              ayaIndex: this.x[0].index,
+              sura: this.x[0].sura,
+              suraWithIndex: this.x[0].suraWithIndex,
               arrOfColoredWords: arrayOfWordsWithColors,
-            mooade3: arrayOfMot,
-            matchedWord:this.searchWord
-          };
-          isCheckIn = true;
-        } else {
-          ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
-        }
-      } else if (this.x.length > 4) {
-        arrayOfWordsWithColors.push({
-          word: this.x[0].lastWord,
+              mooade3: arrayOfMot,
+              matchedWord: this.searchWord
+            };
+            isCheckIn = true;
+          } else {
+            ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
+          }
+        } else if (this.x.length == 4) {
+          arrayOfWordsWithColors.push({
+            word: this.x[0].lastWord,
+            color: this.colors[3].color,
+          });
+
+          if (!isCheckIn) {
+            this.x.forEach((mode3) => {
+              arrayOfMot.push({
+                id: mode3.id,
+                suraWithIndex: mode3.suraWithIndex,
+                aya: mode3.text,
+                color: "",
+              });
+            });
+            ayaDetails = {
+              errorFactor: this.x[0].errorFactor,
+              top: this.x[0].top,
+              id: this.x[0].id,
+              aya: this.x[0].text,
+              numOfCharsInWholeAya: this.x[0].text.length,
+              ayaIndex: this.x[0].index,
+              sura: this.x[0].sura,
+              suraWithIndex: this.x[0].suraWithIndex,
+              arrOfColoredWords: arrayOfWordsWithColors,
+              mooade3: arrayOfMot,
+              matchedWord: this.searchWord
+            };
+            isCheckIn = true;
+          } else {
+            ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
+          }
+        } else if (this.x.length > 4) {
+          arrayOfWordsWithColors.push({
+            word: this.x[0].lastWord,
             color: this.colors[4].color,
-        });
-        if (countSuras.length <= this.NofMotashabeh) {
+          });
+          if (countSuras.length <= this.NofMotashabeh) {
             //|| this.x.length <= this.NofMotashabeh
             if (!isCheckIn) {
               this.x.forEach((mode3) => {
@@ -567,23 +571,23 @@ export class QuraanImagesComponent implements OnInit {
                 suraWithIndex: this.x[0].suraWithIndex,
                 arrOfColoredWords: arrayOfWordsWithColors,
                 mooade3: arrayOfMot,
-                matchedWord:this.searchWord
+                matchedWord: this.searchWord
 
               };
               isCheckIn = true;
-        } else {
-          ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
-        }
+            } else {
+              ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
+            }
           } else {
             ayaDetails.arrOfColoredWords = arrayOfWordsWithColors;
-      }
-    }
+          }
+        }
       }
       // ayaDetails = this.addStaticMotashabehat(ayaInPage, ayaDetails);
-    this.allAyas.push(ayaDetails);
-  });
+      this.allAyas.push(ayaDetails);
+    });
     console.log(`generated Ayas: ${JSON.stringify(this.allAyas)}`);
-}
+  }
 
   private determineHighlight(): void {
     let ayasLines: number[] = [];
@@ -694,7 +698,7 @@ export class QuraanImagesComponent implements OnInit {
         motashabehatSpans: [],
         spansOfColoredWords: [],
         errorFactor: aya.errorFactor,
-        matchedWord:aya.matchedWord
+        matchedWord: aya.matchedWord
       });
       this.drawMotashabehat(aya, ayaStart, ayaEnd);
     });
@@ -727,8 +731,8 @@ export class QuraanImagesComponent implements OnInit {
       this.spansOfColoredWords = [];
       let lastWord = '';
       let previousColor = "";
-      let left =0;
-      let top  ='';
+      let left = 0;
+      let top = '';
       if (
         this.inputs[j] &&
         this.inputs[j].spans &&
@@ -736,19 +740,19 @@ export class QuraanImagesComponent implements OnInit {
         this.inputs[j].spans[0].left != null &&
         this.inputs[j].spans[0].width != null
       ) {
-         left =
+        left =
           parseInt(this.inputs[j].spans[0].left, 10) +
           parseInt(this.inputs[j].spans[0].width, 10);
-      
+
         // Continue using `left` and `top` here...
       } else {
         console.warn(`Invalid input at index ${j}`, this.inputs[j]);
       }
-      
+
       const span = this.inputs[j]?.spans?.[0];
 
       if (span?.top) {
-         top = span.top.split("px")[0];
+        top = span.top.split("px")[0];
         // use top here
       } else {
         console.warn(`Missing top value for span at index ${j}`, span);
@@ -767,7 +771,7 @@ export class QuraanImagesComponent implements OnInit {
             color: this.allAyas[j].arrOfColoredWords[i].color,
             width: `${width}px`,
             left: `${left}px`,
-            coloredWord:lastWord,
+            coloredWord: lastWord,
             isStatic: this.allAyas[j].arrOfColoredWords[i].isStatic,
           });
           lastWord = this.allAyas[j].arrOfColoredWords[0].word;
@@ -785,9 +789,9 @@ export class QuraanImagesComponent implements OnInit {
             if (
               (this.allAyas[j]?.arrOfColoredWords?.[i]?.word ?? "") !== "" &&
               (this.allAyas[j]?.arrOfColoredWords?.[i]?.word?.length ?? 0) >
-                2 &&
+              2 &&
               (this.inputs[j]?.spans?.length ?? 0) >
-                (this.allAyas[j]?.arrOfColoredWords?.[i]?.lineIndex ?? 0)
+              (this.allAyas[j]?.arrOfColoredWords?.[i]?.lineIndex ?? 0)
             ) {
               const lineIndex =
                 this.allAyas[j]?.arrOfColoredWords?.[i]?.lineIndex ?? 0;
@@ -807,7 +811,7 @@ export class QuraanImagesComponent implements OnInit {
                 color: this.allAyas[j].arrOfColoredWords[i].color,
                 width: `${width}px`,
                 left: `${left}px`,
-                coloredWord:lastWord,
+                coloredWord: lastWord,
                 isStatic: this.allAyas[j].arrOfColoredWords[i].isStatic,
               });
             } else {
@@ -816,16 +820,16 @@ export class QuraanImagesComponent implements OnInit {
                 : "0";
               left = this.inputs[j].spans[1]
                 ? parseInt(this.inputs[j].spans[1].left, 10) +
-                  parseInt(this.inputs[j].spans[1].width, 10) -
-                  width -
-                  space
+                parseInt(this.inputs[j].spans[1].width, 10) -
+                width -
+                space
                 : 0;
               this.spansOfColoredWords.push({
                 top: `${parseInt(top, 10) + 35}px`,
                 color: this.allAyas[j].arrOfColoredWords[i].color,
                 width: `${width}px`,
                 left: `${left}px`,
-                coloredWord:lastWord,
+                coloredWord: lastWord,
                 isStatic: this.allAyas[j].arrOfColoredWords[i].isStatic,
               });
             }
@@ -836,7 +840,7 @@ export class QuraanImagesComponent implements OnInit {
               color: this.allAyas[j].arrOfColoredWords[i].color,
               width: `${width}px`,
               left: `${left}px`,
-              coloredWord:lastWord,
+              coloredWord: lastWord,
               isStatic: this.allAyas[j].arrOfColoredWords[i].isStatic,
             });
           }
@@ -909,9 +913,8 @@ export class QuraanImagesComponent implements OnInit {
       color: m.color,
     }));
     if (arr.length > 0) {
-      motashabehat.height = `${
-        parseInt(arr[arr.length - 1].top, 10) + 25 - parseInt(arr[0].top, 10)
-      }px`;
+      motashabehat.height = `${parseInt(arr[arr.length - 1].top, 10) + 25 - parseInt(arr[0].top, 10)
+        }px`;
       motashabehat.moade3 = arr;
       this.inputs[index].motashabehat = motashabehat;
     }
