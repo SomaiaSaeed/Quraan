@@ -13,10 +13,6 @@
 				</div>
 				<!-- tw-flex  tw-items-center tw-justify-center tw-flex-wrap tw-flex-row-reverse -->
 				<div class="tw-text-justify tw-mx-6" dir="rtl" style="text-align: justify;">
-					<!-- <span *ngFor="let aya of page.ayat" class="aya-text" (contextmenu)="onRightClick($event, aya)">
-                {{ aya.text }} <span class="aya-aya tw-text-3xl">{{ convertToArabicNumbers(aya.ayaNumber) }}</span>
-              </span> -->
-
 					<span *ngFor="let aya of page.ayat" class="aya-text" [class.highlight]="aya.highlighted"
 						(click)="toggleHighlight(aya)">
 						{{ aya.text }}
