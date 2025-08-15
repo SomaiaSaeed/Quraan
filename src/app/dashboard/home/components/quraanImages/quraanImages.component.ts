@@ -10,6 +10,7 @@ const QuranInJsonURL = "assets/jsonData/QuranInJson.json";
 const QuranPagesURL = "assets/jsonData/QuranPages.json";
 
 interface Motashabehat {
+  id:number,
   isRight: boolean;
   moade3: any[];
   height: string;
@@ -25,6 +26,8 @@ interface Span {
 }
 
 export interface MotashabehatSpan {
+  id: number;
+  highlighted:boolean;
   isRight: boolean;
   moade3: string;
   height: string;
@@ -232,6 +235,7 @@ export class QuraanImagesComponent implements OnInit {
 
   toggleHighlight(aya: any) {
     aya.highlighted = !aya.highlighted;
+    this.onClick.emit(aya)
   }
 
   onRightClick(event: MouseEvent, aya: any) {
@@ -284,7 +288,7 @@ export class QuraanImagesComponent implements OnInit {
 
   onAyaClick($event: any): void {
     this.selectedAyaId = $event.ayaId;
-    this.onClick.emit($event.ayaId);
+    this.onClick.emit($event);
     this.selectedAyaIndex = this.allAyas.findIndex(
       (aya) => aya.id === parseInt($event.ayaId, 10)
     );
@@ -683,6 +687,7 @@ export class QuraanImagesComponent implements OnInit {
 
       this.inputs.push({
         motashabehat: {
+          id:aya.id,
           top: "",
           height: "",
           isRight: this.isNextAyaLeft,
@@ -715,7 +720,7 @@ export class QuraanImagesComponent implements OnInit {
     let index = this.allAyas.indexOf(aya);
     if (aya.mooade3.length > 0) {
       this.lastTopLeft = 0;
-      this.fillRightArrayFirst(index, aya.mooade3, ayaStart, ayaEnd);
+      this.fillRightArrayFirst(index, aya.mooade3, ayaStart, ayaEnd,aya);
       this.addMoade3(index, aya.mooade3, ayaStart, ayaEnd);
       if (this.allAyas[index].mooade3.length > 0) {
         let ayat = this.allAyas[index].mooade3.map((m) => m.aya);
@@ -857,7 +862,8 @@ export class QuraanImagesComponent implements OnInit {
     index: number,
     mooade3: { suraWithIndex: string; aya?: string; id: number }[],
     ayaStart: number,
-    ayaEnd: number
+    ayaEnd: number,
+    aya:AllAya
   ): number {
     let rightArr = "";
     for (let i = 0; i < mooade3.length; i++) {
@@ -867,6 +873,8 @@ export class QuraanImagesComponent implements OnInit {
         let top = index === 0 ? ayaStart : ayaStart - 30;
         if (i === mooade3.length - 1) {
           this.motashabehatSpans.push({
+            id: aya.id,
+            highlighted: false,
             top: `${top}px`,
             isRight: this.isNextAyaLeft,
             moade3: rightArr,
@@ -876,6 +884,8 @@ export class QuraanImagesComponent implements OnInit {
         }
       } else {
         this.motashabehatSpans.push({
+          id: aya.id,
+          highlighted: false,
           top: `${ayaStart}px`,
           isRight: this.isNextAyaLeft,
           moade3: rightArr,
@@ -900,6 +910,7 @@ export class QuraanImagesComponent implements OnInit {
     ayaEnd: number
   ): void {
     let motashabehat: Motashabehat = {
+      id: index,
       top: "",
       height: "",
       isRight: this.isNextAyaLeft,

@@ -10,6 +10,26 @@ import {
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
+onAyaClick(aya: any) {
+  debugger
+  this.leftMotashabehatSpans.forEach(mot => {
+    if (mot.id === parseInt(aya.id)) {
+        mot.highlighted = aya.highlighted;
+    } 
+   
+});
+
+this.rightMotashabehatSpans.forEach(mot => {
+  if (mot.id === parseInt(aya.id)) {
+    mot.highlighted = aya.highlighted;
+} 
+});
+
+}
+hasHighlight(inp: any): boolean {
+  return inp.highlighted;
+}
+
   onMotshbehatGenerated($event: InputItem[]) {
     this.inputs = $event;
     this.rightMotashabehatSpans = [];
