@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { ThisReceiver } from "@angular/compiler";
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
 import { OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
 import { Search } from "src/app/core/services/search.service";
@@ -100,11 +100,22 @@ interface AllAya {
   selector: "app-quraanImages",
   templateUrl: "./quraanImages.component.html",
   styleUrls: ["./quraanImages.component.scss"],
+  styles: [`
+  // .matched-underline {
+  //   font-weight: 700;
+  //   text-decoration: underline;
+  //   text-decoration-thickness: 2px;
+  //   text-underline-offset: 6px;
+  //   text-decoration-color: #90ee90//var(--underline-color, #000);
+  // }
+`],
+encapsulation: ViewEncapsulation.None
+
 })
 export class QuraanImagesComponent implements OnInit {
+  colorsRendered: boolean = false;
 
   onPageChange($event: SlidesOutputData) {
-    debugger
     // this.inputs = [];
     // this.resetDrawing();
     this.pageNumber = parseInt($event?.slides?.[0]?.id ?? "0") + 1;
@@ -149,14 +160,14 @@ export class QuraanImagesComponent implements OnInit {
   selectedAyaId: number = 0;
 
   colors = [
-    { color: "#FF0000", text: "كلمة وحيدة بداية الأية" },
-    { color: "#00FF00", text: "موضعين" },
-    { color: "#0000FF", text: "ثلاث مواضع" },
-    { color: "#FFFF00", text: "أربع مواضع" },
-    { color: "#800080", text: "أكثر من أربع مواضع" },
-    { color: "#FFA500", text: "كلمة وحيدة وسط الأية" },
-    { color: "#90ee90", text: "موضعين وسط الأية" },
-    { color: "#ADD8E6", text: "ثلاث مواضع وسط الأية" },
+    { color: "#FF0000", text: "كلمة وحيدة بداية الأية" },// RED
+    { color: "#00FF00", text: "موضعين" },// GREEN
+    { color: "#0000FF", text: "ثلاث مواضع" },// BLUE
+    { color: "#FFFF00", text: "أربع مواضع" },// YELLOW
+    { color: "#800080", text: "أكثر من أربع مواضع" },// PURPLE
+    { color: "#FFA500", text: "كلمة وحيدة وسط الأية" },// ORANGE
+    { color: "#90ee90", text: "موضعين وسط الأية" }, // LIGHT GREEN
+    { color: "#ADD8E6", text: "ثلاث مواضع وسط الأية" },// LIGHT BLUE
   ];
 
   inputs: InputItem[] = [];
@@ -226,7 +237,8 @@ export class QuraanImagesComponent implements OnInit {
         text: aya.AyaText_Othmani,
         ayaNumber: aya.Aya_N,
         suraName: aya.Sura_Name,
-        highlighted: false
+        highlighted: false,
+        matchedWord: '' 
       });
     });
 
@@ -368,6 +380,8 @@ export class QuraanImagesComponent implements OnInit {
     this.searchWord = "";
     this.x = [];
     this.allAyas = [];
+    // this.colorsRendered = false;
+
   }
 
   private generateMotashabehatOfSelectedPage(pageNumber: number): void {
@@ -446,7 +460,7 @@ export class QuraanImagesComponent implements OnInit {
               sura: this.x[0].sura,
               suraWithIndex: this.x[0].suraWithIndex,
               mooade3: arrayOfMot,
-              matchedWord: this.searchWord
+              matchedWord: this.x[0].lastWord
             };
             isCheckIn = true;
           } else {
@@ -478,7 +492,7 @@ export class QuraanImagesComponent implements OnInit {
               suraWithIndex: this.x[0].suraWithIndex,
               arrOfColoredWords: arrayOfWordsWithColors,
               mooade3: arrayOfMot,
-              matchedWord: this.searchWord
+              matchedWord: this.x[0].lastWord
             };
             isCheckIn = true;
           } else {
@@ -529,6 +543,7 @@ export class QuraanImagesComponent implements OnInit {
                 suraWithIndex: mode3.suraWithIndex,
                 aya: mode3.text,
                 color: "",
+                
               });
             });
             ayaDetails = {
@@ -587,6 +602,7 @@ export class QuraanImagesComponent implements OnInit {
           }
         }
       }
+      ayaDetails.matchedWord = this.searchWord;
       // ayaDetails = this.addStaticMotashabehat(ayaInPage, ayaDetails);
       this.allAyas.push(ayaDetails);
     });
@@ -707,6 +723,17 @@ export class QuraanImagesComponent implements OnInit {
       });
       this.drawMotashabehat(aya, ayaStart, ayaEnd);
     });
+
+    this.inputs.forEach(input => {
+  const pageAya = this.quranPages
+    .flatMap(p => p.ayat)
+    .find(a => a.id.toString() === input.ayaId);
+
+  if (pageAya) {
+    pageAya.matchedWord = input.matchedWord;
+  }
+});
+debugger
     // console.log(`generated motsahbeh: ${JSON.stringify(this.inputs)}`);
     // console.table(this.inputs);
 
@@ -727,8 +754,6 @@ export class QuraanImagesComponent implements OnInit {
         this.inputs[index].ayat = ayat;
       }
     }
-    this.motshabehat.emit(this.inputs);
-
   }
 
   private drawColoredWords(): void {
@@ -856,6 +881,8 @@ export class QuraanImagesComponent implements OnInit {
       }
       this.inputs[j].spansOfColoredWords = this.spansOfColoredWords;
     }
+    this.colorsRendered = true;
+    debugger
   }
 
   private fillRightArrayFirst(
@@ -929,5 +956,85 @@ export class QuraanImagesComponent implements OnInit {
       motashabehat.moade3 = arr;
       this.inputs[index].motashabehat = motashabehat;
     }
+    this.motshabehat.emit(this.inputs);
+
   }
+
+  underlineMatchedWord(
+    text: string,
+    matchedWord?: string,
+    color?: string
+  ): string {
+    if(!color || color=='' || color== '#15803d') return '';
+    if (!matchedWord) return text;
+  
+    const trimmedMatch = this.removeLastWord(matchedWord);
+    if (!trimmedMatch) return text;
+  
+    const index = text.indexOf(trimmedMatch);
+    if (index === -1) return text;
+  
+    const before = text.slice(0, index);
+    const match = text.slice(index, index + trimmedMatch.length);
+    const after = text.slice(index + trimmedMatch.length);
+    // Color color = #00FF00;
+    return `
+      ${before}
+      <span class="matched-underline" style="--underline-color:#00FF00"      >
+        ${match}
+      </span>
+      ${after}
+    `;
+  }
+  
+  findInputByAyaId(ayaId: number): InputItem {
+    return this.inputs.find(i => i.ayaId === ayaId.toString())!;
+  }
+  
+  // underlineMatchedWord(aya:any,text: string, matchedWord?: string): string {
+  //   if (!matchedWord) return text;
+  
+  //   // 🔹 نشيل آخر كلمة
+  //   const trimmedMatch = this.removeLastWord(matchedWord);
+  // debugger
+  //   if (!trimmedMatch) return text;
+  
+  //   const index = text.indexOf(trimmedMatch);
+  //   if (index === -1) return text;
+  
+  //   const before = text.slice(0, index);
+  //   const match = text.slice(index, index + trimmedMatch.length);
+  //   const after = text.slice(index + trimmedMatch.length);
+  
+  //   return `${before}<span class="matched-underline">${match}</span>${after}`;
+  // }
+   getLastColoredWordColor(input: InputItem): string {
+    if(input){
+      const arr = input.spansOfColoredWords;
+      if (!arr || arr.length === 0) return '#000000'; // default fallback
+    
+      const last = arr[arr.length - 2]??'#000000';
+      return last.color || '#000000';
+    }
+    return '#000000';
+  }
+  
+  
+  private stripTashkeel(text: string): string {
+    return text.replace(/[\u064B-\u065F]/g, '');
+  }
+  
+  private removeLastWord(text: string): string {
+    const parts = text.trim().split(/\s+/);
+  
+    // لو كلمة واحدة → نشيلها كلها
+    if (parts.length <= 1) {
+      return '';
+    }
+  
+    // غير كده نشيل آخر كلمة
+    return parts.slice(0, -1).join(' ');
+  }
+  
+  
 }

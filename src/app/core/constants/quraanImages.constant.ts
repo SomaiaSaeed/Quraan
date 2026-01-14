@@ -44,8 +44,16 @@ export interface InputItem {
 
 interface Motashabehat {
   isRight: boolean;
-  moade3: any[]; // Replace 'any' with the proper type if known
+  moade3: Moade3[];
   height: string;
+  top: string;
+}
+
+interface Moade3 {
+  aya: string;
+  color: string;
+  id: number;
+  suraWithIndex: string;
   top: string;
 }
 

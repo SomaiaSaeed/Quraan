@@ -6,7 +6,20 @@
             [class.highlight]="hasHighlight(inp)"
                 class="tw-border-2 tw-border-green-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y ">
                 <!-- <h3 class="tw-mb-0 tw-pt-3 tw-font-medium">توجد في اكتر من ثلاث مواضع</h3> -->
-                <span *ngFor="let mot of inp.moade3" class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">{{mot}})</span>
+                <span
+                *ngFor="let sura of inp.mergedSuras"
+                class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4"
+                [class.tw-text-green-700]="true"
+               >
+               <!-- [class.tw-text-green-700]="!sura.highlighted" -->
+               <!-- [class.tw-font-bold]="sura.highlighted" -->
+               <!-- [class.tw-text-red-600]="sura.highlighted" -->
+              
+                {{ sura.text }}
+              
+              </span>
+              
+
             </div>
           
         </div>
@@ -23,8 +36,17 @@
             <div class="tw-col-span-2 tw-space-y-10" >
                 <div *ngFor="let inp of leftMotashabehatSpans" [class.highlight]="hasHighlight(inp)"
                     class="tw-border-2 tw-border-green-700 tw-col-span-1 tw-p-4 tw-pt-0 tw-flex tw-items-center tw-flex-col tw-gap-y-4 tw-divide-y ">
-                   <span *ngFor="let mot of inp.moade3" class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4 tw-text-green-700">
-                    {{mot}})</span>
+                    <span
+                    *ngFor="let sura of inp.mergedSuras"
+                    class="tw-block tw-w-full tw-text-center tw-text-base tw-pt-4"
+                    [class.tw-text-green-700]="true"
+                    >
+                    <!-- [class.tw-text-red-600]="sura.highlighted" -->
+                    {{ sura.text }}
+                  
+                  </span>
+                  
+                  
                 </div>
             
             </div>

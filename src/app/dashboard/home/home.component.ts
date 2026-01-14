@@ -1,97 +1,101 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 import {
   IMAGES,
   InputItem,
   MotashabehatSpan,
 } from "src/app/core/constants/quraanImages.constant";
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: "app-home",
+  templateUrl: "./home.component.html",
+  styleUrls: ["./home.component.scss"],
 })
 export class HomeComponent {
-onAyaClick(aya: any) {
-  debugger
-  this.leftMotashabehatSpans.forEach(mot => {
-    if (mot.id === parseInt(aya.id)) {
-        mot.highlighted = aya.highlighted;
-    } 
-   
-});
-
-this.rightMotashabehatSpans.forEach(mot => {
-  if (mot.id === parseInt(aya.id)) {
-    mot.highlighted = aya.highlighted;
-} 
-});
-
-}
-hasHighlight(inp: any): boolean {
-  return inp.highlighted;
-}
-
-  onMotshbehatGenerated($event: InputItem[]) {
-    this.inputs = $event;
-    this.rightMotashabehatSpans = [];
-    this.leftMotashabehatSpans = [];
-  
-    if ($event && $event.length > 0) {
-      this.inputs.forEach((input) => {
-        if (input.motashabehatSpans.length > 0) {
-          input.motashabehatSpans.forEach((motabehat) => {
-            if (motabehat.moade3 != null && motabehat.moade3 !== "") {
-              let x = JSON.parse(JSON.stringify(motabehat));
-  
-              // Step 1: Split by `)` and filter out empty strings
-              const parts = motabehat.moade3
-                .split(")")
-                .map(part => part.trim())
-                .filter(part => part !== "");
-  
-              // Step 2: Group aya indexes by sura name
-              const suraMap: { [sura: string]: number[] } = {};
-  
-              parts.forEach(part => {
-                const [sura, ayaStr] = part.split("(");
-                if (sura && ayaStr) {
-                  const suraName = sura.trim();
-                  const ayaNum = parseInt(ayaStr.trim(), 10);
-                  if (!suraMap[suraName]) {
-                    suraMap[suraName] = [];
-                  }
-                  suraMap[suraName].push(ayaNum);
-                }
-              });
-  
-              // Step 3: Reconstruct moade3 as array of "SuraName (1, 2, 3)"
-              x.moade3 = Object.entries(suraMap).map(([sura, ayas]) => {
-                return `${sura} (${ayas.join(", ")}`;
-              });
-  
-              // Push to correct side
-              if (motabehat.isRight) {
-                this.rightMotashabehatSpans.push(x);
-              } else {
-                this.leftMotashabehatSpans.push(x);
-              }
-            }
-          });
-        }
-      });
-    }
-  
-    debugger;
-  }
-  
   images: any[] = IMAGES;
   inputs: InputItem[] = [];
   rightMotashabehatSpans: any[] = [];
   leftMotashabehatSpans: any[] = [];
 
   constructor() {}
+  onAyaClick(aya: any) {
+    debugger;
+    this.leftMotashabehatSpans.forEach((mot) => {
+      if (mot.id === parseInt(aya.id)) {
+        mot.highlighted = aya.highlighted;
+      }
+    });
 
-  ngOnInit() {
+    this.rightMotashabehatSpans.forEach((mot) => {
+      if (mot.id === parseInt(aya.id)) {
+        mot.highlighted = aya.highlighted;
+      }
+    });
+  }
+  hasHighlight(inp: any): boolean {
+    return inp.highlighted;
   }
 
-}
+  onMotshbehatGenerated($event: InputItem[]) {
+    this.inputs = $event ?? [];
+    this.rightMotashabehatSpans = [];
+    this.leftMotashabehatSpans = [];
 
+    this.inputs.forEach((input) => {
+      const moade3 = input?.motashabehat?.moade3;
+      if (!moade3 || moade3.length === 0) return;
+
+      (input as any).mergedSuras = this.mergeSuraWithIndexes(
+        moade3,
+        input.activeAya
+      );
+
+      if (input.motashabehat.isRight) {
+        this.rightMotashabehatSpans.push(input);
+      } else {
+        this.leftMotashabehatSpans.push(input);
+      }
+      debugger
+    });
+  }
+
+  private mergeSuraWithIndexes(
+    moade3List: any[],
+    activeAya?: number
+  ): { text: string; highlighted: boolean }[] {
+    const map = new Map<string, number[]>();
+
+    moade3List.forEach((item) => {
+      const match = item.suraWithIndex.match(/^(.*)\s*\((\d+)\)$/);
+      if (!match) return;
+
+      const suraName = match[1].trim();
+      const index = Number(match[2]);
+
+      if (!map.has(suraName)) {
+        map.set(suraName, []);
+      }
+      map.get(suraName)!.push(index);
+    });
+
+    return Array.from(map.entries()).map(([sura, indexes]) => {
+      const sorted = [...new Set(indexes)].sort((a, b) => a - b);
+
+      const arabicIndexes = sorted
+        .map((i) => this.toArabicNumber(i))
+        .join("، ");
+
+      return {
+        text: `${sura} (${arabicIndexes})`,
+        highlighted: activeAya ? sorted.includes(activeAya) : false,
+      };
+    });
+  }
+
+  private toArabicNumber(num: number): string {
+    const arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+    return num
+      .toString()
+      .split("")
+      .map((d) => arabicDigits[+d])
+      .join("");
+  }
+}

@@ -6,10 +6,12 @@ import { HomeComponent } from './home.component';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { QuraanImagesComponent } from './components/quraanImages/quraanImages.component';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { UnderlineMatchDirective } from './components/quraanImages/underlineMatchDirective';
 
 
 @NgModule({
   declarations: [
+    UnderlineMatchDirective,
     HomeComponent,
     QuraanImagesComponent
   ],
