@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatAutocomplete } from "@angular/material/autocomplete";
 import { Router } from "@angular/router";
+import { DataSharingService } from "src/app/dashboard/search/services/data-sharing.service";
 
 const regex = /([\u0600-\u06FF])ِى/g; // to replace any arabic character followed by this char ِ and (ى) with (ي)
 const HAMZATWASL = /[\u0671]/g;
@@ -19,13 +20,15 @@ export class MainSearchComponent implements OnInit {
   @ViewChild("searchResult", { static: true }) searchResult: ElementRef | any;
   @ViewChild('auto', { static: false }) autoComplete: MatAutocomplete| any;
   results: string[] = [];
+  searchResults:any[]=[]
   searchWord!: string;
   hasTashkeel: boolean = false;
   // public dialogRef: MatDialogRef<null>
   constructor(
     private _router: Router,
     private _http: HttpClient,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private dataSharingService: DataSharingService
   ) {}
 
   ngOnInit() {}
@@ -52,6 +55,7 @@ export class MainSearchComponent implements OnInit {
 
     if(event==="oldSearch") return;
     this.results = [];
+    this.searchResults = [];
     let word = inp.value;
     word = this.applyTaskeelRegex(word);
     this.searchWord = word;
@@ -60,6 +64,7 @@ export class MainSearchComponent implements OnInit {
       response.forEach((aya: any) => {
         if (aya.AyaText.includes(word)) {
           this.results.push(aya.AyaText_Othmani);
+          this.searchResults.push({data:aya});
         }
       });
     });
@@ -157,7 +162,6 @@ export class MainSearchComponent implements OnInit {
   }
 
   saveSearchToLocalStorage() {
-
     let old = localStorage.getItem("oldSearch");
     let oldSearch = old ? JSON.parse(old) : [];
     const isSearchFound = oldSearch.includes(this.searchWord);
@@ -174,6 +178,7 @@ export class MainSearchComponent implements OnInit {
   displayResults(){
     localStorage.setItem("searchResults", JSON.stringify(this.results));
     this.closeDialog();
+    this.dataSharingService.updateSelectedData(this.searchResults,this.searchWord);
     this._router.navigateByUrl("/search");
   }
 
