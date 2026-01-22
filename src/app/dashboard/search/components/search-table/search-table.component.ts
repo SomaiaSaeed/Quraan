@@ -11,6 +11,7 @@ export class SearchTableComponent implements OnInit {
   selectedData?: { data: any[]};
   data?: any[];
   searchQuery: string = '';
+  originalData: any[] = [];
   resultsList: string[] = [
     "رقم_السورة",
     "بداية_السورة",
@@ -28,8 +29,10 @@ export class SearchTableComponent implements OnInit {
   constructor(private dataSharingService: DataSharingService, private cdr: ChangeDetectorRef,private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
+    debugger
     this.dataSharingService.selectedData$.subscribe(combinedData => {
       this.selectedData = combinedData;
+      this.originalData = [...this.selectedData.data]; // shallow clone
       this.searchQuery = combinedData.searchQuery;
       console.log("this.selectedData", this.selectedData.data)
     });
@@ -46,6 +49,15 @@ export class SearchTableComponent implements OnInit {
       case 'startOfAyah':
         this.sortByStartOfAyah();
         break;
+      default:
+        break;
+    }
+    this.cdr.detectChanges();
+  }
+  onSortChange2(event: any): void {
+    const selectedSortType = event.target.value;
+    console.log("Selected sort type:", selectedSortType);
+    switch (selectedSortType) {
       case 'alphabetical':
         this.sortAlphabetically();
         break;
@@ -58,32 +70,84 @@ export class SearchTableComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // sortByStartOfAyah(): void {
+  //   console.log("Sorting by start of Ayah...");
+  //   console.log("Data before sorting: ", this.selectedData?.data);
+  //   if (this.selectedData?.data && this.selectedData.data.length > 0) {
+  //     this.selectedData?.data.sort((a: any, b: any) => {
+  //       const valueA = a.data?.AyaText_Othmani ? a.data.AyaText_Othmani.trim().toLowerCase() : '';
+  //       const valueB = b.data?.AyaText_Othmani ? b.data.AyaText_Othmani.trim().toLowerCase() : '';
+  //       if (valueA < valueB) return -1;
+  //       if (valueA > valueB) return 1;
+  //       return 0;
+  //     });
+  //   }
+  //   console.log("Data after sorting: ", this.selectedData?.data);
+  // }
+
+  // sortByQuranGeneral(): void {
+  //   console.log("Sorting by Quran General...");
+  //   this.selectedData?.data.sort((a: any, b: any) => {
+  //     if (a.data.nOFSura === b.data.nOFSura) {
+  //       return parseInt(a.data.Aya_N) - parseInt(b.data.Aya_N);
+  //     }
+  //     return parseInt(a.data.nOFSura) - parseInt(b.data.nOFSura);
+  //   });
+  //   console.log(this.selectedData?.data);
+  // }
+
   sortByStartOfAyah(): void {
-    console.log("Sorting by start of Ayah...");
-    console.log("Data before sorting: ", this.selectedData?.data);
-    if (this.selectedData?.data && this.selectedData.data.length > 0) {
-      this.selectedData?.data.sort((a: any, b: any) => {
-        const valueA = a.data?.AyaText_Othmani ? a.data.AyaText_Othmani.trim().toLowerCase() : '';
-        const valueB = b.data?.AyaText_Othmani ? b.data.AyaText_Othmani.trim().toLowerCase() : '';
-        if (valueA < valueB) return -1;
-        if (valueA > valueB) return 1;
-        return 0;
+    debugger
+
+    console.log("Sorting by start of Ayah with filter");
+  
+    if (!this.originalData.length) return;
+  
+    const query = this.searchQuery?.trim().toLowerCase();
+  
+    // 1️⃣ clone
+    let clonedData = [...this.originalData];
+  
+    // 2️⃣ filter (startsWith)
+    if (query) {
+      clonedData = clonedData.filter(item => {
+        const ayahText = item.data?.AyaText
+          ?.trim()
+          .toLowerCase();
+  
+        return ayahText?.startsWith(query);
       });
     }
-    console.log("Data after sorting: ", this.selectedData?.data);
-  }
-
-  sortByQuranGeneral(): void {
-    console.log("Sorting by Quran General...");
-    this.selectedData?.data.sort((a: any, b: any) => {
-      if (a.data.nOFSura === b.data.nOFSura) {
-        return parseInt(a.data.Aya_N) - parseInt(b.data.Aya_N);
-      }
-      return parseInt(a.data.nOFSura) - parseInt(b.data.nOFSura);
+  
+    // 3️⃣ sort
+    clonedData.sort((a: any, b: any) => {
+      const valueA = a.data?.AyaText?.trim() ?? '';
+      const valueB = b.data?.AyaText?.trim() ?? '';
+      return valueA.localeCompare(valueB);
     });
-    console.log(this.selectedData?.data);
+  
+    // 4️⃣ assign
+    this.selectedData = {
+      data: clonedData
+    };
+  
+    console.log("Filtered & Sorted Data:", this.selectedData.data);
   }
-
+  
+  sortByQuranGeneral(): void {
+    debugger
+    console.log("Reset to Quran General (original order)");
+  
+    if (!this.originalData.length) return;
+  
+    // رجّع نفس البيانات الأصلية
+    this.selectedData = {
+      data: [...this.originalData]
+    };
+  
+    console.log(this.selectedData.data);
+  }
+  
   sortAlphabetically(): void {
     console.log("Sorting alphabetically...");
     console.log("Data before sorting: ", this.selectedData?.data);
