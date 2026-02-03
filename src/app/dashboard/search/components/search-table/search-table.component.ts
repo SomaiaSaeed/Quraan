@@ -29,7 +29,7 @@ export class SearchTableComponent implements OnInit {
   constructor(private dataSharingService: DataSharingService, private cdr: ChangeDetectorRef,private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
-    debugger
+    
     this.dataSharingService.selectedData$.subscribe(combinedData => {
       this.selectedData = combinedData;
       this.originalData = [...this.selectedData.data]; // shallow clone
@@ -97,7 +97,7 @@ export class SearchTableComponent implements OnInit {
   // }
 
   sortByStartOfAyah(): void {
-    debugger
+    
 
     console.log("Sorting by start of Ayah with filter");
   
@@ -135,7 +135,7 @@ export class SearchTableComponent implements OnInit {
   }
   
   sortByQuranGeneral(): void {
-    debugger
+    
     console.log("Reset to Quran General (original order)");
   
     if (!this.originalData.length) return;

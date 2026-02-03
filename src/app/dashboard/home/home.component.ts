@@ -17,7 +17,7 @@ export class HomeComponent {
 
   constructor() {}
   onAyaClick(aya: any) {
-    debugger;
+    ;
     this.leftMotashabehatSpans.forEach((mot) => {
       if (mot.id === parseInt(aya.id)) {
         mot.highlighted = aya.highlighted;
@@ -53,7 +53,7 @@ export class HomeComponent {
       } else {
         this.leftMotashabehatSpans.push(input);
       }
-      debugger
+      
     });
   }
 
