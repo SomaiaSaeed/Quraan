@@ -259,7 +259,8 @@ private renderPage(page: number): void {
   contextMenuItems: MenuItem[] = []; 
   selectedAya: any = null;
   customOptions: OwlOptions = {
-    loop: true,
+    loop: false,
+    rtl: true,
     startPosition: 0,
     mouseDrag: true,
     touchDrag: true,
