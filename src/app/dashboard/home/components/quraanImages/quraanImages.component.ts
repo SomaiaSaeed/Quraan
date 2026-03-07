@@ -383,10 +383,10 @@ export class QuraanImagesComponent implements OnInit {
     // this.colorsRendered = false;
 
   }
-
+  
   private generateMotashabehatOfSelectedPage(pageNumber: number): void {
     this._quranPages[pageNumber - 1].ayas.forEach((ayaInPage: any) => {
-      this.arrOfAyaWords = ayaInPage.text.split(" ");
+      this.arrOfAyaWords = ayaInPage.text_without_tashkeel.split(" ");
       this.searchWord = this.arrOfAyaWords[0];
       let isCheckIn = false;
       let ayaDetails: AllAya = {
@@ -410,7 +410,7 @@ export class QuraanImagesComponent implements OnInit {
       }[] = [];
       let arrayOfWordsWithColors: ArrOfColoredWords[] = [];
 
-      for (let i = 0; i <= this.arrOfAyaWords.length; i++) {
+      for (let i = 0; i < this.arrOfAyaWords.length; i++) {
         this.x = [];
         let countSuras: any[] = [];
 
@@ -422,12 +422,14 @@ export class QuraanImagesComponent implements OnInit {
 
         this._quranInJson.forEach((sura: any) => {
           sura.aya.forEach((aya: any) => {
-            if (aya.text.startsWith(this.searchWord)) {
+            if (aya.text_without_tashkeel.startsWith(this.searchWord)) {
+              debugger;
+
               this.x.push({
                 id: ayaInPage.id,
                 errorFactor: ayaInPage.errorFactor,
                 top: ayaInPage.top,
-                text: aya.text,
+                text: aya.text_without_tashkeel,
                 index: aya.index,
                 suraWithIndex: `${sura.name} (${aya.index})`,
                 sura: sura.name,
@@ -602,13 +604,29 @@ export class QuraanImagesComponent implements OnInit {
           }
         }
       }
-      ayaDetails.matchedWord = this.searchWord;
+      ayaDetails.matchedWord = this.getWordWithTashkeel(
+        ayaInPage.text,
+        ayaInPage.text_without_tashkeel,
+        this.searchWord
+      );
       // ayaDetails = this.addStaticMotashabehat(ayaInPage, ayaDetails);
       this.allAyas.push(ayaDetails);
     });
     console.log(`generated Ayas: ${JSON.stringify(this.allAyas)}`);
   }
 
+  private getWordWithTashkeel(fullText: string, fullTextNoTashkeel: string, matchNoTashkeel: string): string {
+
+    const index = fullTextNoTashkeel.indexOf(matchNoTashkeel);
+  
+    if (index === -1) {
+      return matchNoTashkeel;
+    }
+  
+    return fullText.slice(index, index + matchNoTashkeel.length);
+  }
+
+  
   private determineHighlight(): void {
     let ayasLines: number[] = [];
     this.allAyas.forEach((aya, index) => {

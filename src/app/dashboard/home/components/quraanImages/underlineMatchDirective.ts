@@ -34,8 +34,8 @@ export class UnderlineMatchDirective implements OnChanges {
       return;
     }
 
-    const trimmedMatch = this.removeLastWord(this.matchedWord);
-    if (!trimmedMatch) {
+    const trimmedMatch = this.matchedWord?.trim();
+        if (!trimmedMatch) {
       this.renderer.setProperty(host, 'textContent', this.text);
       return;
     }
