@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { ThisReceiver } from "@angular/compiler";
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
 import { OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
 import { Search } from "src/app/core/services/search.service";
@@ -112,24 +112,102 @@ interface AllAya {
 encapsulation: ViewEncapsulation.None
 
 })
-export class QuraanImagesComponent implements OnInit {
+export class QuraanImagesComponent implements OnInit,AfterViewInit {
   colorsRendered: boolean = false;
 
-  onPageChange($event: SlidesOutputData) {
-    // this.inputs = [];
-    // this.resetDrawing();
-    this.pageNumber = parseInt($event?.slides?.[0]?.id ?? "0") + 1;
+  // onPageChange($event: SlidesOutputData) {
+  //   debugger
+  //   // this.inputs = [];
+  //   // this.resetDrawing();
+  //   this.pageNumber = parseInt($event?.slides?.[0]?.id ?? "0") + 1;
+  //   this.resetDrawing();
+  //   if (this._quranInJson == null || this._quranPages == null) {
+  //     this.loadQuranJson();
+  //   } else {
+  //     this.generateMotashabehatOfSelectedPage(this.pageNumber);
+  //     this.determineHighlight();
+  //     this.drawColoredWords();
+  //   }
+    
+  // }
+private lastPageProcessed = -1;
+pageNumber: number = 1;
+
+ngAfterViewInit(): void {
+
+  setTimeout(() => {
+    this.pageNumber = 1;
+
     this.resetDrawing();
-    if (this._quranInJson == null || this._quranPages == null) {
+
+    if (!this._quranInJson || !this._quranPages) {
       this.loadQuranJson();
     } else {
       this.generateMotashabehatOfSelectedPage(this.pageNumber);
       this.determineHighlight();
       this.drawColoredWords();
     }
-    
+
+  });
+}
+
+onPageChange(event: SlidesOutputData) {
+
+  const index = event.startPosition ?? 0;
+
+  const newPage = index + 1;
+
+  if (newPage === this.lastPageProcessed) return;
+
+  this.lastPageProcessed = newPage;
+
+  this.renderPage(newPage);
+}
+
+
+private renderPage(page: number): void {
+
+  this.pageNumber = page;
+
+  this.resetDrawing();
+
+  if (!this._quranInJson || !this._quranPages) {
+    this.loadQuranJson();
+    return;
   }
-  pageNumber: number = 1;
+
+  this.generateMotashabehatOfSelectedPage(page);
+  this.determineHighlight();
+  this.drawColoredWords();
+}
+  // onPageChange(event: SlidesOutputData) {
+
+  //   const currentSlide = event?.slides?.[0];
+  //   if (!currentSlide) return;
+  
+  //   const newPage = Number(currentSlide.id);
+  
+  //   // prevent recalculating same page
+  //   if (newPage === this.lastPageProcessed) return;
+  
+  //   this.lastPageProcessed = newPage;
+  //   this.pageNumber = newPage;
+  
+  //   this.resetDrawing();
+  
+  //   if (!this._quranInJson || !this._quranPages) {
+  //     this.loadQuranJson();
+  //     return;
+  //   }
+  
+  //   this.generateMotashabehatOfSelectedPage(this.pageNumber);
+  //   this.determineHighlight();
+  //   this.drawColoredWords();
+  // }
+
+  trackPage(index: number, page: any) {
+    return page.pageNumber;
+  }
 
   @Input("selectedMotashabeh2")
   set setNofMotashabeh(num: number | null) {
