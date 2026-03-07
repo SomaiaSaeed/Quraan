@@ -6,50 +6,34 @@
         </div> -->
       <div class="quran-page tw-mx-3 tw-relative">
         <div class="tw-relative tw-mb-5">
-          <img
-            src="../../../../../assets/images/head.png"
-            class="tw-h-20"
-            alt=""
-          />
+          <img src="../../../../../assets/images/head.png" class="tw-h-20" alt="" />
           <div class="tw-absolute tw-top-[6px] tw-left-0 tw-right-0">
-            <span class="tw-text-4xl">{{ page.ayat[0]?.suraName }}</span>
+            <span class="tw-text-4xl">{{ page.suraName }}</span>
           </div>
         </div>
         <!-- tw-flex  tw-items-center tw-justify-center tw-flex-wrap tw-flex-row-reverse -->
-        <div
-        class="tw-text-justify tw-mx-6"
-        dir="rtl"
-        style="text-align: justify"
-      >
-        <span
-          *ngFor="let aya of page.ayat"
-          class="aya-text"
-          [class.highlight]="aya.highlighted"
-          (click)="toggleHighlight(aya)"
-        >
-      
-          <!-- النص مع underline -->
-          <span
-            *ngIf="colorsRendered"
-            appUnderlineMatch
-            [text]="aya.text"
-            [matchedWord]="aya.matchedWord"
-            [color]="getLastColoredWordColor(findInputByAyaId(aya.id))">
+        <div class="tw-text-justify tw-mx-6" dir="rtl" style="text-align: justify">
+          <span *ngFor="let aya of page.ayat" class="aya-text" [class.highlight]="aya.highlighted"
+            (click)="toggleHighlight(aya)">
+
+            <!-- النص مع underline -->
+            <span *ngIf="colorsRendered" appUnderlineMatch [text]="aya.text" [matchedWord]="aya.matchedWord"
+              [color]="getLastColoredWordColor(findInputByAyaId(aya.id))">
+            </span>
+
+            <!-- fallback قبل ما الألوان تترسم -->
+            <span *ngIf="!colorsRendered">
+              {{ aya.text }}
+            </span>
+
+            <!-- رقم الآية -->
+            <span class="aya-aya">
+              {{ convertToArabicNumbers(aya.ayaNumber) }}
+            </span>
+
           </span>
-      
-          <!-- fallback قبل ما الألوان تترسم -->
-          <span *ngIf="!colorsRendered">
-            {{ aya.text }}
-          </span>
-      
-          <!-- رقم الآية -->
-          <span class="aya-aya">
-            {{ convertToArabicNumbers(aya.ayaNumber) }}
-          </span>
-      
-        </span>
-      </div>
-      
+        </div>
+
       </div>
     </ng-template>
   </ng-container>

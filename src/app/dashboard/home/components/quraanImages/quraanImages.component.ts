@@ -127,7 +127,7 @@ export class QuraanImagesComponent implements OnInit {
       this.determineHighlight();
       this.drawColoredWords();
     }
-    debugger
+    
   }
   pageNumber: number = 1;
 
@@ -178,12 +178,13 @@ export class QuraanImagesComponent implements OnInit {
   @Input() images: string | any;
   quranPages: any[] = [];
   @ViewChild('menu') contextMenu: any;
-  contextMenuItems: MenuItem[] = [];
+  contextMenuItems: MenuItem[] = []; 
   selectedAya: any = null;
   customOptions: OwlOptions = {
     loop: true,
-    mouseDrag: false,
-    touchDrag: false,
+    startPosition: 0,
+    mouseDrag: true,
+    touchDrag: true,
     pullDrag: false,
     autoHeight: true,
     dots: false,
@@ -211,8 +212,15 @@ export class QuraanImagesComponent implements OnInit {
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
-    // console.log("this.quranPages", this.quranPages);
+    console.log('quranPages order:', JSON.stringify(this.quranPages.map(p => ({
+      suraName: p.suraName,
+      suraNumber: p.suraNumber,
+      pageNumber: p.pageNumber,
+      ayatCount: p.ayat.length
+    })), null, 2));
   }
+
+
 
   convertToArabicNumbers(num: string | number): string {
     const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -220,29 +228,46 @@ export class QuraanImagesComponent implements OnInit {
   }
 
   groupQuranPages(): any[] {
-    const pages: { [key: string]: any } = {};
+    // Create slides so that each slide contains ayat from a single sura.
+    // We iterate over the ayat and start a new slide whenever the page number or sura changes.
+    // Then we sort slides by the sura number to match Mushaf order.
+    const slides: any[] = [];
+    let currentSlide: any = null;
 
     this._searchInstance.table_othmani.forEach((aya) => {
-      const pageNum = aya.nOFPage;
+      const pageNum = Number(aya.nOFPage);
+      const suraName = aya.Sura_Name;
+      const suraNumber = Number(aya.nOFSura) || 0;
 
-      if (!pages[pageNum]) {
-        pages[pageNum] = {
+      if (!currentSlide || currentSlide.pageNumber !== pageNum || currentSlide.suraName !== suraName) {
+        currentSlide = {
           pageNumber: pageNum,
+          suraName: suraName,
+          suraNumber: suraNumber,
           ayat: [],
         };
+        slides.push(currentSlide);
       }
 
-      pages[pageNum].ayat.push({
+      currentSlide.ayat.push({
         id: aya.id,
         text: aya.AyaText_Othmani,
         ayaNumber: aya.Aya_N,
-        suraName: aya.Sura_Name,
+        suraName: suraName,
         highlighted: false,
-        matchedWord: '' 
+        matchedWord: ''
       });
     });
 
-    return Object.values(pages).sort((a, b) => a.pageNumber - b.pageNumber);
+    // Sort slides by suraNumber (Mushaf order), then by pageNumber to preserve natural order within same sura.
+    slides.sort((a, b) => {
+      if ((a.suraNumber || 0) !== (b.suraNumber || 0)) {
+        return (a.suraNumber || 0) - (b.suraNumber || 0);
+      }
+      return (a.pageNumber || 0) - (b.pageNumber || 0);
+    });
+
+    return slides;
   }
 
   toggleHighlight(aya: any) {
@@ -751,7 +776,7 @@ export class QuraanImagesComponent implements OnInit {
     pageAya.matchedWord = input.matchedWord;
   }
 });
-debugger
+
     // console.log(`generated motsahbeh: ${JSON.stringify(this.inputs)}`);
     // console.table(this.inputs);
 
@@ -900,7 +925,7 @@ debugger
       this.inputs[j].spansOfColoredWords = this.spansOfColoredWords;
     }
     this.colorsRendered = true;
-    debugger
+    
   }
 
   private fillRightArrayFirst(
@@ -1014,7 +1039,7 @@ debugger
   
   //   // 🔹 نشيل آخر كلمة
   //   const trimmedMatch = this.removeLastWord(matchedWord);
-  // debugger
+  // 
   //   if (!trimmedMatch) return text;
   
   //   const index = text.indexOf(trimmedMatch);
