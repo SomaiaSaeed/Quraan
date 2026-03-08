@@ -114,6 +114,9 @@ encapsulation: ViewEncapsulation.None
 })
 export class QuraanImagesComponent implements OnInit,AfterViewInit {
   colorsRendered: boolean = false;
+  similarCount!: number;
+  suraCount!: number;
+
 
   // onPageChange($event: SlidesOutputData) {
   //   debugger
@@ -209,11 +212,6 @@ private renderPage(page: number): void {
     return page.pageNumber;
   }
 
-  @Input("selectedMotashabeh2")
-  set setNofMotashabeh(num: number | null) {
-    this.NofMotashabeh = num == null ? 7 : num;
-  }
-  NofMotashabeh: number = 7;
 
   @Output() onClick = new EventEmitter<number>(); // Assuming ayaId is a number
   @Output() onRight = new EventEmitter<any>();
@@ -297,6 +295,19 @@ private renderPage(page: number): void {
       pageNumber: p.pageNumber,
       ayatCount: p.ayat.length
     })), null, 2));
+
+    const motashabehatSettings = localStorage.getItem('motashabehatSettings');
+
+    if (motashabehatSettings) {
+      const data = JSON.parse(motashabehatSettings);
+
+      this.similarCount = data.similarCount;
+      this.suraCount = data.suraCount;
+    } else{
+      this.similarCount = 7;
+      this.suraCount = 6;
+    }
+
   }
 
 
@@ -674,7 +685,7 @@ private renderPage(page: number): void {
             word: this.x[0].lastWord,
             color: this.colors[4].color,
           });
-          if (countSuras.length <= this.NofMotashabeh) {
+          if (countSuras.length <= this.suraCount || this.x.length <= this.similarCount) {
             //|| this.x.length <= this.NofMotashabeh
             if (!isCheckIn) {
               this.x.forEach((mode3) => {
