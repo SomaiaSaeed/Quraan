@@ -6,14 +6,18 @@ import {
   Renderer2
 } from '@angular/core';
 
+export interface ColoredWord {
+  word: string;
+  color: string;
+}
+
 @Directive({
   selector: '[appUnderlineMatch]'
 })
 export class UnderlineMatchDirective implements OnChanges {
 
   @Input() text!: string;
-  @Input() matchedWord?: string;
-  @Input() color?: string;
+  @Input() coloredWords?: ColoredWord[];
 
   constructor(
     private el: ElementRef<HTMLElement>,
@@ -28,50 +32,57 @@ export class UnderlineMatchDirective implements OnChanges {
     const host = this.el.nativeElement;
     host.innerHTML = '';
 
-    // fallback
-    if (!this.text || !this.matchedWord || !this.color || this.color === '#000000') {
+    if (!this.text) {
       this.renderer.setProperty(host, 'textContent', this.text ?? '');
       return;
     }
 
-    const trimmedMatch = this.matchedWord?.trim();
-        if (!trimmedMatch) {
+    if (!this.coloredWords || this.coloredWords.length === 0) {
       this.renderer.setProperty(host, 'textContent', this.text);
       return;
     }
 
-    const index = this.text.indexOf(trimmedMatch);
-    if (index === -1) {
-      this.renderer.setProperty(host, 'textContent', this.text);
-      return;
+    const tashkeelWords = this.text.split(' ');
+
+    // Group consecutive words that share the same color into one span
+    // so the underline is continuous across spaces
+    interface Group { color: string | null; words: string[] }
+    const groups: Group[] = [];
+
+    for (let i = 0; i < tashkeelWords.length; i++) {
+      const coloredWord = this.coloredWords[i];
+      const color = (coloredWord && coloredWord.color && coloredWord.color !== '#000000')
+        ? coloredWord.color
+        : null;
+
+      const last = groups[groups.length - 1];
+      if (last && last.color === color) {
+        last.words.push(tashkeelWords[i]);
+      } else {
+        groups.push({ color, words: [tashkeelWords[i]] });
+      }
     }
 
-    const before = this.text.slice(0, index);
-    const match = this.text.slice(index, index + trimmedMatch.length);
-    const after = this.text.slice(index + trimmedMatch.length);
+    groups.forEach((group, gi) => {
+      // Space between groups is a plain text node — never underlined
+      if (gi > 0) {
+        this.renderer.appendChild(host, this.renderer.createText(' '));
+      }
 
-    // before
-    this.renderer.appendChild(host, this.renderer.createText(before));
+      const text = group.words.join(' ');
 
-    // span بدون class
-    const span = this.renderer.createElement('span');
-
-    this.renderer.setStyle(span, 'font-weight', '700');
-    this.renderer.setStyle(span, 'text-decoration-line', 'underline');
-    this.renderer.setStyle(span, 'text-decoration-color', this.color);
-    this.renderer.setStyle(span, 'text-decoration-thickness', '2px');
-    this.renderer.setStyle(span, 'text-underline-offset', '6px');
-
-    this.renderer.appendChild(span, this.renderer.createText(match));
-    this.renderer.appendChild(host, span);
-
-    // after
-    this.renderer.appendChild(host, this.renderer.createText(after));
-  }
-
-  private removeLastWord(text: string): string {
-    const parts = text.trim().split(' ');
-    parts.pop();
-    return parts.join(' ');
+      if (group.color) {
+        const span = this.renderer.createElement('span');
+        this.renderer.setStyle(span, 'font-weight', '700');
+        this.renderer.setStyle(span, 'text-decoration-line', 'underline');
+        this.renderer.setStyle(span, 'text-decoration-color', group.color);
+        this.renderer.setStyle(span, 'text-decoration-thickness', '2px');
+        this.renderer.setStyle(span, 'text-underline-offset', '6px');
+        this.renderer.appendChild(span, this.renderer.createText(text));
+        this.renderer.appendChild(host, span);
+      } else {
+        this.renderer.appendChild(host, this.renderer.createText(text));
+      }
+    });
   }
 }

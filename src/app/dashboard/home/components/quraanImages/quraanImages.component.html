@@ -14,11 +14,12 @@
         <!-- tw-flex  tw-items-center tw-justify-center tw-flex-wrap tw-flex-row-reverse -->
         <div class="tw-text-justify tw-mx-6" dir="rtl" style="text-align: justify">
           <span *ngFor="let aya of page.ayat" class="aya-text" [class.highlight]="aya.highlighted"
-            (click)="toggleHighlight(aya)">
+            (click)="toggleHighlight(aya)"
+            (contextmenu)="onRightClick($event, aya)"
+            >
 
             <!-- النص مع underline -->
-            <span *ngIf="colorsRendered" appUnderlineMatch [text]="aya.text" [matchedWord]="aya.matchedWord"
-              [color]="getLastColoredWordColor(findInputByAyaId(aya.id))">
+            <span *ngIf="colorsRendered" appUnderlineMatch [text]="aya.text" [coloredWords]="aya.arrOfColoredWords">
             </span>
 
             <!-- fallback قبل ما الألوان تترسم -->

@@ -55,6 +55,7 @@ export interface InputItem {
   href: string;
   activeAya: number;
   matchedWord: string;
+  arrOfColoredWords: ArrOfColoredWords[];
   errorFactor: string;
 }
 
@@ -345,7 +346,8 @@ private renderPage(page: number): void {
         ayaNumber: aya.Aya_N,
         suraName: suraName,
         highlighted: false,
-        matchedWord: ''
+        matchedWord: '',
+        arrOfColoredWords: []
       });
     });
 
@@ -366,6 +368,7 @@ private renderPage(page: number): void {
   }
 
   onRightClick(event: MouseEvent, aya: any) {
+    debugger
     event.preventDefault();
     this.selectedAya = aya;
 
@@ -548,7 +551,7 @@ private renderPage(page: number): void {
                 index: aya.index,
                 suraWithIndex: `${sura.name} (${aya.index})`,
                 sura: sura.name,
-                lastWord: this.searchWord,
+                lastWord: this.arrOfAyaWords[i],
               });
               if (countSuras.indexOf(sura.name) < 0) {
                 countSuras.push(sura.name);
@@ -852,7 +855,8 @@ private renderPage(page: number): void {
         motashabehatSpans: [],
         spansOfColoredWords: [],
         errorFactor: aya.errorFactor,
-        matchedWord: aya.matchedWord
+        matchedWord: aya.matchedWord,
+        arrOfColoredWords: aya.arrOfColoredWords
       });
       this.drawMotashabehat(aya, ayaStart, ayaEnd);
     });
@@ -864,6 +868,7 @@ private renderPage(page: number): void {
 
   if (pageAya) {
     pageAya.matchedWord = input.matchedWord;
+    pageAya.arrOfColoredWords = input.arrOfColoredWords;
   }
 });
 
@@ -1120,37 +1125,6 @@ private renderPage(page: number): void {
     `;
   }
   
-  findInputByAyaId(ayaId: number): InputItem {
-    return this.inputs.find(i => i.ayaId === ayaId.toString())!;
-  }
-  
-  // underlineMatchedWord(aya:any,text: string, matchedWord?: string): string {
-  //   if (!matchedWord) return text;
-  
-  //   // 🔹 نشيل آخر كلمة
-  //   const trimmedMatch = this.removeLastWord(matchedWord);
-  // 
-  //   if (!trimmedMatch) return text;
-  
-  //   const index = text.indexOf(trimmedMatch);
-  //   if (index === -1) return text;
-  
-  //   const before = text.slice(0, index);
-  //   const match = text.slice(index, index + trimmedMatch.length);
-  //   const after = text.slice(index + trimmedMatch.length);
-  
-  //   return `${before}<span class="matched-underline">${match}</span>${after}`;
-  // }
-   getLastColoredWordColor(input: InputItem): string {
-    if(input){
-      const arr = input.spansOfColoredWords;
-      if (!arr || arr.length === 0) return '#000000'; // default fallback
-    
-      const last = arr[arr.length - 2]??'#000000';
-      return last.color || '#000000';
-    }
-    return '#000000';
-  }
   
   
   private stripTashkeel(text: string): string {
