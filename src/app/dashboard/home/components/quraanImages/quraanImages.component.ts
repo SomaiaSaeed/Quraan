@@ -1,8 +1,9 @@
 import { HttpClient } from "@angular/common/http";
-import { ThisReceiver } from "@angular/compiler";
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
 import { OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
+import { ContextMenu } from "primeng/contextmenu";
+import { BookmarkService } from "src/app/core/services/bookmark.service";
 import { Search } from "src/app/core/services/search.service";
 
 
@@ -219,6 +220,8 @@ private renderPage(page: number): void {
   @Output() motahabehClick = new EventEmitter<any>();
   @Output() motshabehat = new EventEmitter<InputItem[]>(); // Assuming ayaId is a number
 
+  @ViewChild('menu') contextMenu!: ContextMenu;
+
 
   private _quranPages: any;
   private _quranInJson: any;
@@ -254,8 +257,7 @@ private renderPage(page: number): void {
 
   @Input() images: string | any;
   quranPages: any[] = [];
-  @ViewChild('menu') contextMenu: any;
-  contextMenuItems: MenuItem[] = []; 
+  contextMenuItems: MenuItem[] = [];
   selectedAya: any = null;
   customOptions: OwlOptions = {
     loop: false,
@@ -286,7 +288,10 @@ private renderPage(page: number): void {
   };
 
 
-  constructor(private _searchInstance: Search, private _http: HttpClient) { }
+  showBookmarkDialog = false;
+  bookmarkNote = '';
+
+  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService) { }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
@@ -368,29 +373,55 @@ private renderPage(page: number): void {
   }
 
   onRightClick(event: MouseEvent, aya: any) {
-    debugger
     event.preventDefault();
     this.selectedAya = aya;
 
     this.contextMenuItems = [
       {
-        label: '📋 تفسير الآية',
+        label: '📋 نسخ الآية',
         icon: 'pi pi-copy',
-        // command: () => this.copyAya()
+        command: () => this.copyAya()
       },
       {
         label: '🔗 مشاركة الآية',
         icon: 'pi pi-share-alt',
-        // command: () => this.shareAya()
+        command: () => this.shareAya()
       },
       {
         label: '⭐ حفظ الآية',
         icon: 'pi pi-bookmark',
-        // command: () => this.bookmarkAya()
+        command: () => this.bookmarkAya()
       }
     ];
 
     this.contextMenu.show(event);
+  }
+
+  private copyAya(): void {
+    if (!this.selectedAya) return;
+    const text = `${this.selectedAya.text} (${this.selectedAya.suraName}: ${this.selectedAya.ayaNumber})`;
+    navigator.clipboard.writeText(text);
+  }
+
+  private shareAya(): void {
+    if (!this.selectedAya) return;
+    const text = `${this.selectedAya.text} (${this.selectedAya.suraName}: ${this.selectedAya.ayaNumber})`;
+    if (navigator.share) {
+      navigator.share({ text });
+    } else {
+      navigator.clipboard.writeText(text);
+    }
+  }
+
+  private bookmarkAya(): void {
+    if (!this.selectedAya) return;
+    this.bookmarkNote = '';
+    this.showBookmarkDialog = true;
+  }
+
+  confirmBookmark(): void {
+    this._bookmarkService.saveBookmark(this.selectedAya, this.bookmarkNote);
+    this.showBookmarkDialog = false;
   }
 
 

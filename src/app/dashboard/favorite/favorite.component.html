@@ -1,73 +1,45 @@
-<div>
-    <h2>المفضلة <span>(12)</span> </h2>
-    <!-- table -->
-    <div class="tw-overflow-auto tw-mt-6 tw-max-h-96">
-        <section class="tw-table tw-w-full">
-            <header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
-                <div
-                    class="tw-table-cell tw-text-gary-700 tw-font-bold tw-text-sm tw-px-6 tw-py-4 ltr:tw-text-left rtl:tw-text-right">
-                    الأيـة
-                </div>
-                <div
-                    class="tw-table-cell tw-text-gary-700 tw-font-bold tw-text-sm tw-p-4 ltr:tw-text-left rtl:tw-text-right">
-                    ملاحظاتى
-                </div>
-            </header>
-            <!-- content -->
-            <div class="tw-table-row tw-bg-white tw-w-full tw-rounded tw-mb-3">
-                <div class="tw-table-cell tw-border-b tw-border-gray-200">
-                    <div class="flex-box tw-gap-1 tw-py-3 tw-max-w-xl">
-                        <div class="tw-w-0.5 tw-h-10 tw-bg-mainColor tw-rounded-md"></div>
-                        <span class="tw-mx-1"></span>
-                        <p class="tw-mb-0">ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ لَيَجْمَعَنَّكُمْ إِلَىٰ يَوْمِ ٱلْقِيَٰمَةِ لَا رَيْبَ
-                            فِيهِ وَمَنْ أَصْدَقُ مِنَ <span class="tw-text-coral tw-font-bold">ٱللَّهِ</span> حَدِيثًا</p>
-                                    </div>
-                </div>
-                <div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
-                    <div class="tw-border tw-border-mainColor/40 tw-px-5 tw-py-3 tw-max-w-sm tw-my-4">
-                        <p class="mb-0 text-sm tw-text-neutral-700 tw-whitespace-pre-wrap tw-leading-6">
-                            تكتب هنا جميه ملاحظاتى على الاية التى اريد حفظها عندى فى المفضلة.
-                            تكتب هنا جميه ملاحظاتى على الاية التى اريد حفظها عندى فى المفضلة.
-                        </p>
-                    </div>
-                </div>
+<div dir="rtl">
+  <h2 class="tw-mb-6">المفضلة <span class="tw-text-gray-400 tw-text-lg">({{ bookmarks.length }})</span></h2>
+
+  <div *ngIf="bookmarks.length === 0" class="tw-text-center tw-text-gray-400 tw-py-16">
+    <p class="tw-text-lg">لا توجد آيات محفوظة بعد</p>
+    <p class="tw-text-sm">انقر بزر الماوس الأيمن على أي آية واختر "حفظ الآية"</p>
+  </div>
+
+  <div class="tw-overflow-auto tw-mt-2 tw-max-h-screen" *ngIf="bookmarks.length > 0">
+    <section class="tw-table tw-w-full">
+      <header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
+        <div class="tw-table-cell tw-text-gray-700 tw-font-bold tw-text-sm tw-px-6 tw-py-4 tw-text-right">
+          الآية
+        </div>
+        <div class="tw-table-cell tw-text-gray-700 tw-font-bold tw-text-sm tw-p-4 tw-text-right">
+          ملاحظاتي
+        </div>
+        <div class="tw-table-cell tw-text-gray-700 tw-font-bold tw-text-sm tw-p-4 tw-text-right tw-w-16">
+        </div>
+      </header>
+
+      <div *ngFor="let b of bookmarks" class="tw-table-row tw-bg-white tw-w-full">
+        <div class="tw-table-cell tw-border-b tw-border-gray-200">
+          <div class="tw-flex tw-gap-2 tw-py-3 tw-max-w-xl tw-items-start">
+            <div class="tw-w-0.5 tw-h-10 tw-bg-mainColor tw-rounded-md tw-flex-shrink-0 tw-mt-1"></div>
+            <div>
+              <p class="tw-mb-1 tw-leading-7">{{ b.text }}</p>
+              <span class="tw-text-xs tw-text-gray-400">{{ b.suraName }} — الآية {{ b.ayaNumber }}</span>
             </div>
-            <div class="tw-table-row tw-bg-white tw-w-full tw-rounded tw-mb-3">
-                <div class="tw-table-cell tw-border-b tw-border-gray-200">
-                    <div class="flex-box tw-gap-1 tw-py-3 tw-max-w-xl">
-                        <div class="tw-w-0.5 tw-h-10 tw-bg-mainColor tw-rounded-md"></div>
-                        <span class="tw-mx-1"></span>
-                        <p class="tw-mb-0">ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ لَيَجْمَعَنَّكُمْ إِلَىٰ يَوْمِ ٱلْقِيَٰمَةِ لَا رَيْبَ
-                            فِيهِ وَمَنْ أَصْدَقُ مِنَ <span class="tw-text-coral tw-font-bold">ٱللَّهِ</span> حَدِيثًا</p>
-                                    </div>
-                </div>
-                <div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
-                    <div class="tw-border tw-border-mainColor/40 tw-px-5 tw-py-3 tw-max-w-sm tw-my-4">
-                        <p class="mb-0 text-sm tw-text-neutral-700 tw-whitespace-pre-wrap tw-leading-6">
-                            تكتب هنا جميه ملاحظاتى على الاية التى اريد حفظها عندى فى المفضلة.
-                            تكتب هنا جميه ملاحظاتى على الاية التى اريد حفظها عندى فى المفضلة.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="tw-table-row tw-bg-white tw-w-full tw-rounded tw-mb-3">
-                <div class="tw-table-cell tw-border-b tw-border-gray-200">
-                    <div class="flex-box tw-gap-1 tw-py-3 tw-max-w-xl">
-                        <div class="tw-w-0.5 tw-h-10 tw-bg-mainColor tw-rounded-md"></div>
-                        <span class="tw-mx-1"></span>
-                        <p class="tw-mb-0">ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ لَيَجْمَعَنَّكُمْ إِلَىٰ يَوْمِ ٱلْقِيَٰمَةِ لَا رَيْبَ
-                            فِيهِ وَمَنْ أَصْدَقُ مِنَ <span class="tw-text-coral tw-font-bold">ٱللَّهِ</span> حَدِيثًا</p>
-                                    </div>
-                </div>
-                <div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
-                    <div class="tw-border tw-border-mainColor/40 tw-px-5 tw-py-3 tw-max-w-sm tw-my-4">
-                        <p class="mb-0 text-sm tw-text-neutral-700 tw-whitespace-pre-wrap tw-leading-6">
-                            تكتب هنا جميه ملاحظاتى على الاية التى اريد حفظها عندى فى المفضلة.
-                            تكتب هنا جميه ملاحظاتى على الاية التى اريد حفظها عندى فى المفضلة.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+          </div>
+        </div>
+        <div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
+          <div class="tw-border tw-border-mainColor/40 tw-px-5 tw-py-3 tw-max-w-sm tw-my-4" *ngIf="b.notes">
+            <p class="tw-mb-0 tw-text-sm tw-text-neutral-700 tw-whitespace-pre-wrap tw-leading-6">{{ b.notes }}</p>
+          </div>
+          <span *ngIf="!b.notes" class="tw-text-sm tw-text-gray-300 tw-px-5">لا توجد ملاحظات</span>
+        </div>
+        <div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle tw-text-center">
+          <button (click)="remove(b.id)" class="tw-text-red-400 hover:tw-text-red-600 tw-text-lg" title="حذف">✕</button>
+        </div>
+      </div>
+
+    </section>
+  </div>
 </div>
