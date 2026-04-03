@@ -9,7 +9,8 @@ const routes: Routes = [
   { path: 'home', loadChildren: () => import('./dashboard/home/home.module').then(m => m.HomeModule) },
   { path: 'favorite', loadChildren: () => import('./dashboard/favorite/favorite.module').then(m => m.FavoriteModule) },
   { path: 'similarities', loadChildren: () => import('./dashboard/similarities/similarities.module').then(m => m.SimilaritiesModule) },
-  { path: 'alsajadat', loadChildren: () => import('./dashboard/alsajadat/alsajadat.module').then(m => m.AlsajadatModule) }
+  { path: 'alsajadat', loadChildren: () => import('./dashboard/alsajadat/alsajadat.module').then(m => m.AlsajadatModule) },
+  { path: 'fehres', loadChildren: () => import('./dashboard/fehres/fehres.module').then(m => m.FehresModule) }
 
 ];
 

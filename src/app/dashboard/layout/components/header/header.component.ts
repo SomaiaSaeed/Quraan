@@ -61,4 +61,9 @@ export class HeaderComponent implements OnInit {
     this.isOpenMenu = false
   }
 
+  openFehres(){
+    this.router.navigate(['/fehres']);
+    this.isOpenMenu = false
+  }
+
 }

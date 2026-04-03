@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
-import { OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
+import { CarouselComponent, OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
 import { ContextMenu } from "primeng/contextmenu";
 import { BookmarkService } from "src/app/core/services/bookmark.service";
@@ -141,7 +141,15 @@ pageNumber: number = 1;
 ngAfterViewInit(): void {
 
   setTimeout(() => {
-    this.pageNumber = 1;
+    const pendingPage = localStorage.getItem('pendingNavPage');
+    if (pendingPage) {
+      localStorage.removeItem('pendingNavPage');
+      const page = Number(pendingPage);
+      this.pageNumber = page;
+      this.navigateToPage(page);
+    } else {
+      this.pageNumber = 1;
+    }
 
     this.resetDrawing();
 
@@ -221,6 +229,16 @@ private renderPage(page: number): void {
   @Output() motshabehat = new EventEmitter<InputItem[]>(); // Assuming ayaId is a number
 
   @ViewChild('menu') contextMenu!: ContextMenu;
+  @ViewChild(CarouselComponent) carousel!: CarouselComponent;
+
+  // Quick Go To
+  goToOpen   = false;
+  goToMode: 'page' | 'sura' | 'aya' = 'page';
+  goToPage   = 1;
+  goToSuraIndex  = 1;
+  goToAyaIndex   = 1;
+  suraList: { index: number; name: string; ayaCount: number }[] = [];
+  private pageToSlideIndex = new Map<number, number>();   // pageNumber → quranPages index
 
 
   private _quranPages: any;
@@ -295,25 +313,34 @@ private renderPage(page: number): void {
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
-    console.log('quranPages order:', JSON.stringify(this.quranPages.map(p => ({
-      suraName: p.suraName,
-      suraNumber: p.suraNumber,
-      pageNumber: p.pageNumber,
-      ayatCount: p.ayat.length
-    })), null, 2));
+
+    // Build page → slide index lookup
+    this.quranPages.forEach((page, idx) => {
+      if (!this.pageToSlideIndex.has(page.pageNumber)) {
+        this.pageToSlideIndex.set(page.pageNumber, idx);
+      }
+    });
+
+    // Build sura list from table_othmani
+    const suraMap = new Map<number, { name: string; ayaCount: number }>();
+    this._searchInstance.table_othmani.forEach((row: any) => {
+      const n = Number(row.nOFSura);
+      if (!suraMap.has(n)) suraMap.set(n, { name: row.Sura_Name, ayaCount: 0 });
+      suraMap.get(n)!.ayaCount++;
+    });
+    this.suraList = Array.from(suraMap.entries())
+      .map(([index, v]) => ({ index, ...v }))
+      .sort((a, b) => a.index - b.index);
 
     const motashabehatSettings = localStorage.getItem('motashabehatSettings');
-
     if (motashabehatSettings) {
       const data = JSON.parse(motashabehatSettings);
-
       this.similarCount = data.similarCount;
       this.suraCount = data.suraCount;
-    } else{
+    } else {
       this.similarCount = 7;
       this.suraCount = 6;
     }
-
   }
 
 
@@ -1158,6 +1185,53 @@ private renderPage(page: number): void {
   
   
   
+  // ── Quick Go To ─────────────────────────────────────────────────────────────
+
+  navigateToPage(page: number): void {
+    const idx = this.pageToSlideIndex.get(page);
+    if (idx === undefined) return;
+    this.carousel.to((idx + 1).toString());
+    this.goToOpen = false;
+  }
+
+  navigateToSura(suraIndex: number | string): void {
+    const n = Number(suraIndex);
+    const row = this._searchInstance.table_othmani.find(
+      (r: any) => Number(r.nOFSura) === n
+    );
+    if (!row) return;
+    this.navigateToPage(Number(row.nOFPage));
+  }
+
+  navigateToAya(suraIndex: number | string, ayaIndex: number | string): void {
+    const sn = Number(suraIndex);
+    const an = Number(ayaIndex);
+    const row = this._searchInstance.table_othmani.find(
+      (r: any) => Number(r.nOFSura) === sn && Number(r.Aya_N) === an
+    );
+    if (!row) return;
+    this.navigateToPage(Number(row.nOFPage));
+  }
+
+  get selectedSuraAyaCount(): number {
+    return this.suraList.find(s => s.index === Number(this.goToSuraIndex))?.ayaCount ?? 1;
+  }
+
+  setGoToMode(mode: 'page' | 'sura' | 'aya'): void {
+    this.goToMode = mode;
+  }
+
+  onGoToSubmit(): void {
+    if (this.goToMode === 'page') {
+      this.navigateToPage(Number(this.goToPage));
+    } else if (this.goToMode === 'sura') {
+      this.navigateToSura(Number(this.goToSuraIndex));
+    } else {
+      this.navigateToAya(Number(this.goToSuraIndex), Number(this.goToAyaIndex));
+    }
+    this.goToOpen = false;
+  }
+
   private stripTashkeel(text: string): string {
     return text.replace(/[\u064B-\u065F]/g, '');
   }

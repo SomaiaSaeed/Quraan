@@ -1,0 +1,79 @@
+<div class="tw-min-h-screen tw-bg-gray-50 tw-p-6" dir="rtl">
+
+  <!-- Header -->
+  <div class="tw-mb-6">
+    <h1 class="tw-text-2xl tw-font-bold tw-text-gray-800">فهرس القرآن الكريم</h1>
+    <p class="tw-text-sm tw-text-gray-400 tw-mt-1">انقر على أي سورة أو جزء للانتقال إليه</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tw-flex tw-gap-1 tw-bg-gray-200 tw-rounded-xl tw-p-1 tw-w-fit tw-mb-6">
+    <button
+      (click)="activeTab = 'suras'"
+      class="tw-px-6 tw-py-2 tw-text-sm tw-rounded-lg tw-transition-all tw-font-medium"
+      [class.tw-bg-white]="activeTab === 'suras'"
+      [class.tw-shadow-sm]="activeTab === 'suras'"
+      [class.tw-text-gray-800]="activeTab === 'suras'"
+      [class.tw-text-gray-500]="activeTab !== 'suras'">
+      السور
+    </button>
+    <button
+      (click)="activeTab = 'juz'"
+      class="tw-px-6 tw-py-2 tw-text-sm tw-rounded-lg tw-transition-all tw-font-medium"
+      [class.tw-bg-white]="activeTab === 'juz'"
+      [class.tw-shadow-sm]="activeTab === 'juz'"
+      [class.tw-text-gray-800]="activeTab === 'juz'"
+      [class.tw-text-gray-500]="activeTab !== 'juz'">
+      الأجزاء
+    </button>
+  </div>
+
+  <!-- Suras Grid -->
+  <div *ngIf="activeTab === 'suras'"
+    class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 md:tw-grid-cols-4 lg:tw-grid-cols-5 xl:tw-grid-cols-6 tw-gap-3">
+    <button
+      *ngFor="let s of suras"
+      (click)="goToPage(s.page)"
+      class="tw-bg-white tw-border tw-border-gray-200 tw-rounded-xl tw-p-3 tw-text-center hover:tw-bg-green-50 hover:tw-border-green-400 tw-transition-all tw-shadow-sm tw-group">
+      <!-- Sura number badge -->
+      <div class="tw-w-8 tw-h-8 tw-rounded-full tw-bg-gray-100 tw-group-hover:tw-bg-green-100 tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-2 tw-transition-all">
+        <span class="tw-text-xs tw-font-bold tw-text-gray-500 tw-group-hover:tw-text-green-700">{{ toArabic(s.index) }}</span>
+      </div>
+      <!-- Sura name -->
+      <p class="tw-text-sm tw-font-semibold tw-text-gray-800 tw-mb-1">{{ s.name }}</p>
+      <!-- Aya count & page -->
+      <div class="tw-flex tw-justify-center tw-gap-2 tw-text-xs tw-text-gray-400">
+        <span>{{ toArabic(s.ayaCount) }} آية</span>
+        <span>·</span>
+        <span>ص {{ toArabic(s.page) }}</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Juz List -->
+  <div *ngIf="activeTab === 'juz'" class="tw-max-w-2xl">
+    <div
+      *ngFor="let j of juzList"
+      (click)="goToPage(j.page)"
+      class="tw-flex tw-items-center tw-justify-between tw-bg-white tw-border tw-border-gray-200 tw-rounded-xl tw-px-5 tw-py-4 tw-mb-3 hover:tw-bg-green-50 hover:tw-border-green-400 tw-transition-all tw-shadow-sm tw-cursor-pointer">
+
+      <!-- Juz number -->
+      <div class="tw-flex tw-items-center tw-gap-4">
+        <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-green-700 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
+          <span class="tw-text-white tw-text-sm tw-font-bold">{{ toArabic(j.index) }}</span>
+        </div>
+        <div>
+          <p class="tw-text-sm tw-font-semibold tw-text-gray-800 tw-mb-0">الجزء {{ toArabic(j.index) }}</p>
+          <p class="tw-text-xs tw-text-gray-500 tw-mb-0">يبدأ من سورة {{ j.suraName }} — آية {{ toArabic(j.ayaNumber) }}</p>
+        </div>
+      </div>
+
+      <!-- Page number -->
+      <div class="tw-text-left">
+        <span class="tw-text-xs tw-text-gray-400">صفحة</span>
+        <p class="tw-text-base tw-font-bold tw-text-green-700 tw-mb-0">{{ toArabic(j.page) }}</p>
+      </div>
+    </div>
+  </div>
+
+</div>
