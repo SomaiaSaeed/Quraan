@@ -14,6 +14,8 @@ export class HomeComponent {
   inputs: InputItem[] = [];
   rightMotashabehatSpans: any[] = [];
   leftMotashabehatSpans: any[] = [];
+  mushafView = false;
+  mushafPage = 1;
 
   constructor() {}
   onAyaClick(aya: any) {

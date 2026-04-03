@@ -1,0 +1,26 @@
+<div class="mushaf-wrapper">
+
+  <!-- Loading state -->
+  <div *ngIf="!currentPage" class="mushaf-loading">
+    <span>جاري التحميل...</span>
+  </div>
+
+  <div *ngIf="currentPage" class="mushaf-page" dir="rtl">
+
+    <!-- Page number top -->
+    <div class="mushaf-page-number">{{ pageNumber }}</div>
+
+    <!-- 15 lines -->
+    <div
+      *ngFor="let line of filledLines"
+      class="mushaf-line"
+      [class.mushaf-line--basmala]="line?.isBasmala"
+      [class.mushaf-line--empty]="!line?.text">
+      <span class="mushaf-text">{{ line?.text }}</span>
+    </div>
+
+    <!-- Page number bottom -->
+    <div class="mushaf-page-number">{{ pageNumber }}</div>
+
+  </div>
+</div>

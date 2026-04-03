@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap');
+
+.mushaf-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8px;
+  background: #f5f0e8;
+  min-height: 100%;
+}
+
+.mushaf-loading {
+  font-family: 'Scheherazade New', serif;
+  color: #888;
+  padding: 40px;
+  font-size: 18px;
+  direction: rtl;
+}
+
+.mushaf-page {
+  width: 100%;
+  max-width: 480px;
+  background: #fffef8;
+  border: 1px solid #c9b99a;
+  border-radius: 2px;
+  padding: 20px 28px 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+
+  // Outer decorative border
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid #c9b99a55;
+    border-radius: 1px;
+    pointer-events: none;
+  }
+}
+
+.mushaf-page-number {
+  text-align: center;
+  font-family: 'Scheherazade New', serif;
+  font-size: 12px;
+  color: #8a6f4e;
+  letter-spacing: 1px;
+  padding: 4px 0;
+}
+
+.mushaf-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  padding: 2px 4px;
+  border-bottom: 1px solid transparent;
+
+  &--basmala {
+    justify-content: center;
+    border-bottom: 1px solid #c9b99a44;
+    margin-bottom: 2px;
+
+    .mushaf-text {
+      font-size: 22px;
+      color: #2c1a0e;
+    }
+  }
+
+  &--empty {
+    min-height: 38px;
+  }
+}
+
+.mushaf-text {
+  font-family: 'Scheherazade New', serif;
+  font-size: 19px;
+  line-height: 1.9;
+  color: #1a0e05;
+  direction: rtl;
+  width: 100%;
+  text-align: justify;
+  text-align-last: justify;
+}

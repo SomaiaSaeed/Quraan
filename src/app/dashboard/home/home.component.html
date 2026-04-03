@@ -24,12 +24,44 @@
           
         </div>
         <div class="tw-col-span-3 tw-border-4 tw-border-[#e4e4d0] tw-pt-5 tw-h-auto tw-bg-[#f5f5f5] tw-border-double">
-            <!-- images -->
-            <app-quraanImages [images]="images"
-            (motshabehat)="onMotshbehatGenerated($event)"
-            (onClick)="onAyaClick($event)"
 
-            ></app-quraanImages>
+            <!-- View toggle -->
+            <div class="tw-flex tw-justify-center tw-gap-2 tw-mb-3">
+              <button (click)="mushafView = false"
+                class="tw-px-4 tw-py-1.5 tw-text-xs tw-rounded-full tw-border tw-transition-all"
+                [class.tw-bg-gray-800]="!mushafView"
+                [class.tw-text-white]="!mushafView"
+                [class.tw-border-gray-800]="!mushafView"
+                [class.tw-border-gray-300]="mushafView"
+                [class.tw-text-gray-500]="mushafView">
+                عرض الألوان
+              </button>
+              <button (click)="mushafView = true"
+                class="tw-px-4 tw-py-1.5 tw-text-xs tw-rounded-full tw-border tw-transition-all"
+                [class.tw-bg-gray-800]="mushafView"
+                [class.tw-text-white]="mushafView"
+                [class.tw-border-gray-800]="mushafView"
+                [class.tw-border-gray-300]="!mushafView"
+                [class.tw-text-gray-500]="!mushafView">
+                عرض المصحف
+              </button>
+            </div>
+
+            <!-- Color analysis view -->
+            <app-quraanImages *ngIf="!mushafView" [images]="images"
+              (motshabehat)="onMotshbehatGenerated($event)"
+              (onClick)="onAyaClick($event)">
+            </app-quraanImages>
+
+            <!-- Mushaf view -->
+            <div *ngIf="mushafView" class="tw-flex tw-items-center tw-gap-2 tw-px-2">
+              <button (click)="mushafPage > 1 ? mushafPage = mushafPage - 1 : null" class="tw-text-gray-500 tw-text-xl tw-px-2">‹</button>
+              <div class="tw-flex-1">
+                <app-mushaf-page [pageNumber]="mushafPage"></app-mushaf-page>
+              </div>
+              <button (click)="mushafPage < 604 ? mushafPage = mushafPage + 1 : null" class="tw-text-gray-500 tw-text-xl tw-px-2">›</button>
+            </div>
+
         </div>
         <div class="tw-col-span-2">
             <!-- details -->
