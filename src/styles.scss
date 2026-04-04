@@ -25,8 +25,14 @@
   span{
     font-family: 'uthmanic_hafs_v20', sans-serif !important;
     font-size: 24px;
-    font-weight: bold;
+    font-weight: normal;
     line-height: 2;
+  }
+
+  /* Mushaf line view: scale font so each JSON line fits in one visual line */
+  .mushaf-line span {
+    font-size: clamp(18px, 5.2vw, 24px);
+    font-weight: normal;
   }
 }
 

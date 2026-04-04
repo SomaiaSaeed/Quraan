@@ -73,7 +73,6 @@ export class UnderlineMatchDirective implements OnChanges {
 
       if (group.color) {
         const span = this.renderer.createElement('span');
-        this.renderer.setStyle(span, 'font-weight', '700');
         this.renderer.setStyle(span, 'text-decoration-line', 'underline');
         this.renderer.setStyle(span, 'text-decoration-color', group.color);
         this.renderer.setStyle(span, 'text-decoration-thickness', '2px');

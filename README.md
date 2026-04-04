@@ -1,27 +1,81 @@
-# TailwaindComponents
+# Quraan - القرآن الكريم
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.5.
+An interactive Angular web application for exploring, listening to, searching, and testing knowledge of the Holy Quran. Designed with full Arabic (RTL) support.
 
-## Development server
+## Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Home** - Main dashboard with Quran page images and navigation
+- **Listen** - Audio player for Quranic recitations with reader selection
+- **Search** - Full-text search across Quranic verses
+- **Similarities** - Explore similar and related verses
+- **Alsajadat** - Browse prostration (سجدة) verses
+- **Test** - Interactive knowledge testing on Quranic content
+- **Favorites** - Bookmark and manage favorite verses
 
-## Code scaffolding
+## Tech Stack
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- **Framework:** Angular 16
+- **UI Libraries:** Angular Material, PrimeNG, Tailwind CSS
+- **Audio:** ngx-audio-player
+- **Carousel:** ngx-owl-carousel-o
+- **Styling:** SCSS + Tailwind CSS + Animate.css
+- **Language:** TypeScript
 
-## Build
+## Getting Started
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Prerequisites
 
-## Running unit tests
+- Node.js (v16+)
+- Angular CLI
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### Installation
 
-## Running end-to-end tests
+```bash
+npm install
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### Development Server
 
-## Further help
+```bash
+ng serve
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Navigate to `http://localhost:4200/`. The app reloads automatically on file changes.
+
+### Build
+
+```bash
+ng build
+```
+
+Build artifacts are stored in the `dist/` directory.
+
+### Running Tests
+
+```bash
+ng test
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── core/                  # Constants, services, interceptors
+│   ├── shared/                # Reusable components (search, print, readers)
+│   └── dashboard/
+│       ├── home/              # Home page with Quran images
+│       ├── listen/            # Audio listening module
+│       ├── search/            # Search module
+│       ├── similarities/      # Similar verses module
+│       ├── alsajadat/         # Prostration verses module
+│       ├── test/              # Knowledge test module
+│       ├── favorite/          # Favorites module
+│       └── layout/            # Header, footer, layout shell
+├── assets/
+│   ├── fonts/                 # Uthmanic Hafs font & icon fonts
+│   ├── images/                # Quran page images & UI assets
+│   ├── jsonData/              # Quran data (JSON)
+│   └── scss/                  # Global styles
+└── environments/              # Environment configs
+```

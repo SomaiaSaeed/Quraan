@@ -9,6 +9,7 @@ import { Search } from "src/app/core/services/search.service";
 
 const QuranInJsonURL = "assets/jsonData/QuranInJson.json";
 const QuranPagesURL = "assets/jsonData/QuranPages.json";
+const QuranPagesWithLinesURL = "assets/jsonData/QuranPagesWithLines.json";
 
 interface Motashabehat {
   id:number,
@@ -243,6 +244,7 @@ private renderPage(page: number): void {
 
   private _quranPages: any;
   private _quranInJson: any;
+  private _pagesWithLines: any[] = [];
 
   lastTop: number = 10;
   marginTop: number = 50;
@@ -363,10 +365,13 @@ private renderPage(page: number): void {
       const suraNumber = Number(aya.nOFSura) || 0;
 
       if (!currentSlide || currentSlide.pageNumber !== pageNum || currentSlide.suraName !== suraName) {
+        // Default isSuraStart: true when aya index 1 is on this page (first aya of sura)
+        const isFirstAya = Number(aya.Aya_N) === 1;
         currentSlide = {
           pageNumber: pageNum,
           suraName: suraName,
           suraNumber: suraNumber,
+          isSuraStart: isFirstAya,
           ayat: [],
         };
         slides.push(currentSlide);
@@ -458,8 +463,14 @@ private renderPage(page: number): void {
       this.generateMotashabehatOfSelectedPage(this.pageNumber);
       this.determineHighlight();
       this.drawColoredWords();
-
     });
+
+    if (!this._pagesWithLines.length) {
+      this._http.get<any[]>(QuranPagesWithLinesURL).subscribe((data) => {
+        this._pagesWithLines = data;
+        this.buildMushafLinesForCurrentPage();
+      });
+    }
   }
 
   loadQuranJson(): void {
@@ -599,8 +610,6 @@ private renderPage(page: number): void {
         this._quranInJson.forEach((sura: any) => {
           sura.aya.forEach((aya: any) => {
             if (aya.text_without_tashkeel.startsWith(this.searchWord)) {
-              debugger;
-
               this.x.push({
                 id: ayaInPage.id,
                 errorFactor: ayaInPage.errorFactor,
@@ -1078,7 +1087,7 @@ private renderPage(page: number): void {
       this.inputs[j].spansOfColoredWords = this.spansOfColoredWords;
     }
     this.colorsRendered = true;
-    
+    this.buildMushafLinesForCurrentPage();
   }
 
   private fillRightArrayFirst(
@@ -1232,8 +1241,93 @@ private renderPage(page: number): void {
     this.goToOpen = false;
   }
 
+  // ── Mushaf line rendering ───────────────────────────────────────────────────
+
+  private buildMushafLinesForCurrentPage(): void {
+    if (!this._pagesWithLines.length) return;
+    const pageData = this._pagesWithLines[this.pageNumber - 1];
+    if (!pageData || !pageData.lines) return;
+    this.quranPages
+      .filter(slide => slide.pageNumber === this.pageNumber)
+      .forEach(slide => this.buildMushafLines(slide, pageData.lines));
+  }
+
+  private buildMushafLines(slide: any, lines: any[]): void {
+    const suraNum = slide.suraNumber;
+    const ayaLookup = new Map<string, any>();
+    slide.ayat.forEach((aya: any) => ayaLookup.set(String(aya.ayaNumber), aya));
+
+    // Determine if this slide's sura starts on this page
+    slide.isSuraStart = lines.some((line: any) =>
+      line.isSuraStart && line.segments.some((seg: any) => Number(seg.verseKey.split(':')[0]) === suraNum)
+    );
+
+    // Pre-compute the last line index that contains each verseKey
+    const lastLineForVerse = new Map<string, number>();
+    lines.forEach((line: any, li: number) => {
+      line.segments.forEach((seg: any) => {
+        if (Number(seg.verseKey.split(':')[0]) === suraNum) {
+          lastLineForVerse.set(seg.verseKey, li);
+        }
+      });
+    });
+
+    // Track how many words of each aya have been placed on previous lines
+    const consumed = new Map<string, number>();
+    const mushafLines: any[] = [];
+
+    lines.forEach((line: any, li: number) => {
+      const suraSegments = line.segments.filter(
+        (seg: any) => Number(seg.verseKey.split(':')[0]) === suraNum
+      );
+      if (!suraSegments.length) return;
+
+      const lineSegments: any[] = [];
+
+      suraSegments.forEach((seg: any) => {
+        const ayaNum = seg.verseKey.split(':')[1];
+        const aya = ayaLookup.get(ayaNum);
+        if (!aya) return;
+
+        const words: string[] = aya.text.split(' ');
+        const coloredWords: any[] = aya.arrOfColoredWords || [];
+        const from = consumed.get(seg.verseKey) || 0;
+        const isLastSegment = lastLineForVerse.get(seg.verseKey) === li;
+
+        // On the last occurrence, take all remaining words (handles word count mismatches)
+        const to = isLastSegment ? words.length : Math.min(from + seg.wordPositions.length, words.length);
+        consumed.set(seg.verseKey, to);
+
+        if (from >= words.length) return;
+
+        const lineWords = words.slice(from, to);
+        const lineColoredWords = lineWords.map((w: string, i: number) => ({
+          word: w,
+          color: (from + i) < coloredWords.length ? (coloredWords[from + i]?.color || '') : ''
+        }));
+
+        const cleanColoredWords = lineColoredWords.map((cw: any) => ({
+          ...cw,
+          word: this.stripQuranicMarks(cw.word)
+        }));
+        lineSegments.push({ aya, lineText: this.stripQuranicMarks(lineWords.join(' ')), lineColoredWords: cleanColoredWords, isAyaEnd: isLastSegment });
+      });
+
+      if (lineSegments.length) {
+        mushafLines.push({ segments: lineSegments, isCentered: line.isSuraStart || line.isBasmala });
+      }
+    });
+
+    slide.mushafLines = mushafLines;
+  }
+
   private stripTashkeel(text: string): string {
     return text.replace(/[\u064B-\u065F]/g, '');
+  }
+
+  /** Remove Quranic annotation marks that render as black bubbles (U+06DF, U+06E2, U+06E5, U+06E6, U+06ED) */
+  stripQuranicMarks(text: string): string {
+    return text.replace(/[\u06DF\u06E2\u06E5\u06E6\u06ED]/g, '');
   }
   
   private removeLastWord(text: string): string {

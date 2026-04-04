@@ -82,34 +82,39 @@
           <h3 class="tw-text-neutral-700 tw-mb-0">{{ page.pageNumber }}</h3>
         </div> -->
       <div class="quran-page tw-mx-3 tw-relative">
-        <div class="tw-relative tw-mb-5">
+        <!-- Sura header — only on pages where the sura actually starts -->
+        <div *ngIf="page.isSuraStart" class="tw-relative tw-mb-5">
           <img src="../../../../../assets/images/head.png" class="tw-h-20" alt="" />
           <div class="tw-absolute tw-top-[6px] tw-left-0 tw-right-0">
             <span class="tw-text-4xl">{{ page.suraName }}</span>
           </div>
         </div>
-        <!-- tw-flex  tw-items-center tw-justify-center tw-flex-wrap tw-flex-row-reverse -->
-        <div class="tw-text-justify tw-mx-6" dir="rtl" style="text-align: justify">
-          <span *ngFor="let aya of page.ayat" class="aya-text" [class.highlight]="aya.highlighted"
-            (click)="toggleHighlight(aya)"
-            (contextmenu)="onRightClick($event, aya)"
-            >
+        <div class="mushaf-body" [class.mushaf-body-special]="page.pageNumber <= 2" dir="rtl">
 
-            <!-- النص مع underline -->
-            <span *ngIf="colorsRendered" appUnderlineMatch [text]="aya.text" [coloredWords]="aya.arrOfColoredWords">
-            </span>
+          <!-- Mushaf Al-Madinah line view -->
+          <ng-container *ngIf="page.mushafLines?.length">
+            <div *ngFor="let line of page.mushafLines"
+                 class="mushaf-line"
+                 [class.mushaf-line-centered]="line.isCentered">
+              <ng-container *ngFor="let seg of line.segments">
+                <ng-container *ngFor="let w of seg.lineColoredWords">
+                  <span class="mushaf-word"
+                    [class.highlight]="seg.aya.highlighted"
+                    [style.text-decoration-line]="w.color ? 'underline' : 'none'"
+                    [style.text-decoration-color]="w.color"
+                    (click)="toggleHighlight(seg.aya)"
+                    (contextmenu)="onRightClick($event, seg.aya)">{{ w.word }}</span>
+                </ng-container>
+                <span *ngIf="seg.isAyaEnd" class="aya-aya">{{ convertToArabicNumbers(seg.aya.ayaNumber) }}</span>
+              </ng-container>
+            </div>
+          </ng-container>
 
-            <!-- fallback قبل ما الألوان تترسم -->
-            <span *ngIf="!colorsRendered">
-              {{ aya.text }}
-            </span>
+          <!-- Loading spinner while mushaf lines are being built -->
+          <div *ngIf="!page.mushafLines?.length" class="tw-flex tw-justify-center tw-items-center tw-py-20">
+            <div class="mushaf-spinner"></div>
+          </div>
 
-            <!-- رقم الآية -->
-            <span class="aya-aya">
-              {{ convertToArabicNumbers(aya.ayaNumber) }}
-            </span>
-
-          </span>
         </div>
 
       </div>
