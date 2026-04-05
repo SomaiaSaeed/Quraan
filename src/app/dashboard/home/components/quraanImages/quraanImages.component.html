@@ -82,32 +82,37 @@
           <h3 class="tw-text-neutral-700 tw-mb-0">{{ page.pageNumber }}</h3>
         </div> -->
       <div class="quran-page tw-mx-3 tw-relative">
-        <!-- Sura header — only on pages where the sura actually starts -->
-        <div *ngIf="page.isSuraStart" class="tw-relative tw-mb-5">
-          <img src="../../../../../assets/images/head.png" class="tw-h-20" alt="" />
-          <div class="tw-absolute tw-top-[6px] tw-left-0 tw-right-0">
-            <span class="tw-text-4xl">{{ page.suraName }}</span>
-          </div>
-        </div>
         <div class="mushaf-body" [class.mushaf-body-special]="page.pageNumber <= 2" dir="rtl">
 
           <!-- Mushaf Al-Madinah line view -->
           <ng-container *ngIf="page.mushafLines?.length">
-            <div *ngFor="let line of page.mushafLines"
-                 class="mushaf-line"
-                 [class.mushaf-line-centered]="line.isCentered">
-              <ng-container *ngFor="let seg of line.segments">
-                <ng-container *ngFor="let w of seg.lineColoredWords">
-                  <span class="mushaf-word"
-                    [class.highlight]="seg.aya.highlighted"
-                    [style.text-decoration-line]="w.color ? 'underline' : 'none'"
-                    [style.text-decoration-color]="w.color"
-                    (click)="toggleHighlight(seg.aya)"
-                    (contextmenu)="onRightClick($event, seg.aya)">{{ w.word }}</span>
+            <ng-container *ngFor="let line of page.mushafLines">
+
+              <!-- Inline sura header -->
+              <div *ngIf="line.isSuraStart" class="tw-relative tw-mb-3 tw-mt-2">
+                <img src="../../../../../assets/images/head.png" class="tw-h-16 tw-w-full" alt="" />
+                <div class="tw-absolute tw-top-[4px] tw-left-0 tw-right-0">
+                  <span class="tw-text-3xl">{{ line.suraName }}</span>
+                </div>
+              </div>
+
+              <!-- Mushaf line -->
+              <div class="mushaf-line"
+                   [class.mushaf-line-centered]="line.isCentered">
+                <ng-container *ngFor="let seg of line.segments">
+                  <ng-container *ngFor="let w of seg.lineColoredWords">
+                    <span class="mushaf-word"
+                      [class.highlight]="seg.aya.highlighted"
+                      [style.text-decoration-line]="w.color ? 'underline' : 'none'"
+                      [style.text-decoration-color]="w.color"
+                      (click)="toggleHighlight(seg.aya)"
+                      (contextmenu)="onRightClick($event, seg.aya)">{{ w.word }}</span>
+                  </ng-container>
+                  <span *ngIf="seg.isAyaEnd" class="aya-aya">{{ convertToArabicNumbers(seg.aya.ayaNumber) }}</span>
                 </ng-container>
-                <span *ngIf="seg.isAyaEnd" class="aya-aya">{{ convertToArabicNumbers(seg.aya.ayaNumber) }}</span>
-              </ng-container>
-            </div>
+              </div>
+
+            </ng-container>
           </ng-container>
 
           <!-- Loading spinner while mushaf lines are being built -->

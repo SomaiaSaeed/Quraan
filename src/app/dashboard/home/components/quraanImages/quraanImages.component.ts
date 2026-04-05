@@ -166,10 +166,8 @@ ngAfterViewInit(): void {
 }
 
 onPageChange(event: SlidesOutputData) {
-
-  const index = event.startPosition ?? 0;
-
-  const newPage = index + 1;
+  const slideId = event?.slides?.[0]?.id;
+  const newPage = slideId ? Number(slideId) : (event.startPosition ?? 0) + 1;
 
   if (newPage === this.lastPageProcessed) return;
 
@@ -180,7 +178,6 @@ onPageChange(event: SlidesOutputData) {
 
 
 private renderPage(page: number): void {
-
   this.pageNumber = page;
 
   this.resetDrawing();
@@ -352,51 +349,45 @@ private renderPage(page: number): void {
     return num.toString().replace(/\d/g, (d) => arabicNumbers[parseInt(d, 10)]);
   }
 
-  groupQuranPages(): any[] {
-    // Create slides so that each slide contains ayat from a single sura.
-    // We iterate over the ayat and start a new slide whenever the page number or sura changes.
-    // Then we sort slides by the sura number to match Mushaf order.
-    const slides: any[] = [];
-    let currentSlide: any = null;
+  /** Normalize Arabic presentation form characters (U+FB50–U+FEFF) to standard Arabic */
+  private normalizeSuraName(name: string): string {
+    return name.normalize('NFKC')
+      .replace(/\uFEF5|\uFEF6/g, 'لآ')
+      .replace(/\uFEF7|\uFEF8/g, 'لأ')
+      .replace(/\uFEF9|\uFEFA/g, 'لإ')
+      .replace(/\uFEFB|\uFEFC/g, 'لا');
+  }
 
-    this._searchInstance.table_othmani.forEach((aya) => {
+  groupQuranPages(): any[] {
+    // One slide per Mushaf page — a page may contain multiple suras
+    const pageMap = new Map<number, any>();
+
+    this._searchInstance.table_othmani.forEach((aya: any) => {
       const pageNum = Number(aya.nOFPage);
       const suraName = aya.Sura_Name;
       const suraNumber = Number(aya.nOFSura) || 0;
 
-      if (!currentSlide || currentSlide.pageNumber !== pageNum || currentSlide.suraName !== suraName) {
-        // Default isSuraStart: true when aya index 1 is on this page (first aya of sura)
-        const isFirstAya = Number(aya.Aya_N) === 1;
-        currentSlide = {
+      if (!pageMap.has(pageNum)) {
+        pageMap.set(pageNum, {
           pageNumber: pageNum,
-          suraName: suraName,
-          suraNumber: suraNumber,
-          isSuraStart: isFirstAya,
           ayat: [],
-        };
-        slides.push(currentSlide);
+        });
       }
 
-      currentSlide.ayat.push({
+      const slide = pageMap.get(pageNum);
+      slide.ayat.push({
         id: aya.id,
         text: aya.AyaText_Othmani,
         ayaNumber: aya.Aya_N,
-        suraName: suraName,
+        suraName: this.normalizeSuraName(suraName),
+        suraNumber: suraNumber,
         highlighted: false,
         matchedWord: '',
         arrOfColoredWords: []
       });
     });
 
-    // Sort slides by suraNumber (Mushaf order), then by pageNumber to preserve natural order within same sura.
-    slides.sort((a, b) => {
-      if ((a.suraNumber || 0) !== (b.suraNumber || 0)) {
-        return (a.suraNumber || 0) - (b.suraNumber || 0);
-      }
-      return (a.pageNumber || 0) - (b.pageNumber || 0);
-    });
-
-    return slides;
+    return Array.from(pageMap.values()).sort((a, b) => a.pageNumber - b.pageNumber);
   }
 
   toggleHighlight(aya: any) {
@@ -460,15 +451,27 @@ private renderPage(page: number): void {
   loadQuranPages(): void {
     this._http.get<any>(QuranPagesURL).subscribe((response) => {
       this._quranPages = response;
-      this.generateMotashabehatOfSelectedPage(this.pageNumber);
-      this.determineHighlight();
-      this.drawColoredWords();
+
+      // Process colors for ALL pages so every slide has arrOfColoredWords
+      for (let p = 1; p <= this._quranPages.length; p++) {
+        this.resetDrawing();
+        this.generateMotashabehatOfSelectedPage(p);
+        this.determineHighlight();
+      }
+
+      this.colorsRendered = true;
+      this.buildAllMushafLines();
+
+      // Now render the current page properly (motashabehat side boxes)
+      this.renderPage(this.pageNumber);
     });
 
     if (!this._pagesWithLines.length) {
       this._http.get<any[]>(QuranPagesWithLinesURL).subscribe((data) => {
         this._pagesWithLines = data;
-        this.buildMushafLinesForCurrentPage();
+        if (this.colorsRendered) {
+          this.buildAllMushafLines();
+        }
       });
     }
   }
@@ -939,9 +942,7 @@ private renderPage(page: number): void {
   }
 });
 
-    // console.log(`generated motsahbeh: ${JSON.stringify(this.inputs)}`);
-    // console.table(this.inputs);
-
+    this.motshabehat.emit(this.inputs);
   }
 
   private drawMotashabehat(
@@ -1090,6 +1091,19 @@ private renderPage(page: number): void {
     this.buildMushafLinesForCurrentPage();
   }
 
+  /** Like drawColoredWords but only maps colors to slide ayat — no positioning or mushaf rebuild */
+  private drawColoredWordsForPage(): void {
+    this.inputs.forEach(input => {
+      const pageAya = this.quranPages
+        .flatMap((p: any) => p.ayat)
+        .find((a: any) => a.id.toString() === input.ayaId);
+      if (pageAya) {
+        pageAya.matchedWord = input.matchedWord;
+        pageAya.arrOfColoredWords = input.arrOfColoredWords;
+      }
+    });
+  }
+
   private fillRightArrayFirst(
     index: number,
     mooade3: { suraWithIndex: string; aya?: string; id: number }[],
@@ -1161,8 +1175,6 @@ private renderPage(page: number): void {
       motashabehat.moade3 = arr;
       this.inputs[index].motashabehat = motashabehat;
     }
-    this.motshabehat.emit(this.inputs);
-
   }
 
   underlineMatchedWord(
@@ -1201,6 +1213,9 @@ private renderPage(page: number): void {
     if (idx === undefined) return;
     this.carousel.to((idx + 1).toString());
     this.goToOpen = false;
+    // Render immediately with the correct page and block onPageChange from re-rendering
+    this.lastPageProcessed = page;
+    this.renderPage(page);
   }
 
   navigateToSura(suraIndex: number | string): void {
@@ -1243,50 +1258,50 @@ private renderPage(page: number): void {
 
   // ── Mushaf line rendering ───────────────────────────────────────────────────
 
+  /** Build mushaf lines for ALL pages (called once after all colors are ready) */
+  private buildAllMushafLines(): void {
+    if (!this._pagesWithLines.length) return;
+    this.quranPages.forEach(slide => {
+      const pageData = this._pagesWithLines[slide.pageNumber - 1];
+      if (!pageData || !pageData.lines) return;
+      this.buildMushafLines(slide, pageData.lines);
+    });
+  }
+
+  /** Rebuild mushaf lines for the current page only (after color recalculation) */
   private buildMushafLinesForCurrentPage(): void {
     if (!this._pagesWithLines.length) return;
-    const pageData = this._pagesWithLines[this.pageNumber - 1];
+    const slide = this.quranPages.find((s: any) => s.pageNumber === this.pageNumber);
+    if (!slide) return;
+    const pageData = this._pagesWithLines[slide.pageNumber - 1];
     if (!pageData || !pageData.lines) return;
-    this.quranPages
-      .filter(slide => slide.pageNumber === this.pageNumber)
-      .forEach(slide => this.buildMushafLines(slide, pageData.lines));
+    this.buildMushafLines(slide, pageData.lines);
   }
 
   private buildMushafLines(slide: any, lines: any[]): void {
-    const suraNum = slide.suraNumber;
+    // Build lookup keyed by "sura:aya" (verseKey) across ALL suras on this page
     const ayaLookup = new Map<string, any>();
-    slide.ayat.forEach((aya: any) => ayaLookup.set(String(aya.ayaNumber), aya));
-
-    // Determine if this slide's sura starts on this page
-    slide.isSuraStart = lines.some((line: any) =>
-      line.isSuraStart && line.segments.some((seg: any) => Number(seg.verseKey.split(':')[0]) === suraNum)
-    );
+    slide.ayat.forEach((aya: any) => {
+      const key = aya.suraNumber + ':' + aya.ayaNumber;
+      ayaLookup.set(key, aya);
+    });
 
     // Pre-compute the last line index that contains each verseKey
     const lastLineForVerse = new Map<string, number>();
     lines.forEach((line: any, li: number) => {
       line.segments.forEach((seg: any) => {
-        if (Number(seg.verseKey.split(':')[0]) === suraNum) {
-          lastLineForVerse.set(seg.verseKey, li);
-        }
+        lastLineForVerse.set(seg.verseKey, li);
       });
     });
 
-    // Track how many words of each aya have been placed on previous lines
     const consumed = new Map<string, number>();
     const mushafLines: any[] = [];
 
     lines.forEach((line: any, li: number) => {
-      const suraSegments = line.segments.filter(
-        (seg: any) => Number(seg.verseKey.split(':')[0]) === suraNum
-      );
-      if (!suraSegments.length) return;
-
       const lineSegments: any[] = [];
 
-      suraSegments.forEach((seg: any) => {
-        const ayaNum = seg.verseKey.split(':')[1];
-        const aya = ayaLookup.get(ayaNum);
+      line.segments.forEach((seg: any) => {
+        const aya = ayaLookup.get(seg.verseKey);
         if (!aya) return;
 
         const words: string[] = aya.text.split(' ');
@@ -1294,7 +1309,6 @@ private renderPage(page: number): void {
         const from = consumed.get(seg.verseKey) || 0;
         const isLastSegment = lastLineForVerse.get(seg.verseKey) === li;
 
-        // On the last occurrence, take all remaining words (handles word count mismatches)
         const to = isLastSegment ? words.length : Math.min(from + seg.wordPositions.length, words.length);
         consumed.set(seg.verseKey, to);
 
@@ -1313,8 +1327,22 @@ private renderPage(page: number): void {
         lineSegments.push({ aya, lineText: this.stripQuranicMarks(lineWords.join(' ')), lineColoredWords: cleanColoredWords, isAyaEnd: isLastSegment });
       });
 
+      // Determine sura name for sura-start lines
+      let suraName = '';
+      if (line.isSuraStart && line.segments.length) {
+        const suraNum = Number(line.segments[0].verseKey.split(':')[0]);
+        const aya = slide.ayat.find((a: any) => a.suraNumber === suraNum);
+        suraName = aya?.suraName || '';
+      }
+
       if (lineSegments.length) {
-        mushafLines.push({ segments: lineSegments, isCentered: line.isSuraStart || line.isBasmala });
+        mushafLines.push({
+          segments: lineSegments,
+          isCentered: line.isSuraStart || line.isBasmala,
+          isSuraStart: !!line.isSuraStart,
+          isBasmala: !!line.isBasmala,
+          suraName
+        });
       }
     });
 
