@@ -1,126 +1,206 @@
 <!-- Controls bar -->
-<div class="flex-c-b tw-mt-6 tw-flex-wrap tw-gap-3"
+<div class="tw-mt-6 tw-flex tw-flex-col tw-gap-3"
      *ngIf="selectedData?.data?.length != 0 || originalData.length > 0">
 
-  <!-- Result count -->
-  <div>
-    <span class="tw-font-bold tw-text-sm tw-block">
-      عدد النتائج
-      <span class="tw-inline-flex tw-items-center tw-justify-center tw-min-w-[24px] tw-h-6 tw-px-2
-                   tw-bg-secondColor tw-text-mainColor tw-rounded-full tw-text-xs tw-font-bold tw-mx-1">
-        {{ selectedData?.data?.length }}
-      </span>
-      <span *ngIf="suraFilter" class="tw-text-xs tw-text-gray-400 tw-font-normal">
-        من {{ originalData.length }}
-      </span>
-    </span>
-  </div>
+  <!-- Row 1: filters -->
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-3">
 
-  <!-- Content mode + sura sub-filter -->
-  <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-    <span class="tw-text-xs tw-text-gray-500">ترتيب المحتوى:</span>
-    <select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs tw-rounded tw-bg-white
-                   focus:tw-outline-none focus:tw-border-mainColor"
-            [value]="contentMode" (change)="onContentModeChange($event)">
-      <option value="quranGeneral">عموم القرآن</option>
-      <option value="startOfAyah">بداية الآيات</option>
-    </select>
+    <!-- Result count -->
+    <div>
+      <span class="tw-font-bold tw-text-sm">
+        عدد النتائج
+        <span class="tw-inline-flex tw-items-center tw-justify-center tw-min-w-[24px] tw-h-6 tw-px-2
+                     tw-bg-secondColor tw-text-mainColor tw-rounded-full tw-text-xs tw-font-bold tw-mx-1">
+          {{ innerQuery ? displayCount : selectedData?.data?.length }}
+        </span>
+        <span *ngIf="suraFilter || innerQuery" class="tw-text-xs tw-text-gray-400 tw-font-normal">
+          من {{ originalData.length }}
+        </span>
+      </span>
+    </div>
 
-    <ng-container *ngIf="contentMode === 'quranGeneral' && suraOptions.length > 1">
-      <span class="tw-text-xs tw-text-gray-400">في سورة:</span>
-      <select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs tw-rounded tw-bg-white
-                     focus:tw-outline-none focus:tw-border-mainColor"
-              [value]="suraFilter" (change)="onSuraFilterChange($event)">
-        <option value="">كل السور</option>
-        <option *ngFor="let sura of suraOptions" [value]="sura">{{ sura }}</option>
+    <!-- Content mode + sura sub-filter -->
+    <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+      <span class="tw-text-xs tw-text-gray-500">ترتيب المحتوى:</span>
+      <select class="ctrl-select"
+              [value]="contentMode" (change)="onContentModeChange($event)">
+        <option value="quranGeneral">عموم القرآن</option>
+        <option value="startOfAyah">بداية الآيات</option>
       </select>
-    </ng-container>
+
+      <ng-container *ngIf="contentMode === 'quranGeneral' && suraOptions.length > 1">
+        <span class="tw-text-xs tw-text-gray-400">في سورة:</span>
+        <select class="ctrl-select"
+                [value]="suraFilter" (change)="onSuraFilterChange($event)">
+          <option value="">كل السور</option>
+          <option *ngFor="let sura of suraOptions" [value]="sura">{{ sura }}</option>
+        </select>
+      </ng-container>
+    </div>
+
+    <!-- Sura sort order -->
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <span class="tw-text-xs tw-text-gray-500">ترتيب السور:</span>
+      <select class="ctrl-select"
+              [value]="suraOrder" (change)="onSuraOrderChange($event)">
+        <option value="mushafOrder">ترتيب المصحف</option>
+        <option value="alphabetical">ترتيب أبجدي</option>
+      </select>
+    </div>
+
   </div>
 
-  <!-- Sura sort order -->
-  <div class="tw-flex tw-items-center tw-gap-2">
-    <span class="tw-text-xs tw-text-gray-500">ترتيب السور:</span>
-    <select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs tw-rounded tw-bg-white
-                   focus:tw-outline-none focus:tw-border-mainColor"
-            [value]="suraOrder" (change)="onSuraOrderChange($event)">
-      <option value="mushafOrder">ترتيب المصحف</option>
-      <option value="alphabetical">ترتيب أبجدي</option>
-    </select>
+  <!-- Row 2: inner search + view toggle + export -->
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+
+    <!-- Search within results -->
+    <div class="inner-search-wrap">
+      <svg class="inner-search-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd"
+              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+              clip-rule="evenodd"/>
+      </svg>
+      <input type="text"
+             class="inner-search-input"
+             placeholder="بحث داخل النتائج..."
+             [(ngModel)]="innerQuery"
+             (ngModelChange)="onInnerQueryChange()"
+             dir="rtl"/>
+      <button *ngIf="innerQuery" class="inner-search-clear" (click)="innerQuery=''; onInnerQueryChange()">✕</button>
+    </div>
+
+    <!-- View mode toggle -->
+    <div class="view-toggle">
+      <button [class.active]="viewMode === 'flat'"    (click)="onViewModeChange('flat')"    title="عرض قائمة">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+          <path d="M3 4h14M3 8h14M3 12h14M3 16h14" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </svg>
+        قائمة
+      </button>
+      <button [class.active]="viewMode === 'grouped'" (click)="onViewModeChange('grouped')" title="تجميع بالسور">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+          <path d="M3 5h5M3 10h5M3 15h5M10 5h7M10 10h7M10 15h7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </svg>
+        بالسور
+      </button>
+    </div>
+
+    <!-- Expand/collapse all (grouped mode) -->
+    <!-- <ng-container *ngIf="viewMode === 'grouped'">
+      <button class="action-btn" (click)="expandAll()">توسيع الكل</button>
+      <button class="action-btn" (click)="collapseAll()">طي الكل</button>
+    </ng-container> -->
+
+    <!-- Export buttons -->
+    <div class="tw-flex tw-items-center tw-gap-1 tw-mr-auto">
+      <button class="action-btn export-btn" (click)="exportCSV()" title="تصدير CSV">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
+          <path fill-rule="evenodd"
+                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                clip-rule="evenodd"/>
+        </svg>
+        CSV
+      </button>
+      <button class="action-btn export-btn" (click)="exportWord()" title="تصدير Word">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
+          <path fill-rule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                clip-rule="evenodd"/>
+        </svg>
+        Word
+      </button>
+      <button class="action-btn export-btn" (click)="exportPDF()" title="تصدير PDF">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
+          <path fill-rule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                clip-rule="evenodd"/>
+        </svg>
+        PDF
+      </button>
+    </div>
+
   </div>
 
 </div>
 
-<!-- Results table -->
-<div class="tw-overflow-auto tw-mt-4 tw-max-h-96">
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- Results                                                                   -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+
+<div class="tw-overflow-auto tw-mt-4 tw-max-h-[calc(100vh-320px)]">
+
+  <!-- ── FLAT VIEW ─────────────────────────────────────────────────────────── -->
   <section class="tw-table tw-w-full tw-whitespace-nowrap"
-           *ngIf="selectedData?.data?.length != 0 && visibleColumns.length > 0">
+           dir="rtl"
+           *ngIf="viewMode === 'flat' && pagedData.length > 0 && visibleColumns.length > 0">
 
     <!-- Dynamic header -->
     <header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
       <div *ngFor="let col of visibleColumns"
-           class="tw-table-cell tw-font-bold tw-text-xs tw-text-gray-600 tw-px-4 tw-py-3
-                  ltr:tw-text-left rtl:tw-text-right">
+           class="tw-table-cell tw-font-bold tw-text-xs tw-text-gray-600 tw-px-4 tw-py-3 tw-text-right">
         {{ col.label }}
       </div>
     </header>
 
     <!-- Dynamic rows -->
-    <ng-container *ngFor="let item of selectedData?.data">
+    <ng-container *ngFor="let item of pagedData">
       <div class="tw-table-row tw-bg-white tw-border-b tw-border-gray-100
                   hover:tw-bg-gray-50 tw-transition-colors tw-cursor-pointer tw-group"
            (click)="goToAya(item)"
            title="انتقل إلى الصفحة {{ item.data?.nOFPage }} في المصحف">
 
-        <div *ngFor="let col of visibleColumns; let first = first"
-             class="tw-table-cell tw-align-middle tw-px-4 tw-py-2">
-
-          <!-- Othmani text with left accent bar + highlighting -->
-          <ng-container *ngIf="isOthmaniCol(col)">
-            <div class="tw-flex tw-items-start tw-gap-2 tw-py-1">
-              <div class="tw-w-0.5 tw-self-stretch tw-bg-mainColor tw-rounded-md tw-shrink-0
-                          group-hover:tw-bg-opacity-70"></div>
-              <p class="tw-mb-0 tw-max-w-[420px] tw-whitespace-break-spaces tw-leading-8
-                        tw-text-right tw-text-base"
-                 dir="rtl"
-                 [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
-              <div class="tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity
-                          tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-shrink-0 tw-self-center tw-mr-auto">
-                <span class="tw-text-mainColor tw-text-base tw-leading-none">←</span>
-                <span class="tw-text-gray-400 tw-text-[9px] tw-leading-none tw-whitespace-nowrap">
-                  ص {{ item.data?.nOFPage }}
-                </span>
-              </div>
-            </div>
-          </ng-container>
-
-          <!-- Plain text column with optional highlighting -->
-          <ng-container *ngIf="isTextCol(col)">
-            <p class="tw-mb-0 tw-max-w-[320px] tw-whitespace-break-spaces tw-leading-7
-                      tw-text-sm tw-text-gray-700 tw-text-right"
-               dir="rtl"
-               [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
-          </ng-container>
-
-          <!-- Badge (number / short value) -->
-          <ng-container *ngIf="isBadgeCol(col)">
-            <span class="tw-inline-flex tw-items-center tw-justify-center
-                         tw-min-w-[28px] tw-h-7 tw-px-2
-                         tw-border tw-border-gray-200 tw-rounded
-                         tw-text-xs tw-font-bold tw-text-gray-600">
-              {{ getCellValue(item, col) }}
-            </span>
-          </ng-container>
-
-          <!-- Plain text (sura name, rub, hezb labels etc.) -->
-          <ng-container *ngIf="!isOthmaniCol(col) && !isTextCol(col) && !isBadgeCol(col)">
-            <span class="tw-text-sm tw-text-gray-700">{{ getCellValue(item, col) }}</span>
-          </ng-container>
-
+        <div *ngFor="let col of visibleColumns"
+             class="tw-table-cell tw-align-middle tw-px-4 tw-py-2 tw-text-right">
+          <ng-container *ngTemplateOutlet="cellTpl; context: { item: item, col: col }"></ng-container>
         </div>
       </div>
     </ng-container>
 
   </section>
+
+  <!-- ── GROUPED VIEW ───────────────────────────────────────────────────────── -->
+  <div *ngIf="viewMode === 'grouped' && groupedData.length > 0">
+    <div *ngFor="let group of groupedData" class="sura-group">
+
+      <!-- Group header -->
+      <div class="sura-group-header" (click)="toggleSuraGroup(group.name)">
+        <span class="sura-group-chevron" [class.collapsed]="isSuraCollapsed(group.name)">▼</span>
+        <span class="sura-group-name">{{ group.name }}</span>
+        <span class="sura-group-badge">{{ group.items.length }}</span>
+        <span class="tw-text-xs tw-text-gray-400 tw-mr-2">{{ isSuraCollapsed(group.name) ? 'عرض' : 'طي' }}</span>
+      </div>
+
+      <!-- Group rows -->
+      <ng-container *ngIf="!isSuraCollapsed(group.name)">
+        <div *ngFor="let item of group.items"
+             class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-2 tw-bg-white
+                    tw-border-b tw-border-gray-100 hover:tw-bg-gray-50 tw-cursor-pointer tw-group"
+             (click)="goToAya(item)"
+             title="انتقل إلى الصفحة {{ item.data?.nOFPage }} في المصحف">
+
+          <!-- Aya number badge -->
+          <span class="tw-inline-flex tw-items-center tw-justify-center tw-min-w-[28px] tw-h-7 tw-px-2
+                       tw-border tw-border-gray-200 tw-rounded tw-text-xs tw-font-bold tw-text-gray-600 tw-shrink-0">
+            {{ item.data?.Aya_N }}
+          </span>
+
+          <!-- Othmani text -->
+          <p class="tw-mb-0 tw-flex-1 tw-leading-8 tw-text-right tw-text-base"
+             dir="rtl"
+             [innerHTML]="highlightText(item.data?.AyaText_Othmani || '', searchQuery)"></p>
+
+          <!-- Page indicator on hover -->
+          <div class="tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity tw-shrink-0">
+            <span class="tw-text-mainColor tw-text-base tw-leading-none">←</span>
+            <span class="tw-text-gray-400 tw-text-[9px] tw-leading-none tw-block tw-text-center">
+              ص {{ item.data?.nOFPage }}
+            </span>
+          </div>
+
+        </div>
+      </ng-container>
+    </div>
+  </div>
 
   <!-- No columns selected -->
   <div *ngIf="visibleColumns.length === 0 && originalData.length > 0"
@@ -129,5 +209,93 @@
     لم تختر أي أعمدة — اضبط الإعدادات لعرض النتائج
   </div>
 
+  <!-- Inner search no results -->
+  <div *ngIf="innerQuery && displayCount === 0 && originalData.length > 0"
+       class="tw-text-center tw-py-8 tw-text-gray-400 tw-text-sm">
+    لا توجد نتائج تطابق "<span class="tw-text-gray-600">{{ innerQuery }}</span>"
+  </div>
+
   <app-no-results *ngIf="selectedData?.data?.length == 0 && originalData.length > 0"></app-no-results>
+
 </div>
+
+<!-- ── Pagination ────────────────────────────────────────────────────────────── -->
+<div class="pagination-bar"
+     *ngIf="viewMode === 'flat' && displayCount > 0 && totalPages > 1">
+
+  <!-- Page size selector -->
+  <div class="tw-flex tw-items-center tw-gap-1">
+    <span class="tw-text-xs tw-text-gray-500">عرض:</span>
+    <select class="ctrl-select" [value]="pageSize" (change)="onPageSizeChange($event)">
+      <option *ngFor="let s of pageSizeOptions" [value]="s">{{ s }}</option>
+    </select>
+  </div>
+
+  <!-- Nav buttons -->
+  <div class="tw-flex tw-items-center tw-gap-1">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">‹</button>
+
+    <ng-container *ngFor="let p of pageNumbers">
+      <span *ngIf="p === -1" class="tw-px-1 tw-text-gray-400 tw-text-xs">…</span>
+      <button *ngIf="p !== -1"
+              class="page-btn"
+              [class.active]="p === currentPage"
+              (click)="goToPage(p)">{{ p }}</button>
+    </ng-container>
+
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">›</button>
+  </div>
+
+  <!-- Summary -->
+  <span class="tw-text-xs tw-text-gray-400">
+    {{ (currentPage - 1) * pageSize + 1 }}–{{ currentPage * pageSize > displayCount ? displayCount : currentPage * pageSize }} من {{ displayCount }}
+  </span>
+
+</div>
+
+<!-- ── Cell template ─────────────────────────────────────────────────────────── -->
+<ng-template #cellTpl let-item="item" let-col="col">
+
+  <!-- Othmani text with left accent bar + highlighting -->
+  <ng-container *ngIf="isOthmaniCol(col)">
+    <div class="tw-flex tw-items-start tw-gap-2 tw-py-1">
+      <div class="tw-w-0.5 tw-self-stretch tw-bg-mainColor tw-rounded-md tw-shrink-0
+                  group-hover:tw-bg-opacity-70"></div>
+      <p class="tw-mb-0 tw-w-[600px] tw-whitespace-break-spaces tw-leading-8
+                tw-text-right tw-text-base"
+         dir="rtl"
+         [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
+      <div class="tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity
+                  tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-shrink-0 tw-self-center tw-mr-auto">
+        <span class="tw-text-mainColor tw-text-base tw-leading-none">←</span>
+        <span class="tw-text-gray-400 tw-text-[9px] tw-leading-none tw-whitespace-nowrap">
+          ص {{ item.data?.nOFPage }}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Plain text column with optional highlighting -->
+  <ng-container *ngIf="isTextCol(col)">
+    <p class="tw-mb-0 tw-max-w-[320px] tw-whitespace-break-spaces tw-leading-7
+              tw-text-sm tw-text-gray-700 tw-text-right"
+       dir="rtl"
+       [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
+  </ng-container>
+
+  <!-- Badge (number / short value) -->
+  <ng-container *ngIf="isBadgeCol(col)">
+    <span class="tw-inline-flex tw-items-center tw-justify-center
+                 tw-min-w-[28px] tw-h-7 tw-px-2
+                 tw-border tw-border-gray-200 tw-rounded
+                 tw-text-xs tw-font-bold tw-text-gray-600">
+      {{ getCellValue(item, col) }}
+    </span>
+  </ng-container>
+
+  <!-- Plain text (sura name, rub, hezb labels etc.) -->
+  <ng-container *ngIf="!isOthmaniCol(col) && !isTextCol(col) && !isBadgeCol(col)">
+    <span class="tw-text-sm tw-text-gray-700">{{ getCellValue(item, col) }}</span>
+  </ng-container>
+
+</ng-template>

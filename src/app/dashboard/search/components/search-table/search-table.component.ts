@@ -3,6 +3,12 @@ import { Router } from '@angular/router';
 import { DataSharingService, ALL_COLUMNS, ColumnDef } from '../../services/data-sharing.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+interface SuraGroup {
+  name: string;
+  suraNum: number;
+  items: any[];
+}
+
 @Component({
   selector: 'app-search-table',
   templateUrl: './search-table.component.html',
@@ -21,6 +27,25 @@ export class SearchTableComponent implements OnInit {
 
   // ── columns ───────────────────────────────────────────────────────────────
   visibleColumns: ColumnDef[] = [];
+
+  // ── inner search ──────────────────────────────────────────────────────────
+  innerQuery: string = '';
+
+  // ── view mode ─────────────────────────────────────────────────────────────
+  viewMode: 'flat' | 'grouped' = 'flat';
+
+  // ── pagination ────────────────────────────────────────────────────────────
+  pageSize: number = 50;
+  currentPage: number = 1;
+  readonly pageSizeOptions = [25, 50, 100, 200];
+
+  // ── grouped view ──────────────────────────────────────────────────────────
+  collapsedSuras = new Set<string>();
+
+  // ── export ────────────────────────────────────────────────────────────────
+
+  // ── internal display cache ────────────────────────────────────────────────
+  private _displayData: any[] = [];
 
   constructor(
     private dataSharingService: DataSharingService,
@@ -48,6 +73,9 @@ export class SearchTableComponent implements OnInit {
       this.contentMode = 'quranGeneral';
       this.suraOrder   = 'mushafOrder';
       this.suraFilter  = '';
+      this.innerQuery  = '';
+      this.currentPage = 1;
+      this.collapsedSuras.clear();
       this.applyFilters();
     });
 
@@ -62,17 +90,36 @@ export class SearchTableComponent implements OnInit {
   onContentModeChange(event: any): void {
     this.contentMode = event.target.value;
     if (this.contentMode === 'startOfAyah') this.suraFilter = '';
+    this.currentPage = 1;
     this.applyFilters();
   }
 
   onSuraOrderChange(event: any): void {
     this.suraOrder = event.target.value;
+    this.currentPage = 1;
     this.applyFilters();
   }
 
   onSuraFilterChange(event: any): void {
     this.suraFilter = event.target.value;
+    this.currentPage = 1;
     this.applyFilters();
+  }
+
+  onInnerQueryChange(): void {
+    this.currentPage = 1;
+    this.updateDisplayData();
+  }
+
+  onViewModeChange(mode: 'flat' | 'grouped'): void {
+    this.viewMode = mode;
+    this.cdr.detectChanges();
+  }
+
+  onPageSizeChange(event: any): void {
+    this.pageSize = parseInt(event.target.value);
+    this.currentPage = 1;
+    this.cdr.detectChanges();
   }
 
   // ── core filter+sort ───────────────────────────────────────────────────────
@@ -107,8 +154,88 @@ export class SearchTableComponent implements OnInit {
     }
 
     this.selectedData = { data };
+    this.updateDisplayData();
+  }
+
+  private updateDisplayData(): void {
+    const base = this.selectedData?.data ?? [];
+    const q = this.innerQuery?.trim();
+
+    if (!q) {
+      this._displayData = base;
+    } else {
+      const qFull   = this.stripTashkeel(q);
+      const qSimple = this.stripTashkeelSimple(q);
+      this._displayData = base.filter(item => {
+        const text = item.data?.AyaText_Othmani || item.data?.AyaText || '';
+        return this.stripTashkeel(text).includes(qFull) ||
+               this.stripTashkeelSimple(text).includes(qSimple);
+      });
+    }
+
     this.cdr.detectChanges();
   }
+
+  // ── pagination helpers ─────────────────────────────────────────────────────
+
+  get displayCount(): number { return this._displayData.length; }
+
+  get totalPages(): number { return Math.max(1, Math.ceil(this._displayData.length / this.pageSize)); }
+
+  get pagedData(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this._displayData.slice(start, start + this.pageSize);
+  }
+
+  get pageNumbers(): number[] {
+    const total = this.totalPages;
+    const cur   = this.currentPage;
+    const pages: number[] = [];
+    const delta = 2;
+    for (let i = 1; i <= total; i++) {
+      if (i === 1 || i === total || (i >= cur - delta && i <= cur + delta)) {
+        pages.push(i);
+      }
+    }
+    // Insert ellipsis markers as -1
+    const result: number[] = [];
+    for (let i = 0; i < pages.length; i++) {
+      if (i > 0 && pages[i] - pages[i - 1] > 1) result.push(-1);
+      result.push(pages[i]);
+    }
+    return result;
+  }
+
+  prevPage(): void { if (this.currentPage > 1) { this.currentPage--; this.cdr.detectChanges(); } }
+  nextPage(): void { if (this.currentPage < this.totalPages) { this.currentPage++; this.cdr.detectChanges(); } }
+  goToPage(n: number): void { if (n >= 1 && n <= this.totalPages) { this.currentPage = n; this.cdr.detectChanges(); } }
+
+  // ── grouped view helpers ───────────────────────────────────────────────────
+
+  get groupedData(): SuraGroup[] {
+    const map = new Map<string, SuraGroup>();
+    for (const item of this._displayData) {
+      const name = item.data?.Sura_Name || '';
+      const num  = parseInt(item.data?.nOFSura) || 0;
+      if (!map.has(name)) map.set(name, { name, suraNum: num, items: [] });
+      map.get(name)!.items.push(item);
+    }
+    return Array.from(map.values()).sort((a, b) => {
+      if (this.suraOrder === 'mushafOrder') return a.suraNum - b.suraNum;
+      return a.name.localeCompare(b.name, 'ar');
+    });
+  }
+
+  toggleSuraGroup(name: string): void {
+    if (this.collapsedSuras.has(name)) this.collapsedSuras.delete(name);
+    else this.collapsedSuras.add(name);
+    this.cdr.detectChanges();
+  }
+
+  isSuraCollapsed(name: string): boolean { return this.collapsedSuras.has(name); }
+
+  collapseAll(): void { this.groupedData.forEach(g => this.collapsedSuras.add(g.name)); this.cdr.detectChanges(); }
+  expandAll(): void  { this.collapsedSuras.clear(); this.cdr.detectChanges(); }
 
   // ── navigation ─────────────────────────────────────────────────────────────
 
@@ -117,6 +244,96 @@ export class SearchTableComponent implements OnInit {
     if (!page) return;
     localStorage.setItem('pendingNavPage', String(page));
     this.router.navigateByUrl('/home');
+  }
+
+  // ── export ────────────────────────────────────────────────────────────────
+
+  exportCSV(): void {
+    const cols = this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
+    const header = cols.map(c => c.label).join(',');
+    const rows = this._displayData.map(item =>
+      cols.map(c => {
+        const val = String(item.data?.[c.key] ?? '').replace(/"/g, '""');
+        return `"${val}"`;
+      }).join(',')
+    );
+    const csv = '\uFEFF' + [header, ...rows].join('\n'); // BOM for Arabic in Excel
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `quran-search-${this.searchQuery || 'results'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  exportWord(): void {
+    const cols = this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
+    const headerRow = cols.map(c => `<th style="border:1px solid #ccc;padding:6px 10px;background:#f0f0f0;font-weight:bold;">${c.label}</th>`).join('');
+    const bodyRows  = this._displayData.map(item => {
+      const cells = cols.map(c => `<td style="border:1px solid #ccc;padding:6px 10px;">${item.data?.[c.key] ?? ''}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+
+    const html = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office"
+            xmlns:w="urn:schemas-microsoft-com:office:word"
+            xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8">
+        <style>
+          body { font-family: "Traditional Arabic", Arial, sans-serif; direction: rtl; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { text-align: right; }
+        </style>
+      </head>
+      <body>
+        <h3 style="margin-bottom:12px;">نتائج البحث: ${this.searchQuery} (${this._displayData.length} آية)</h3>
+        <table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>
+      </body></html>`;
+
+    const blob = new Blob(['\uFEFF' + html], { type: 'application/msword' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `quran-search-${this.searchQuery || 'results'}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  exportPDF(): void {
+    const cols = this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
+    const headerRow = cols.map(c => `<th>${c.label}</th>`).join('');
+    const bodyRows  = this._displayData.map(item => {
+      const cells = cols.map(c => `<td>${item.data?.[c.key] ?? ''}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <style>
+        @page { size: A4 landscape; margin: 15mm; }
+        body { font-family: "Traditional Arabic", Arial, sans-serif; direction: rtl; font-size: 12px; }
+        h3   { margin-bottom: 10px; font-size: 14px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #bbb; padding: 5px 8px; text-align: right; }
+        th { background: #f0f0f0; font-weight: bold; }
+        tr:nth-child(even) { background: #fafafa; }
+      </style>
+    </head><body>
+      <h3>نتائج البحث: ${this.searchQuery} (${this._displayData.length} آية)</h3>
+      <table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>
+    </body></html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;';
+    document.body.appendChild(iframe);
+    iframe.contentDocument!.open();
+    iframe.contentDocument!.write(html);
+    iframe.contentDocument!.close();
+    iframe.contentWindow!.focus();
+    setTimeout(() => {
+      iframe.contentWindow!.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 500);
   }
 
   // ── cell rendering helpers ─────────────────────────────────────────────────
@@ -153,8 +370,9 @@ export class SearchTableComponent implements OnInit {
   highlightText(text: string, search: string): SafeHtml {
     if (!search?.trim() || !text) return text || '';
 
-    const queryFull   = this.stripTashkeel(search.trim()).split(' ').filter(w => w);
-    const querySimple = this.stripTashkeelSimple(search.trim()).split(' ').filter(w => w);
+    const effectiveSearch = this.innerQuery?.trim() || search;
+    const queryFull   = this.stripTashkeel(effectiveSearch.trim()).split(' ').filter(w => w);
+    const querySimple = this.stripTashkeelSimple(effectiveSearch.trim()).split(' ').filter(w => w);
 
     const highlighted = text.split(' ').map(word => {
       const sf = this.stripTashkeel(word);
