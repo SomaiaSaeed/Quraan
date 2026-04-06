@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MaterialModule } from './material/material.module';
 import { MainSearchComponent } from './main-search/main-search.component';
 import { ReadersComponent } from './readers/readers.component';
@@ -14,7 +16,9 @@ import { NoResultsComponent } from './no-results/no-results.component';
   ],
   imports: [
     MaterialModule,
-    CommonModule
+    CommonModule,
+    FormsModule,
+    RouterModule
   ],
   exports:[
     NoResultsComponent,

@@ -1,68 +1,594 @@
-:host ::ng-deep{
-    .mat-elevation-z2{
-        margin: 0px;
-        margin-bottom: 1px;
-        box-shadow: none !important;
-        border: 1px solid #eee;
-        border-radius: 0;
-        background: #fafafa;
-        button{
-            border-radius: 0;
-            border: 0;
-        }
-        .mat-slider.mat-accent .mat-slider-track-fill, .mat-slider.mat-accent .mat-slider-thumb, .mat-slider.mat-accent .mat-slider-thumb-label{
-            background-color: #94a684;
-        }
-        .skip-next{
-            transform: rotate(180deg);
-        }
-        .skip-next{
-            transform: rotate(180deg);
-        }
-        button:first-of-type{
-            transform: rotate(-180deg);
-        }
-    }
-    .mat-elevation-z1{
-        margin: 5px 0 0 0px;
-        margin-bottom: 1px;
-        box-shadow: none !important;
-        border: 1px solid #eee;
-        border-radius: 0;
-        background: #E4E4D0;
+$main:   #94A684;
+$second: #E4E4D0;
+$border: #e5e7eb;
+$text:   #2d3a2e;
+$gray:   #6b7280;
+$hint:   #9ca3af;
+$radius: 8px;
 
-    }
-    .mat-expansion-panel{
-        background: #fff;
-        padding: 0px 26px;
-        border: 1px solid #eee;
-        margin-top: 5px !important;
-        border-radius: 0 !important;
-    }
-    .mat-expansion-panel .mat-expansion-panel-header{
-        padding: 0 10px 0 5px
-    }
-    .mat-expansion-panel{
-        min-width: auto !important;
-    }
-    table tr td{
-        padding-top: 10px;
-        padding-bottom: 10px;
-        line-height: 2;
-        font-size: 16px;
-        font-family: 'Cairo', sans-serif !important;
-
-        // font-family: 'Alkalami','serif' !important;
-    }
-    .mat-option-disabled{
-        opacity: 0.5;
-    }
+// ── Wrapper ────────────────────────────────────────────────────────────────
+.settings-wrapper {
+  width: 80%;
+  max-width: 680px;
+  margin: 2rem auto 0;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
 }
 
-.search-input{
-    border: 1px solid #ddd;
-    width: 100%;
-    height: 45px;
+// ── Collapsed toggle bar ───────────────────────────────────────────────────
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  flex-wrap: wrap;
+
+  &:hover {
+    border-color: $main;
+    box-shadow: 0 0 0 3px rgba($main, 0.1);
+  }
+
+  .toggle-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $text;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+
+    .toggle-icon { font-size: 15px; }
+  }
+
+  .active-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .edit-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $main;
+    white-space: nowrap;
+    margin-right: auto;
+
+    i { font-size: 12px; }
+  }
+}
+
+// chips
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  background: $second;
+  color: darken($main, 8%);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 20px;
+  border: 1px solid rgba($main, 0.2);
+
+  &--match {
+    background: rgba($main, 0.15);
+    color: darken($main, 12%);
+  }
+
+  &--all {
+    background: #f3f4f6;
+    color: $gray;
+    font-weight: 500;
+  }
+}
+
+// ── Search bar (collapsed) ─────────────────────────────────────────────────
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+
+  .search-field {
+    flex: 1;
+    height: 44px;
+    padding: 0 16px;
+    border: 1.5px solid $border;
+    border-radius: $radius;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+    text-align: right;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+
+    &::placeholder { color: $hint; }
+    &:focus { border-color: $main; }
+  }
+
+  .btn-search {
+    height: 44px;
+    padding: 0 28px;
+    background: $main;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+    border: none;
+    border-radius: $radius;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+
+    &:hover { background: darken($main, 8%); }
+  }
+}
+
+// ── Settings panel ─────────────────────────────────────────────────────────
+.settings-panel {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+  animation: slideDown 0.18s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// panel header
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid $border;
+  background: linear-gradient(135deg, #f9fafb 0%, lighten($second, 5%) 100%);
+
+  .panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: $text;
+    margin: 0 0 2px;
+  }
+
+  .panel-subtitle {
+    font-size: 11px;
+    color: $gray;
+    margin: 0;
+  }
+
+  .close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid $border;
+    border-radius: 50%;
+    background: #fff;
+    color: $gray;
+    cursor: pointer;
+    font-size: 11px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #ef4444;
+    }
+  }
+}
+
+// ── Filters grid ───────────────────────────────────────────────────────────
+.filters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 20px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Filter card ────────────────────────────────────────────────────────────
+.filter-card {
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  padding: 12px 14px;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  position: relative;
+
+  &:hover {
+    border-color: darken($border, 8%);
+    background: #fff;
+  }
+
+  &--active {
+    border-color: $main;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba($main, 0.08);
+
+    .card-title { color: darken($main, 5%); }
+  }
+
+  &--disabled {
+    opacity: 0.55;
+    pointer-events: none;
+    background: #f9fafb;
+  }
+}
+
+// card header
+.card-hd {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+
+  .card-icon {
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: $gray;
+    flex: 1;
+    transition: color 0.2s;
+  }
+
+  .active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $main;
+    flex-shrink: 0;
+  }
+}
+
+// from ← to row
+.range-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.range-sep {
+  font-size: 14px;
+  color: $hint;
+  padding-bottom: 6px;
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+.f-select-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  .f-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: $hint;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+.f-select {
+  width: 100%;
+  height: 34px;
+  padding: 0 8px;
+  border: 1.5px solid $border;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'Cairo', sans-serif;
+  color: $text;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  appearance: auto;
+  transition: border-color 0.15s;
+  direction: rtl;
+
+  &:focus  { border-color: $main; }
+  &:hover  { border-color: darken($border, 10%); }
+}
+
+// card hint (e.g. "اختر السورة أولاً")
+.card-hint {
+  margin: 8px 0 0;
+  font-size: 10px;
+  color: $hint;
+  text-align: center;
+  font-style: italic;
+}
+
+// ── Columns section ────────────────────────────────────────────────────────
+.columns-section {
+  padding: 0 20px 14px;
+}
+
+.columns-trigger-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.columns-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: 1.5px solid $border;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Cairo', sans-serif;
+  color: $text;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: $main;
+    box-shadow: 0 0 0 3px rgba($main, 0.08);
+  }
+
+  .col-icon { font-size: 14px; }
+
+  .col-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    background: $second;
+    color: darken($main, 8%);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 20px;
+  }
+}
+
+.col-reset-link {
+  font-size: 11px;
+  color: $hint;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: 'Cairo', sans-serif;
+  padding: 0;
+
+  &:hover { color: $gray; }
+}
+
+.columns-panel {
+  margin-top: 10px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  animation: slideDown 0.15s ease;
+}
+
+.col-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-bottom: 1px solid $border;
+
+  .col-panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: $gray;
+  }
+
+  .col-select-all {
+    font-size: 11px;
+    font-weight: 600;
+    color: $main;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    padding: 0;
+
+    &:hover { color: darken($main, 10%); }
+  }
+}
+
+.col-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+
+  @media (max-width: 500px) { grid-template-columns: 1fr; }
+}
+
+.col-group {
+  padding: 12px 14px;
+  border-left: 1px solid $border;
+
+  &:nth-child(odd) { border-left: none; }
+
+  .col-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: $hint;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+}
+
+.col-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.col-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  input[type="checkbox"] { display: none; }
+
+  &:hover { background: #f3f4f6; }
+
+  &--checked {
+    background: rgba($main, 0.06);
+
+    .col-check { background: $main; border-color: $main; }
+    .col-label { color: darken($main, 5%); font-weight: 600; }
+  }
+
+  .col-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid $border;
     border-radius: 4px;
-    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    color: #fff;
+  }
+
+  .col-label {
+    font-size: 12px;
+    color: $text;
+    flex: 1;
+    transition: color 0.15s;
+  }
+
+  .col-default-badge {
+    font-size: 9px;
+    font-weight: 700;
+    color: darken($main, 5%);
+    background: $second;
+    padding: 1px 6px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Actions bar ────────────────────────────────────────────────────────────
+.actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 16px;
+  border-top: 1px solid $border;
+  background: #fafafa;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+// custom toggle switch for "متطابق"
+.exact-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+
+  input[type="checkbox"] { display: none; }
+
+  .toggle-track {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    background: #d1d5db;
+    border-radius: 11px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: right 0.2s;
+    }
+  }
+
+  input:checked ~ .toggle-track {
+    background: $main;
+
+    .toggle-thumb { right: calc(100% - 19px); }
+  }
+
+  .toggle-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text;
+  }
+}
+
+// buttons
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  height: 38px;
+  padding: 0 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &--primary {
+    background: $main;
+    color: #fff;
+
+    &:hover { background: darken($main, 8%); }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: $gray;
+    border: 1.5px solid $border;
+
+    &:hover {
+      border-color: $gray;
+      color: $text;
+    }
+  }
 }

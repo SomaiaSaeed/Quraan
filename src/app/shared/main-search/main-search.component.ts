@@ -1,15 +1,16 @@
-import { HttpClient } from "@angular/common/http";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatAutocomplete } from "@angular/material/autocomplete";
+import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { DataSharingService } from "src/app/dashboard/search/services/data-sharing.service";
+import { Search } from "src/app/core/services/search.service";
+// MatAutocomplete replaced by custom dropdown panel
 
-const regex = /([\u0600-\u06FF])ِى/g; // to replace any arabic character followed by this char ِ and (ى) with (ي)
-const HAMZATWASL = /[\u0671]/g;
-const SMALLALEF = /[\u0670]/g;
-const ARABIC_CHARS_REG = /[\u0621-\u064A\s]+/g;
-const searchURL = "assets/jsonData/searchJson.json";
+export interface SearchResultItem {
+  othmani: string;
+  sura: string;
+  aya: string;
+  data: any;
+}
 
 @Component({
   selector: "app-main-search",
@@ -18,169 +19,190 @@ const searchURL = "assets/jsonData/searchJson.json";
 })
 export class MainSearchComponent implements OnInit {
   @ViewChild("searchResult", { static: true }) searchResult: ElementRef | any;
-  @ViewChild('auto', { static: false }) autoComplete: MatAutocomplete| any;
+
+  /** Othmani strings shown in the popup (first 5) */
   results: string[] = [];
-  searchResults:any[]=[]
-  searchWord!: string;
-  hasTashkeel: boolean = false;
-  // public dialogRef: MatDialogRef<null>
+
+  /** Rich items shown in the autocomplete dropdown */
+  autocompleteItems: SearchResultItem[] = [];
+
+  /** Full result set for navigation */
+  searchResults: any[] = [];
+
+  searchWord: string = '';
+  isShowingHistory = false;
+  isLoading = false;
+  showDropdown = false;
+
+  private searchInstance = new Search();
+
   constructor(
     private _router: Router,
-    private _http: HttpClient,
     public dialog: MatDialog,
     private dataSharingService: DataSharingService
   ) {}
 
   ngOnInit() {}
 
-  openSearchResult(): void {
-    this.saveSearchToLocalStorage();
-
-    const dialogRef = this.dialog.open(this.searchResult, {
-      width: "500px",
-      panelClass: "popup-center",
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log("The dialog was closed");
-    });
+  get hasText(): boolean {
+    return !!this.searchWord?.trim();
   }
 
-  closeDialog() {
-    this.dialog.closeAll();
+  // ── normalization ──────────────────────────────────────────────────────────
+
+  private stripTashkeel(text: string): string {
+    return text
+      .replace(/[\u064B-\u065F]/g, '')              // tashkeel: tanwin, kasra, fatha, damma, shadda, sukun … (U+064B–U+065F)
+      .replace(/\u0670/g, '\u0627')                 // superscript alef ٰ  → ا  (e.g. ٱلرَّحْمَٰنِ → الرحمان)
+      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا  (Othmani word-start alef)
+      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي  (final yeh without dots)
+      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
+      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed (Arabic elongation stroke)
   }
 
-  search(event: any, inp: any): void {
-          this.autoComplete.loading = false;
-
-    if(event==="oldSearch") return;
-    this.results = [];
-    this.searchResults = [];
-    let word = inp.value;
-    word = this.applyTaskeelRegex(word);
-    this.searchWord = word;
-    this.hasTashkeel = false;
-    this._http.get<any>(searchURL).subscribe((response) => {
-      response.forEach((aya: any) => {
-        if (aya.AyaText.includes(word)) {
-          this.results.push(aya.AyaText_Othmani);
-          this.searchResults.push({data:aya});
-        }
-      });
-    });
+  private stripTashkeelSimple(text: string): string {
+    return text
+      .replace(/[\u064B-\u065F\u0670]/g, '')        // tashkeel (U+064B–U+065F) + superscript alef ٰ (U+0670) — all stripped, NOT replaced (keeps الرحمن as-is)
+      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا
+      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي
+      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
+      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed
   }
 
-  applyTaskeelRegex(searchWord: string) {
-    searchWord = searchWord.replace(regex, "$1ي");
-    searchWord = searchWord.replace(/([ء-ي])َىْ/g, "$1ي"); // شَىْءٍ - شيء
-    searchWord = searchWord.replace(/سَوَّىٰ([ء-ي]+)/g, "سَوَّا$1"); // فَسَوَّىٰهُنَّ فسواهن
-    searchWord = searchWord.replace("ٱلْحَيَوٰ", "الحيا");
-    searchWord = searchWord.replace("ـَٔاي", "آي"); //replace "بِـَٔايَٰتِنَا" "بآياتنا "
-    searchWord = searchWord.replace("ـَٰٔ", "آ"); //replace small Alef to Alef ـَٰٔ
-    searchWord = searchWord.replace(HAMZATWASL, "ا"); //replace small Alef to Alef
-    searchWord = searchWord.replace(SMALLALEF, "ا");
-    searchWord = searchWord.replace("الَّيْل", "الليل");
-    searchWord = searchWord.replace(/([\u0600-\u06FF])ىا/g, "ى"); //replace small Alef to Alef
-    searchWord = searchWord.replace(/ـُٔ/g, "ئ"); //replace "لَيَـُٔوسٌ"
-    searchWord = searchWord.replace("ـَٔا", "ئا"); //replace "يَسْـَٔلُونَكَ" "يسألونك " - "سَيِّـَٔاتِهِمْ " "سيئاتهم "
-    searchWord = searchWord.replace("ـَٔ", "أ"); //replace "يَسْـَٔلُونَكَ" "يسألونك " - "يَسْـَٔمُ " "يسأم "
-    searchWord = searchWord.replace("عُمْىٌ", "عمي"); // عُمْىٌ
-    searchWord = searchWord.replace("هُدَاىَ", "هداي"); //
-    const match = searchWord.match(ARABIC_CHARS_REG);
-    searchWord = (match && match.join("").trim()) || "";
-    searchWord = searchWord.replace(/وىٰ/g, "وا"); // ياأيها
-    searchWord = searchWord.replace(/ءا/g, "آ"); // آمن
-    searchWord = searchWord.replace(/ذالك/g, "ذلك"); //replace small Alef to Alef
-    searchWord = searchWord.replace(/أولائك/g, "أولئك"); //replace small Alef to Alef
-    searchWord = searchWord.replace(/لاكن/g, "لكن"); //replace small Alef to Alef
-    searchWord = searchWord.replace(/الرحمان/g, "الرحمن");
-    searchWord = searchWord.replace(/الصلواة/g, "الصلاة");
-    searchWord = searchWord.replace(/ءأ/g, "أأ"); // أأنذرتهم
-    searchWord = searchWord.replace(/الءا/g, "الآ"); // الآخر
-    searchWord = searchWord.replace(/مستهزءون/g, "مستهزئون"); // مستهزءون
-    searchWord = searchWord.replace(/ياأيها/g, "يا أيها"); // ياأيها
-    searchWord = searchWord.replace(/هاذ/g, "هذ");
-    searchWord = searchWord.replace(/هاؤلاء/g, "هؤلاء");
-    searchWord = searchWord.replace(/يستحى/g, "يستحيي");
-    searchWord = searchWord.replace(/يائادم/g, "يا آدم");
-    searchWord = searchWord.replace("يابني", "يا بني"); //
-    searchWord = searchWord.replace("ياقوم", "يا قوم"); //
-    searchWord = searchWord.replace("ياموسى", "يا موسى"); //
-    searchWord = searchWord.replace("وإياى", "وإياي"); //
-    searchWord = searchWord.replace("إسراءيل", "إسرائيل"); //
-    searchWord = searchWord.replace("الزكواة", "الزكاة"); //
-    searchWord = searchWord.replace("ملاقوا", "ملاقو"); //
-    searchWord = searchWord.replace("شيـا", "شيئا"); //
-    searchWord = searchWord.replace("باءو", "باءوا"); //
-    searchWord = searchWord.replace("النبين", "النبيين"); //
-    searchWord = searchWord.replace("والصابـين", "والصابئين"); //
-    searchWord = searchWord.replace("خاسـين", "خاسئين"); //
-    searchWord = searchWord.replace("فاداراتم", "فادارأتم"); //
-    searchWord = searchWord.replace("يحى", "يحيي"); // ؟؟؟؟
-    searchWord = searchWord.replace("خطيأته", "خطيئته"); //
-    searchWord = searchWord.replace("خزى", "خزي"); //
-    searchWord = searchWord.replace("حيواة", "حياة"); //
-    searchWord = searchWord.replace("ميكىل", "ميكال"); //
-    searchWord = searchWord.replace("تتلوا", "تتلو"); //
-    searchWord = searchWord.replace("يتلوا", "يتلو"); //
-    searchWord = searchWord.replace("اشترىه", "اشتراه"); //
-    searchWord = searchWord.replace(/إبراهم/g, "إبراهيم"); //
-    searchWord = searchWord.replace(
-      /([\u0600-\u06FF]|)وإلاه(|[\u0600-\u06FF])/g,
-      "وإله"
-    ); //
-    searchWord = searchWord.replace(
-      /([\u0600-\u06FF]|)إلاه(|[\u0600-\u06FF])/g,
-      "إله"
-    ); //
-    searchWord = searchWord.replace(
-      /([\u0600-\u06FF]&&)ى(&&[\u0600-\u06FF])/g,
-      ""
-    ); //
-    return searchWord;
-  }
+  // ── search ─────────────────────────────────────────────────────────────────
 
-  onSearchInputClick() {
-    this.getLocal();
-    throw new Error("Method not implemented.");
-  }
+  onInput(value: string): void {
+    this.searchWord = value;
+    const word = value?.trim();
 
-  getLocal() {
-    // If searchWord is not empty, return early.
-    if (this.searchWord) {
+    if (!word) {
+      this.autocompleteItems = [];
+      this.results = [];
+      this.searchResults = [];
+      this.isShowingHistory = false;
+      this.showDropdown = false;
       return;
     }
 
-    const finalResultJson = localStorage.getItem("oldSearch");
-    if (finalResultJson) {
-      const finalResult = JSON.parse(finalResultJson);
-      // this.autoComplete.filled = true;
-      // this.autoComplete.loading = true;
-      this.results = finalResult;
-      this.autoComplete.click.emit('oldSearch');
+    this.isLoading = true;
+    this.isShowingHistory = false;
+    this.showDropdown = true;
+
+    const query       = this.stripTashkeel(word);
+    const querySimple = this.stripTashkeelSimple(word);
+
+    const all = this.searchInstance.table_othmani;
+    const matched = all.filter((aya: any) => {
+      const ayaText   = aya.AyaText || '';
+      const ayaSimple = this.stripTashkeelSimple((aya.AyaText_Othmani || '').trim());
+      return ayaText.includes(query) || ayaSimple.includes(querySimple);
+    });
+
+    this.searchResults = matched.map((aya: any) => ({ data: aya }));
+    this.results = matched.slice(0, 5).map((aya: any) => aya.AyaText_Othmani);
+    this.autocompleteItems = matched.slice(0, 8).map((aya: any) => ({
+      othmani: aya.AyaText_Othmani,
+      sura: aya.Sura_Name,
+      aya: aya.Aya_N,
+      data: aya,
+    }));
+    this.isLoading = false;
+  }
+
+  onFocus(): void {
+    if (this.searchWord?.trim()) return; // already has text — keep current results
+
+    const history = this.getSearchHistory();
+    if (history.length > 0) {
+      this.isShowingHistory = true;
+      this.showDropdown = true;
+      // most-recent first, reuse autocompleteItems slot for history strings
+      this.autocompleteItems = history.slice().reverse().map(w => ({
+        othmani: w, sura: '', aya: '', data: null
+      }));
     }
   }
 
-  saveSearchToLocalStorage() {
-    let old = localStorage.getItem("oldSearch");
-    let oldSearch = old ? JSON.parse(old) : [];
-    const isSearchFound = oldSearch.includes(this.searchWord);
-    if (!isSearchFound) {
-      oldSearch.push(this.searchWord);
+  onBlur(): void {
+    // Delay hiding so click events on dropdown items still fire
+    setTimeout(() => { this.showDropdown = false; }, 200);
+  }
 
-      if (oldSearch.length > 10) {
-        oldSearch.shift(); // Remove the oldest search term
-      }
-      localStorage.setItem("oldSearch", JSON.stringify(oldSearch));
+  clearSearch(inp: HTMLInputElement): void {
+    inp.value = '';
+    this.searchWord = '';
+    this.autocompleteItems = [];
+    this.results = [];
+    this.searchResults = [];
+    this.isShowingHistory = false;
+    this.showDropdown = false;
+    inp.focus();
+  }
+
+  selectItem(item: SearchResultItem, inp: HTMLInputElement): void {
+    if (this.isShowingHistory) {
+      inp.value = item.othmani;
+      this.searchWord = item.othmani;
+      this.isShowingHistory = false;
+      this.onInput(item.othmani);
+    } else {
+      inp.value = item.othmani;
+      this.searchWord = item.othmani;
+      this.showDropdown = false;
     }
   }
 
-  displayResults(){
-    localStorage.setItem("searchResults", JSON.stringify(this.results));
+  removeHistoryItem(event: MouseEvent, word: string): void {
+    event.stopPropagation();
+    const history = this.getSearchHistory().filter(w => w !== word);
+    localStorage.setItem('searchHistory', JSON.stringify(history));
+    this.autocompleteItems = this.autocompleteItems.filter(i => i.othmani !== word);
+    if (this.autocompleteItems.length === 0) this.showDropdown = false;
+  }
+
+  // ── popup ──────────────────────────────────────────────────────────────────
+
+  openSearchResult(inp?: HTMLInputElement): void {
+    if (!this.searchWord?.trim()) return;
+    if (inp) this.onInput(inp.value);
+    this.saveToHistory(this.searchWord);
+    this.showDropdown = false;
+
+    this.dialog.open(this.searchResult, {
+      width: "520px",
+      panelClass: "popup-center",
+    });
+  }
+
+  closeDialog(): void {
+    this.dialog.closeAll();
+  }
+
+  displayResults(): void {
+    this.saveToHistory(this.searchWord);
     this.closeDialog();
-    this.dataSharingService.updateSelectedData(this.searchResults,this.searchWord);
+    this.dataSharingService.updateSelectedData(this.searchResults, this.searchWord);
     this._router.navigateByUrl("/search");
   }
 
+  // ── history helpers ────────────────────────────────────────────────────────
 
+  private getSearchHistory(): string[] {
+    try {
+      const stored = localStorage.getItem('searchHistory');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveToHistory(word: string): void {
+    if (!word?.trim()) return;
+    const history = this.getSearchHistory();
+    const idx = history.indexOf(word);
+    if (idx !== -1) history.splice(idx, 1);
+    history.push(word);
+    if (history.length > 10) history.shift();
+    localStorage.setItem('searchHistory', JSON.stringify(history));
+  }
 }

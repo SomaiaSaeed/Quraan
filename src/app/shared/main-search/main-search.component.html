@@ -1,44 +1,129 @@
-<div class="flex-box tw-gap-2">
-  <div>
-    <input #inp dir="rtl" type="text" (focus)="onSearchInputClick()" (input)="search($event, inp)"
-      placeholder="بحث عن ايات قرءانية" matInput [matAutocomplete]="auto" (keyup.enter)="openSearchResult()"
-      class="tw-border tw-border-gray-200 placeholder:tw-text-sm tw-h-10 tw-w-80 tw-px-4 tw-text-right tw-outline-none tw-bg-white" />
-    <mat-autocomplete #auto="matAutocomplete">
-      <mat-option *ngFor="let aya of results" [value]="aya" (click)="search($event, inp)">
-        <div>
-          {{ aya }}
-        </div>
-      </mat-option>
-    </mat-autocomplete>
+<div class="search-wrapper">
+
+  <!-- Input row -->
+  <div class="search-input-row" [class.focused]="showDropdown">
+    <i class="sfi sfi-search-I search-icon"></i>
+
+    <input
+      #inp
+      dir="rtl"
+      type="text"
+      autocomplete="off"
+      placeholder="ابحث في القرآن الكريم..."
+      class="search-field"
+      [(ngModel)]="searchWord"
+      (input)="onInput(inp.value)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      (keyup.enter)="openSearchResult(inp)"
+    />
+
+    <!-- clear button -->
+    <button *ngIf="hasText" class="clear-btn" type="button" (mousedown)="clearSearch(inp)" title="مسح">
+      <i class="sfi sfi-cancel-1"></i>
+    </button>
+
+    <!-- search button -->
+    <button class="search-btn" type="button" (click)="openSearchResult(inp)">
+      بحـث
+    </button>
   </div>
-  <button type="submit" title="result-search" (click)="openSearchResult()"
-    class="tw-bg-secondColor tw-text-mainColor tw-font-bold tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200">
-    <i class="sfi sfi-search-I tw-text-base tw-block"></i>
-  </button>
+
+  <!-- Dropdown panel -->
+  <div class="search-dropdown" *ngIf="showDropdown">
+
+    <!-- History mode -->
+    <ng-container *ngIf="isShowingHistory && autocompleteItems.length > 0">
+      <div class="dropdown-header">
+        <i class="sfi sfi-history tw-text-xs"></i>
+        <span>آخر عمليات البحث</span>
+      </div>
+      <div class="dropdown-item history-item"
+           *ngFor="let item of autocompleteItems"
+           (mousedown)="selectItem(item, inp)">
+        <i class="sfi sfi-history item-icon tw-text-gray-400"></i>
+        <span class="item-text">{{ item.othmani }}</span>
+        <button class="remove-btn" type="button"
+                (mousedown)="removeHistoryItem($event, item.othmani)"
+                title="حذف">
+          <i class="sfi sfi-cancel-1"></i>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Search results mode -->
+    <ng-container *ngIf="!isShowingHistory">
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="dropdown-loading">
+        <span class="spinner"></span>
+        <span>جارٍ البحث...</span>
+      </div>
+
+      <!-- No results -->
+      <div *ngIf="!isLoading && autocompleteItems.length === 0 && hasText" class="dropdown-empty">
+        <i class="sfi sfi-search-I tw-text-gray-300 tw-text-2xl tw-block tw-mb-2"></i>
+        <span>لا توجد نتائج لـ «{{ searchWord }}»</span>
+      </div>
+
+      <!-- Result items -->
+      <ng-container *ngIf="!isLoading && autocompleteItems.length > 0">
+        <div class="dropdown-header">
+          <span>نتائج مقترحة</span>
+          <span class="results-count">{{ searchResults.length }}</span>
+        </div>
+        <div class="dropdown-item result-item"
+             *ngFor="let item of autocompleteItems"
+             (mousedown)="selectItem(item, inp)">
+          <div class="result-text">{{ item.othmani }}</div>
+          <div class="result-meta">
+            <span class="meta-sura">{{ item.sura }}</span>
+            <span class="meta-sep">•</span>
+            <span class="meta-aya">آية {{ item.aya }}</span>
+          </div>
+        </div>
+        <!-- Show all -->
+        <div class="dropdown-footer" (mousedown)="openSearchResult(inp)">
+          <span>عرض جميع النتائج ({{ searchResults.length }})</span>
+          <i class="sfi sfi-arrow-left tw-text-xs"></i>
+        </div>
+      </ng-container>
+    </ng-container>
+
+  </div>
 </div>
 
-<!-- popup-result -->
+<!-- Popup -->
 <ng-template #searchResult>
   <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
-    <h2 class="tw-mb-0">نتائج البحث</h2>
-    <button title="close" (click)="closeDialog()" mat-flat-button class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
+    <div>
+      <h2 class="tw-mb-0 tw-text-base">نتائج البحث</h2>
+      <p class="tw-text-xs tw-text-gray-400 tw-mb-0 tw-mt-0.5">{{ searchResults.length }} نتيجة</p>
+    </div>
+    <button title="close" (click)="closeDialog()" mat-flat-button
+      class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
       <span class="tw-text-white tw-text-sm tw-block tw-py-px">
         <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
       </span>
     </button>
   </header>
   <main>
-    <ul class="tw-divide-y-1">
-      <li *ngFor="let aya of results | slice:0:5; let i = index" class="flex-box tw-gap-2 tw-pb-5">
-        <i class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center tw-not-italic">{{ i + 1 }}</i>
-        {{ aya }}
+    <ul class="tw-space-y-3 tw-p-0 tw-list-none">
+      <li *ngFor="let aya of results; let i = index"
+          class="tw-flex tw-items-start tw-gap-3 tw-pb-3 tw-border-b tw-border-gray-100 last:tw-border-0"
+          dir="rtl">
+        <span class="tw-shrink-0 tw-w-6 tw-h-6 tw-rounded-full tw-bg-secondColor tw-text-mainColor
+                     tw-text-xs tw-font-bold tw-flex tw-items-center tw-justify-center">
+          {{ i + 1 }}
+        </span>
+        <span class="tw-text-sm tw-leading-7 tw-font-[uthmanic_hafs_v20]">{{ aya }}</span>
       </li>
     </ul>
-    <div class="flex-box tw-justify-end">
-      <button (click)="displayResults()" type="submit" title="search-o"
-        class="tw-bg-mainColor tw-h-10 tw-min-w-0 tw-px-3 flex-box tw-gap-2 tw-rounded-sm hover:tw-opacity-80">
-        <span class="tw-text-base tw-text-white"> جميع النتائج </span>
-        <i class="sfi sfi-visibility tw-text-base tw-font-bold tw-block tw-text-white"></i>
+    <div class="flex-box tw-justify-end tw-mt-4 tw-pt-3 tw-border-t tw-border-gray-100">
+      <button (click)="displayResults()" type="button"
+        class="tw-bg-mainColor tw-text-white tw-h-10 tw-px-5 tw-text-sm tw-font-bold
+               tw-rounded-sm hover:tw-opacity-80 flex-box tw-gap-2">
+        <span>عرض جميع النتائج</span>
+        <i class="sfi sfi-visibility tw-text-base tw-block"></i>
       </button>
     </div>
   </main>

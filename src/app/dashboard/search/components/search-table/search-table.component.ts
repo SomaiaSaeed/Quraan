@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { DataSharingService } from '../../services/data-sharing.service';
+import { Router } from '@angular/router';
+import { DataSharingService, ALL_COLUMNS, ColumnDef } from '../../services/data-sharing.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -8,191 +9,160 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   styleUrls: ['./search-table.component.scss']
 })
 export class SearchTableComponent implements OnInit {
-  selectedData?: { data: any[]};
-  data?: any[];
+  selectedData?: { data: any[] };
   searchQuery: string = '';
   originalData: any[] = [];
-  resultsList: string[] = [
-    "رقم_السورة",
-    "بداية_السورة",
-    "الربع",
-    "رقم_الجزء",
-    "الحزب",
-    "رقم_الحزب",
-    "رقم_الصفحة",
-    "بداية_الربع",
-    "بداية_الصفحة",
-    "اسم_السورة",
-    "الآية",
-  ];
 
-  constructor(private dataSharingService: DataSharingService, private cdr: ChangeDetectorRef,private sanitizer: DomSanitizer) { }
+  // ── filter state ──────────────────────────────────────────────────────────
+  contentMode: string = 'quranGeneral';
+  suraOrder: string   = 'mushafOrder';
+  suraFilter: string  = '';
+  suraOptions: string[] = [];
+
+  // ── columns ───────────────────────────────────────────────────────────────
+  visibleColumns: ColumnDef[] = [];
+
+  constructor(
+    private dataSharingService: DataSharingService,
+    private cdr: ChangeDetectorRef,
+    private sanitizer: DomSanitizer,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    
     this.dataSharingService.selectedData$.subscribe(combinedData => {
       this.selectedData = combinedData;
-      this.originalData = [...this.selectedData.data]; // shallow clone
-      this.searchQuery = combinedData.searchQuery;
-      console.log("this.selectedData", this.selectedData.data)
+      this.originalData = [...this.selectedData.data];
+      this.searchQuery  = combinedData.searchQuery;
+
+      const suraMap = new Map<string, number>();
+      this.originalData.forEach(item => {
+        const name = item.data?.Sura_Name;
+        const num  = parseInt(item.data?.nOFSura);
+        if (name && !suraMap.has(name)) suraMap.set(name, num);
+      });
+      this.suraOptions = Array.from(suraMap.entries())
+        .sort((a, b) => a[1] - b[1])
+        .map(([name]) => name);
+
+      this.contentMode = 'quranGeneral';
+      this.suraOrder   = 'mushafOrder';
+      this.suraFilter  = '';
+      this.applyFilters();
+    });
+
+    this.dataSharingService.selectedColumns$.subscribe(keys => {
+      this.visibleColumns = ALL_COLUMNS.filter(c => keys.includes(c.key));
+      this.cdr.detectChanges();
     });
   }
 
+  // ── event handlers ─────────────────────────────────────────────────────────
 
-  onSortChange(event: any): void {
-    const selectedSortType = event.target.value;
-    console.log("Selected sort type:", selectedSortType);
-    switch (selectedSortType) {
-      case 'quranGeneral':
-        this.sortByQuranGeneral();
-        break;
-      case 'startOfAyah':
-        this.sortByStartOfAyah();
-        break;
-      default:
-        break;
-    }
-    this.cdr.detectChanges();
-  }
-  onSortChange2(event: any): void {
-    const selectedSortType = event.target.value;
-    console.log("Selected sort type:", selectedSortType);
-    switch (selectedSortType) {
-      case 'alphabetical':
-        this.sortAlphabetically();
-        break;
-      case 'mushafOrder':
-        this.sortByMushafOrder();
-        break;
-      default:
-        break;
-    }
-    this.cdr.detectChanges();
+  onContentModeChange(event: any): void {
+    this.contentMode = event.target.value;
+    if (this.contentMode === 'startOfAyah') this.suraFilter = '';
+    this.applyFilters();
   }
 
-  // sortByStartOfAyah(): void {
-  //   console.log("Sorting by start of Ayah...");
-  //   console.log("Data before sorting: ", this.selectedData?.data);
-  //   if (this.selectedData?.data && this.selectedData.data.length > 0) {
-  //     this.selectedData?.data.sort((a: any, b: any) => {
-  //       const valueA = a.data?.AyaText_Othmani ? a.data.AyaText_Othmani.trim().toLowerCase() : '';
-  //       const valueB = b.data?.AyaText_Othmani ? b.data.AyaText_Othmani.trim().toLowerCase() : '';
-  //       if (valueA < valueB) return -1;
-  //       if (valueA > valueB) return 1;
-  //       return 0;
-  //     });
-  //   }
-  //   console.log("Data after sorting: ", this.selectedData?.data);
-  // }
+  onSuraOrderChange(event: any): void {
+    this.suraOrder = event.target.value;
+    this.applyFilters();
+  }
 
-  // sortByQuranGeneral(): void {
-  //   console.log("Sorting by Quran General...");
-  //   this.selectedData?.data.sort((a: any, b: any) => {
-  //     if (a.data.nOFSura === b.data.nOFSura) {
-  //       return parseInt(a.data.Aya_N) - parseInt(b.data.Aya_N);
-  //     }
-  //     return parseInt(a.data.nOFSura) - parseInt(b.data.nOFSura);
-  //   });
-  //   console.log(this.selectedData?.data);
-  // }
+  onSuraFilterChange(event: any): void {
+    this.suraFilter = event.target.value;
+    this.applyFilters();
+  }
 
-  sortByStartOfAyah(): void {
-    
+  // ── core filter+sort ───────────────────────────────────────────────────────
 
-    console.log("Sorting by start of Ayah with filter");
-  
-    if (!this.originalData.length) return;
-  
-    const query = this.searchQuery?.trim().toLowerCase();
-  
-    // 1️⃣ clone
-    let clonedData = [...this.originalData];
-  
-    // 2️⃣ filter (startsWith)
-    if (query) {
-      clonedData = clonedData.filter(item => {
-        const ayahText = item.data?.AyaText
-          ?.trim()
-          .toLowerCase();
-  
-        return ayahText?.startsWith(query);
+  private applyFilters(): void {
+    let data = [...this.originalData];
+
+    if (this.contentMode === 'startOfAyah') {
+      const query = this.stripTashkeel(this.searchQuery?.trim() || '');
+      if (query) {
+        data = data.filter(item => {
+          const text = this.stripTashkeel(item.data?.AyaText?.trim() || '');
+          return text.startsWith(query);
+        });
+      }
+    } else if (this.suraFilter) {
+      data = data.filter(item => item.data?.Sura_Name === this.suraFilter);
+    }
+
+    if (this.suraOrder === 'mushafOrder') {
+      data.sort((a, b) => {
+        const suraDiff = parseInt(a.data?.nOFSura) - parseInt(b.data?.nOFSura);
+        return suraDiff !== 0 ? suraDiff : parseInt(a.data?.Aya_N) - parseInt(b.data?.Aya_N);
+      });
+    } else {
+      data.sort((a, b) => {
+        const nameA = a.data?.Sura_Name?.trim() || '';
+        const nameB = b.data?.Sura_Name?.trim() || '';
+        const diff  = nameA.localeCompare(nameB, 'ar');
+        return diff !== 0 ? diff : parseInt(a.data?.Aya_N) - parseInt(b.data?.Aya_N);
       });
     }
-  
-    // 3️⃣ sort
-    clonedData.sort((a: any, b: any) => {
-      const valueA = a.data?.AyaText?.trim() ?? '';
-      const valueB = b.data?.AyaText?.trim() ?? '';
-      return valueA.localeCompare(valueB);
-    });
-  
-    // 4️⃣ assign
-    this.selectedData = {
-      data: clonedData
-    };
-  
-    console.log("Filtered & Sorted Data:", this.selectedData.data);
-  }
-  
-  sortByQuranGeneral(): void {
-    
-    console.log("Reset to Quran General (original order)");
-  
-    if (!this.originalData.length) return;
-  
-    // رجّع نفس البيانات الأصلية
-    this.selectedData = {
-      data: [...this.originalData]
-    };
-  
-    console.log(this.selectedData.data);
-  }
-  
-  sortAlphabetically(): void {
-    console.log("Sorting alphabetically...");
-    console.log("Data before sorting: ", this.selectedData?.data);
-    if (this.selectedData?.data && this.selectedData.data.length > 0) {
-      this.selectedData?.data.sort((a: any, b: any) => {
-        const valueA = a.data?.Sura_Name ? a.data.Sura_Name.trim().toLowerCase() : '';
-        const valueB = b.data?.Sura_Name ? b.data.Sura_Name.trim().toLowerCase() : '';
-        if (valueA < valueB) return -1;
-        if (valueA > valueB) return 1;
-        return 0;
-      });
-    }
-    console.log("Data after sorting alphabetically: ", this.selectedData?.data);
+
+    this.selectedData = { data };
     this.cdr.detectChanges();
   }
 
+  // ── navigation ─────────────────────────────────────────────────────────────
 
-  sortByMushafOrder(): void {
-    console.log("Sorting by Mushaf Order...");
-    console.log("Data before sorting: ", this.selectedData?.data);
-    if (this.selectedData?.data && this.selectedData.data.length > 0) {
-      this.selectedData?.data.sort((a: any, b: any) => {
-        if (a.data?.nOFSura === b.data?.nOFSura) {
-          return parseInt(a.data?.Aya_N) - parseInt(b.data?.Aya_N);
-        }
-        return parseInt(a.data?.nOFSura) - parseInt(b.data?.nOFSura);
-      });
-    }
-    console.log("Data after sorting: ", this.selectedData?.data);
-    this.cdr.detectChanges();
+  goToAya(item: any): void {
+    const page = item.data?.nOFPage;
+    if (!page) return;
+    localStorage.setItem('pendingNavPage', String(page));
+    this.router.navigateByUrl('/home');
+  }
+
+  // ── cell rendering helpers ─────────────────────────────────────────────────
+
+  getCellValue(item: any, col: ColumnDef): string {
+    return item.data?.[col.key] ?? '';
+  }
+
+  isOthmaniCol(col: ColumnDef): boolean { return col.type === 'othmani'; }
+  isTextCol(col: ColumnDef): boolean    { return col.type === 'text'; }
+  isBadgeCol(col: ColumnDef): boolean   { return col.type === 'badge'; }
+
+  // ── text helpers ───────────────────────────────────────────────────────────
+
+  private stripTashkeel(text: string): string {
+    return text
+      .replace(/[\u064B-\u065F]/g, '')              // tashkeel: tanwin, kasra, fatha, damma, shadda, sukun … (U+064B–U+065F)
+      .replace(/\u0670/g, '\u0627')                 // superscript alef ٰ  → ا  (e.g. ٱلرَّحْمَٰنِ → الرحمان)
+      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا  (Othmani word-start alef)
+      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي  (final yeh without dots)
+      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
+      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed (Arabic elongation stroke)
+  }
+
+  private stripTashkeelSimple(text: string): string {
+    return text
+      .replace(/[\u064B-\u065F\u0670]/g, '')        // tashkeel (U+064B–U+065F) + superscript alef ٰ (U+0670) — all stripped, NOT replaced (keeps الرحمن as-is)
+      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا
+      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي
+      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
+      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed
   }
 
   highlightText(text: string, search: string): SafeHtml {
-    if (!search || search.trim() === '') {
-      return text;
-    }
-  
-    const regex = new RegExp(`(${search})`, 'gi');
-    const highlightedText = text.replace(regex, `<span class="highlight">$1</span>`);
-  
-    console.log('Original:', text);
-    console.log('Highlighted:', highlightedText);
-  
-    return this.sanitizer.bypassSecurityTrustHtml(highlightedText);
-  }
-  
+    if (!search?.trim() || !text) return text || '';
 
+    const queryFull   = this.stripTashkeel(search.trim()).split(' ').filter(w => w);
+    const querySimple = this.stripTashkeelSimple(search.trim()).split(' ').filter(w => w);
+
+    const highlighted = text.split(' ').map(word => {
+      const sf = this.stripTashkeel(word);
+      const ss = this.stripTashkeelSimple(word);
+      const matches = queryFull.some(q => sf.includes(q)) || querySimple.some(q => ss.includes(q));
+      return matches ? `<span class="highlight">${word}</span>` : word;
+    }).join(' ');
+
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
 }

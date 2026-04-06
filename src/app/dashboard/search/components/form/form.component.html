@@ -1,240 +1,330 @@
-<div class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-mt-8" *ngIf="!isOpenForm" (click)="isOpenForm = !isOpenForm">
-	<span class="tw-font-bold tw-text-sm tw-mb-2 tw-cursor-pointer tw-underline">
-		<i class="sfi sfi-pen-f tw-text-gray-600"></i>
-		<span class="tw-mx-0.5"></span>
-		تعديل إعدادات البحث
-	</span>
-</div>
-<div class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-border tw-border-gray-200 tw-p-4 tw-mt-2">
-	<form [formGroup]="form" class="tw-space-y-5" *ngIf="isOpenForm">
-		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">اسم السورة</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="suraFrom" (selectionChange)="updateAyaNumbers('from')">
-							<mat-option *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
-						</mat-select>
-					</mat-form-field>
+<div class="settings-wrapper">
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="suraTo" (selectionChange)="updateAyaNumbers('to')">
-							<mat-option *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">رقـم الاية</label>
-				<div class="flex-box tw-gap-2">
-					<!-- من اية -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="ayaFrom">
-							<mat-option *ngFor="let ayah of ayaNumbersFrom" [value]="ayah">{{ ayah }}</mat-option>
-						</mat-select>
-					</mat-form-field>
-					<!-- إلى اية -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="ayaTo" (selectionChange)="generateAyaNumbers()">
-							<mat-option *ngFor="let ayah of ayaNumbersTo" [value]="ayah">{{ ayah }}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-		</div>
-		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الجـزء</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="JozFrom">
-							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
-						</mat-select>
-					</mat-form-field>
+  <!-- ══ Collapsed state ══════════════════════════════════════════════════ -->
+  <ng-container *ngIf="!isOpenForm">
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- (selectionChange)="toPartFun($event)" -->
-						<mat-select formControlName="JozTo" (selectionChange)="getHezbNumbersInRange()">
-							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الحـزب</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="hezbFrom">
-							<!-- {{ h.nOFHezb }} -->
-							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
-						</mat-select>
-					</mat-form-field>
+    <div class="settings-toggle" (click)="isOpenForm = true">
+      <div class="toggle-info">
+        <span class="toggle-icon">⚙</span>
+        <span class="toggle-label">إعدادات البحث</span>
+      </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="hezbTo" (selectionChange)="getRubbNumbersInRange()">
-							<!-- {{ h.nOFHezb }} -->
-							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-		</div>
-		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الربـع</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="rubFrom">
-							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
-						</mat-select>
-					</mat-form-field>
+      <!-- Active filter chips summary -->
+      <div class="active-chips">
+        <span class="chip" *ngIf="form.get('suraFrom')?.value">
+          {{ form.get('suraFrom')?.value }}
+          <ng-container *ngIf="form.get('suraTo')?.value && form.get('suraTo')?.value !== form.get('suraFrom')?.value">
+            ← {{ form.get('suraTo')?.value }}
+          </ng-container>
+        </span>
+        <span class="chip" *ngIf="form.get('JozFrom')?.value">
+          ج {{ form.get('JozFrom')?.value }}–{{ form.get('JozTo')?.value }}
+        </span>
+        <span class="chip" *ngIf="form.get('hezbFrom')?.value">
+          ح {{ form.get('hezbFrom')?.value }}–{{ form.get('hezbTo')?.value }}
+        </span>
+        <span class="chip" *ngIf="form.get('rubFrom')?.value">
+          ر {{ form.get('rubFrom')?.value }}–{{ form.get('rubTo')?.value }}
+        </span>
+        <span class="chip" *ngIf="form.get('pageFrom')?.value">
+          ص {{ form.get('pageFrom')?.value }}–{{ form.get('pageTo')?.value }}
+        </span>
+        <span class="chip chip--match" *ngIf="exactMatch">متطابق</span>
+        <span class="chip chip--all"
+          *ngIf="!form.get('suraFrom')?.value && !form.get('JozFrom')?.value &&
+                 !form.get('hezbFrom')?.value && !form.get('rubFrom')?.value && !form.get('pageFrom')?.value">
+          عموم القرآن
+        </span>
+      </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="rubTo" (selectionChange)="getPagesNumbersInRange()">
-							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الصفحة</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="pageFrom">
-							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
+      <span class="edit-btn">
+        <i class="sfi sfi-pen-f"></i>
+        تعديل
+      </span>
+    </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="pageTo" (selectionChange)="getAyatOfOages()">
-							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-		</div>
-		<!-- actions -->
-		<div class="tw-mt-10 flex-c-b">
-			<div class="tw-mt-4">
-				<mat-checkbox class="tw-text-sm">
-					<label for="" class="tw-font-medium tw-whitespace-break-spaces">
-						متطابق
-					</label>
-				</mat-checkbox>
-			</div>
-			<div>
-				<button type="submit" (click)="onSubmit()" [disabled]="this.form.invalid"
-					class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-					حفظ إعدادت البحث
-				</button>
-				<span class="tw-mx-1"></span>
-				<button type="submit" (click)="resetForm()"
-					class="tw-bg-white tw-border-gray-300 tw-border tw-border-solid tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-					إعادة تعيين
-				</button>
-			</div>
-		</div>
-	</form>
-	<!-- Search after choosing -->
-	<div class="search-container tw-flex tw-items-center tw-gap-3" *ngIf="!isOpenForm">
-		<input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" (keyup)="onClearSearch()" placeholder="ابحث هنا..."
-			class="search-input focus:tw-border-secondColor">
-		<button type="submit" (click)="onSearch()"
-			class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-[45px] tw-px-8 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			بحـث
-		</button>
-	</div>
-</div>
-<!-- <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="ابحث هنا..." class="search-input"> -->
+    <!-- Search input -->
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchQuery"
+             (keyup.enter)="onSearch()" (keyup)="onClearSearch()"
+             placeholder="ابحث في النطاق المحدد..."
+             class="search-field" />
+      <button type="button" (click)="onSearch()" class="btn-search">بحـث</button>
+    </div>
+
+  </ng-container>
+
+  <!-- ══ Expanded form ═════════════════════════════════════════════════════ -->
+  <div class="settings-panel" *ngIf="isOpenForm">
+
+    <!-- Panel header -->
+    <div class="panel-header">
+      <div>
+        <h3 class="panel-title">إعدادات البحث</h3>
+        <p class="panel-subtitle">حدد نطاق البحث في القرآن الكريم</p>
+      </div>
+      <button type="button" class="close-btn" (click)="isOpenForm = false" title="إغلاق">
+        <i class="sfi sfi-cancel-1"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="form">
+      <div class="filters-grid">
+
+        <!-- ── السورة ─────────────────────────────────────────────────── -->
+        <div class="filter-card" [class.filter-card--active]="form.get('suraFrom')?.value">
+          <div class="card-hd">
+            <span class="card-icon">📖</span>
+            <span class="card-title">السـورة</span>
+            <span class="active-dot" *ngIf="form.get('suraFrom')?.value"></span>
+          </div>
+          <div class="range-row">
+            <div class="f-select-wrap">
+              <label class="f-label">من</label>
+              <select formControlName="suraFrom" (change)="updateAyaNumbers('from')" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let s of suraNames" [value]="s">{{ s }}</option>
+              </select>
+            </div>
+            <span class="range-sep">←</span>
+            <div class="f-select-wrap">
+              <label class="f-label">إلى</label>
+              <select formControlName="suraTo" (change)="updateAyaNumbers('to')" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let s of suraNames" [value]="s">{{ s }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── الآية ──────────────────────────────────────────────────── -->
+        <div class="filter-card" [class.filter-card--active]="form.get('ayaFrom')?.value"
+             [class.filter-card--disabled]="!form.get('suraFrom')?.value">
+          <div class="card-hd">
+            <span class="card-icon">🔢</span>
+            <span class="card-title">الآيـة</span>
+            <span class="active-dot" *ngIf="form.get('ayaFrom')?.value"></span>
+          </div>
+          <div class="range-row">
+            <div class="f-select-wrap">
+              <label class="f-label">من</label>
+              <select formControlName="ayaFrom" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let a of ayaNumbersFrom" [value]="a">{{ a }}</option>
+              </select>
+            </div>
+            <span class="range-sep">←</span>
+            <div class="f-select-wrap">
+              <label class="f-label">إلى</label>
+              <select formControlName="ayaTo" (change)="generateAyaNumbers()" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let a of ayaNumbersTo" [value]="a">{{ a }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="card-hint" *ngIf="!form.get('suraFrom')?.value">اختر السورة أولاً</p>
+        </div>
+
+        <!-- ── الجزء ──────────────────────────────────────────────────── -->
+        <div class="filter-card" [class.filter-card--active]="form.get('JozFrom')?.value">
+          <div class="card-hd">
+            <span class="card-icon">📚</span>
+            <span class="card-title">الجـزء</span>
+            <span class="active-dot" *ngIf="form.get('JozFrom')?.value"></span>
+          </div>
+          <div class="range-row">
+            <div class="f-select-wrap">
+              <label class="f-label">من</label>
+              <select formControlName="JozFrom" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let j of uniqueJozNumbersList" [value]="j">{{ j }}</option>
+              </select>
+            </div>
+            <span class="range-sep">←</span>
+            <div class="f-select-wrap">
+              <label class="f-label">إلى</label>
+              <select formControlName="JozTo" (change)="getHezbNumbersInRange()" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let j of uniqueJozNumbersList" [value]="j">{{ j }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── الحزب ──────────────────────────────────────────────────── -->
+        <div class="filter-card" [class.filter-card--active]="form.get('hezbFrom')?.value"
+             [class.filter-card--disabled]="!form.get('JozFrom')?.value">
+          <div class="card-hd">
+            <span class="card-icon">½</span>
+            <span class="card-title">الحـزب</span>
+            <span class="active-dot" *ngIf="form.get('hezbFrom')?.value"></span>
+          </div>
+          <div class="range-row">
+            <div class="f-select-wrap">
+              <label class="f-label">من</label>
+              <select formControlName="hezbFrom" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let h of hezbList" [value]="h">{{ h }}</option>
+              </select>
+            </div>
+            <span class="range-sep">←</span>
+            <div class="f-select-wrap">
+              <label class="f-label">إلى</label>
+              <select formControlName="hezbTo" (change)="getRubbNumbersInRange()" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let h of hezbList" [value]="h">{{ h }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="card-hint" *ngIf="!form.get('JozFrom')?.value">اختر الجزء أولاً</p>
+        </div>
+
+        <!-- ── الربع ──────────────────────────────────────────────────── -->
+        <div class="filter-card" [class.filter-card--active]="form.get('rubFrom')?.value"
+             [class.filter-card--disabled]="!form.get('hezbFrom')?.value">
+          <div class="card-hd">
+            <span class="card-icon">¼</span>
+            <span class="card-title">الربـع</span>
+            <span class="active-dot" *ngIf="form.get('rubFrom')?.value"></span>
+          </div>
+          <div class="range-row">
+            <div class="f-select-wrap">
+              <label class="f-label">من</label>
+              <select formControlName="rubFrom" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let r of rubList" [value]="r">{{ r }}</option>
+              </select>
+            </div>
+            <span class="range-sep">←</span>
+            <div class="f-select-wrap">
+              <label class="f-label">إلى</label>
+              <select formControlName="rubTo" (change)="getPagesNumbersInRange()" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let r of rubList" [value]="r">{{ r }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="card-hint" *ngIf="!form.get('hezbFrom')?.value">اختر الحزب أولاً</p>
+        </div>
+
+        <!-- ── الصفحة ─────────────────────────────────────────────────── -->
+        <div class="filter-card" [class.filter-card--active]="form.get('pageFrom')?.value"
+             [class.filter-card--disabled]="!form.get('rubFrom')?.value">
+          <div class="card-hd">
+            <span class="card-icon">📄</span>
+            <span class="card-title">الصفحة</span>
+            <span class="active-dot" *ngIf="form.get('pageFrom')?.value"></span>
+          </div>
+          <div class="range-row">
+            <div class="f-select-wrap">
+              <label class="f-label">من</label>
+              <select formControlName="pageFrom" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let p of pagesList" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+            <span class="range-sep">←</span>
+            <div class="f-select-wrap">
+              <label class="f-label">إلى</label>
+              <select formControlName="pageTo" (change)="getAyatOfOages()" class="f-select">
+                <option value="">اختر...</option>
+                <option *ngFor="let p of pagesList" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="card-hint" *ngIf="!form.get('rubFrom')?.value">اختر الربع أولاً</p>
+        </div>
+
+      </div><!-- /filters-grid -->
+
+      <!-- ── Columns customiser ─────────────────────────────────────── -->
+      <div class="columns-section">
+        <div class="columns-trigger-row">
+          <button type="button" class="columns-trigger"
+                  (click)="showColumnsPanel = !showColumnsPanel">
+            <span class="col-icon">📊</span>
+            <span>تخصيص أعمدة النتائج</span>
+            <span class="col-count">{{ selectedColumnsCount }}</span>
+            <i class="sfi tw-text-xs tw-mr-1"
+               [class.sfi-arrow-up1]="showColumnsPanel"
+               [class.sfi-arrow-down1]="!showColumnsPanel"></i>
+          </button>
+          <button type="button" class="col-reset-link"
+                  *ngIf="selectedColumnsCount !== 3"
+                  (click)="resetColumnsToDefault()">
+            إعادة للافتراضي
+          </button>
+        </div>
+
+        <!-- Panel -->
+        <div class="columns-panel" *ngIf="showColumnsPanel">
+          <div class="col-panel-header">
+            <span class="col-panel-title">اختر الأعمدة الظاهرة في جدول النتائج</span>
+            <button type="button" class="col-select-all" (click)="selectAllColumns()">اختر الكل</button>
+          </div>
+
+          <div class="col-groups">
+            <div class="col-group" *ngFor="let group of columnGroups">
+              <div class="col-group-label">{{ group.label }}</div>
+              <div class="col-items">
+                <label class="col-item"
+                       *ngFor="let col of columnsOf(group.key)"
+                       [class.col-item--checked]="isColSelected(col.key)">
+                  <input type="checkbox"
+                         [checked]="isColSelected(col.key)"
+                         (change)="toggleColumn(col.key)" />
+                  <span class="col-check">
+                    <i class="sfi sfi-check tw-text-xs" *ngIf="isColSelected(col.key)"></i>
+                  </span>
+                  <span class="col-label">{{ col.label }}</span>
+                  <span class="col-default-badge" *ngIf="col.isDefault">افتراضي</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Actions ─────────────────────────────────────────────────── -->
+      <div class="actions-bar">
+        <label class="exact-toggle">
+          <input type="checkbox" [(ngModel)]="exactMatch" [ngModelOptions]="{standalone: true}" />
+          <span class="toggle-track">
+            <span class="toggle-thumb"></span>
+          </span>
+          <span class="toggle-text">متطابق تماماً</span>
+        </label>
+
+        <div class="btn-group">
+          <button type="button" (click)="resetForm()" class="btn btn--ghost">
+            إعادة تعيين
+          </button>
+          <button type="button" (click)="onSubmit()" class="btn btn--primary">
+            حفظ الإعدادات
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div><!-- /settings-panel -->
+
+</div><!-- /settings-wrapper -->
 
 
-<!-- <mat-form-field class="example-full-width">
-		<mat-label>Number</mat-label>
-		<input type="text"
-		[(ngModel)]="searchQuery"
-			   placeholder="Pick one"
-			   aria-label="Number"
-			   matInput
-			  
-			   [matAutocomplete]="auto"
-			   (keyup.enter)="onSearch()">
-		<mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-			<mat-option *ngFor="let aya of results" [value]="aya">{{aya}}</mat-option>
-		</mat-autocomplete>
-	  </mat-form-field> -->
-
-<!-- popup-result -->
+<!-- ── Saved confirmation popup ─────────────────────────────────────────── -->
 <ng-template #searchResult>
-	<header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
-		<h2 class="tw-mb-0">اعدادات البحث</h2>
-		<button title="close" (click)="closeDialog()"  mat-flat-button
-			class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
-			<span class="tw-text-white tw-text-sm tw-block tw-py-px">
-				<i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
-			</span>
-		</button>
-	</header>
-	<main>
-		<p class="tw-text-center"> تم حفظ اعدادات البحث </p>
-	</main>
+  <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
+    <h2 class="tw-mb-0 tw-text-base">إعدادات البحث</h2>
+    <button title="close" (click)="closeDialog()" mat-flat-button
+      class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
+      <span class="tw-text-white tw-text-sm tw-block tw-py-px">
+        <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
+      </span>
+    </button>
+  </header>
+  <main class="tw-text-center tw-py-4">
+    <div class="tw-text-3xl tw-mb-3">✅</div>
+    <p class="tw-font-bold tw-text-mainColor tw-mb-1">تم حفظ إعدادات البحث</p>
+    <p class="tw-text-xs tw-text-gray-400">يمكنك الآن البحث في النطاق المحدد</p>
+  </main>
 </ng-template>

@@ -1,85 +1,133 @@
-<!--   -->
-<div class="flex-c-b tw-mt-6" *ngIf="selectedData?.data?.length != 0">
-	<div>
-		<span class="tw-font-bold tw-text-sm tw-block">عدد النتائج {{selectedData?.data?.length}}</span>
-	</div>
-	<div class="tw-flex tw-items-center tw-gap-2">
-		<span class="tw-text-xs tw-text-gray-600">ترتيب المحتوي : </span>
-		<div>
-			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
-				<option value="quranGeneral">عموم القرآن</option>
-				<option value="startOfAyah">بداية الآيات</option>
-			</select>
-		</div>
-		<!-- <div>
-			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">حدد ما تريد ظهوره فى جدول النتائج</label>
-			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
-				<option value="name" *ngFor="let name of resultsList">{{name}} </option>
-			</select>
-		</div> -->
-	</div>
+<!-- Controls bar -->
+<div class="flex-c-b tw-mt-6 tw-flex-wrap tw-gap-3"
+     *ngIf="selectedData?.data?.length != 0 || originalData.length > 0">
 
-	<div class="tw-flex tw-items-center tw-gap-2">
-		<span class="tw-text-xs tw-text-gray-600">بحث في : </span>
-		<div>
-			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange2($event)">
-				<option value="alphabetical">ترتيب أبجدي</option>
-				<option value="mushafOrder">ترتيب المصحف</option>
-			</select>
-		</div>
-		<!-- <div>
-			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">حدد ما تريد ظهوره فى جدول النتائج</label>
-			<select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs" (change)="onSortChange($event)">
-				<option value="name" *ngFor="let name of resultsList">{{name}} </option>
-			</select>
-		</div> -->
-	</div>
+  <!-- Result count -->
+  <div>
+    <span class="tw-font-bold tw-text-sm tw-block">
+      عدد النتائج
+      <span class="tw-inline-flex tw-items-center tw-justify-center tw-min-w-[24px] tw-h-6 tw-px-2
+                   tw-bg-secondColor tw-text-mainColor tw-rounded-full tw-text-xs tw-font-bold tw-mx-1">
+        {{ selectedData?.data?.length }}
+      </span>
+      <span *ngIf="suraFilter" class="tw-text-xs tw-text-gray-400 tw-font-normal">
+        من {{ originalData.length }}
+      </span>
+    </span>
+  </div>
+
+  <!-- Content mode + sura sub-filter -->
+  <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+    <span class="tw-text-xs tw-text-gray-500">ترتيب المحتوى:</span>
+    <select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs tw-rounded tw-bg-white
+                   focus:tw-outline-none focus:tw-border-mainColor"
+            [value]="contentMode" (change)="onContentModeChange($event)">
+      <option value="quranGeneral">عموم القرآن</option>
+      <option value="startOfAyah">بداية الآيات</option>
+    </select>
+
+    <ng-container *ngIf="contentMode === 'quranGeneral' && suraOptions.length > 1">
+      <span class="tw-text-xs tw-text-gray-400">في سورة:</span>
+      <select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs tw-rounded tw-bg-white
+                     focus:tw-outline-none focus:tw-border-mainColor"
+              [value]="suraFilter" (change)="onSuraFilterChange($event)">
+        <option value="">كل السور</option>
+        <option *ngFor="let sura of suraOptions" [value]="sura">{{ sura }}</option>
+      </select>
+    </ng-container>
+  </div>
+
+  <!-- Sura sort order -->
+  <div class="tw-flex tw-items-center tw-gap-2">
+    <span class="tw-text-xs tw-text-gray-500">ترتيب السور:</span>
+    <select class="tw-border tw-border-gray-200 tw-px-2 tw-py-1 tw-text-xs tw-rounded tw-bg-white
+                   focus:tw-outline-none focus:tw-border-mainColor"
+            [value]="suraOrder" (change)="onSuraOrderChange($event)">
+      <option value="mushafOrder">ترتيب المصحف</option>
+      <option value="alphabetical">ترتيب أبجدي</option>
+    </select>
+  </div>
+
 </div>
 
-<div class="tw-overflow-auto tw-mt-6 tw-max-h-96">
-	<section class="tw-table tw-w-full tw-whitespace-nowrap" *ngIf="selectedData?.data?.length != 0">
-		<header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
-			<div
-				class="tw-table-cell tw-text-gary-700 tw-font-bold tw-text-sm tw-px-6 tw-py-4 ltr:tw-text-left rtl:tw-text-right">
-				الأيـة
-			</div>
-			<div
-				class="tw-table-cell tw-text-gary-700 tw-font-bold tw-text-sm tw-p-4 ltr:tw-text-left rtl:tw-text-right">
-				اسـم السورة
-			</div>
-			<div
-				class="tw-table-cell tw-text-gary-700 tw-font-bold tw-text-sm tw-p-4 ltr:tw-text-left rtl:tw-text-right">
-				رقـم الاية
-			</div>
-		</header>
-		<!-- content -->
-		<ng-container *ngFor="let item of selectedData?.data">
-			<div class="tw-table-row tw-bg-white tw-w-full tw-rounded tw-mb-3">
-				<div class="tw-table-cell tw-border-b tw-border-gray-200">
-					<div class="flex-box tw-gap-1 tw-py-3">
-						<div class="tw-w-0.5 tw-h-10 tw-bg-mainColor tw-rounded-md"></div>
-						<span class="tw-mx-1"></span>
-						<!-- <p class="tw-mb-0 tw-max-w-[400px] tw-whitespace-break-spaces tw-leading-8">
-							{{item.data.AyaText}}
-						</p> -->
-						<p class="tw-mb-0 tw-max-w-[400px] tw-whitespace-break-spaces tw-leading-8" [innerHTML]="highlightText(item.data.AyaText, searchQuery)"></p>
-					</div>
-				</div>
-				<div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
-					<div class="flex-box tw-px-4 tw-py-1 tw-text-bgSTC tw-text-sm">
-						<span class="tw-block tw-w-full">{{item.data.Sura_Name}}
-						</span>
-					</div>
-				</div>
-				<div class="tw-table-cell tw-border-b tw-border-gray-200 tw-align-middle">
-					<div class="flex-box tw-px-4 tw-py-1 tw-text-bgSTC tw-text-sm">
-						<span class="tw-block tw-w-6 tw-h-6 tw-border tw-border-gray-200 tw-text-center">
-							{{item.data.Aya_N}}
-						</span>
-					</div>
-				</div>
-			</div>
-		</ng-container>
-	</section>
-	<app-no-results *ngIf="selectedData?.data?.length == 0"></app-no-results>
+<!-- Results table -->
+<div class="tw-overflow-auto tw-mt-4 tw-max-h-96">
+  <section class="tw-table tw-w-full tw-whitespace-nowrap"
+           *ngIf="selectedData?.data?.length != 0 && visibleColumns.length > 0">
+
+    <!-- Dynamic header -->
+    <header class="tw-table-row tw-bg-secondColor tw-sticky tw-top-0">
+      <div *ngFor="let col of visibleColumns"
+           class="tw-table-cell tw-font-bold tw-text-xs tw-text-gray-600 tw-px-4 tw-py-3
+                  ltr:tw-text-left rtl:tw-text-right">
+        {{ col.label }}
+      </div>
+    </header>
+
+    <!-- Dynamic rows -->
+    <ng-container *ngFor="let item of selectedData?.data">
+      <div class="tw-table-row tw-bg-white tw-border-b tw-border-gray-100
+                  hover:tw-bg-gray-50 tw-transition-colors tw-cursor-pointer tw-group"
+           (click)="goToAya(item)"
+           title="انتقل إلى الصفحة {{ item.data?.nOFPage }} في المصحف">
+
+        <div *ngFor="let col of visibleColumns; let first = first"
+             class="tw-table-cell tw-align-middle tw-px-4 tw-py-2">
+
+          <!-- Othmani text with left accent bar + highlighting -->
+          <ng-container *ngIf="isOthmaniCol(col)">
+            <div class="tw-flex tw-items-start tw-gap-2 tw-py-1">
+              <div class="tw-w-0.5 tw-self-stretch tw-bg-mainColor tw-rounded-md tw-shrink-0
+                          group-hover:tw-bg-opacity-70"></div>
+              <p class="tw-mb-0 tw-max-w-[420px] tw-whitespace-break-spaces tw-leading-8
+                        tw-text-right tw-text-base"
+                 dir="rtl"
+                 [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
+              <div class="tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity
+                          tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-shrink-0 tw-self-center tw-mr-auto">
+                <span class="tw-text-mainColor tw-text-base tw-leading-none">←</span>
+                <span class="tw-text-gray-400 tw-text-[9px] tw-leading-none tw-whitespace-nowrap">
+                  ص {{ item.data?.nOFPage }}
+                </span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Plain text column with optional highlighting -->
+          <ng-container *ngIf="isTextCol(col)">
+            <p class="tw-mb-0 tw-max-w-[320px] tw-whitespace-break-spaces tw-leading-7
+                      tw-text-sm tw-text-gray-700 tw-text-right"
+               dir="rtl"
+               [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
+          </ng-container>
+
+          <!-- Badge (number / short value) -->
+          <ng-container *ngIf="isBadgeCol(col)">
+            <span class="tw-inline-flex tw-items-center tw-justify-center
+                         tw-min-w-[28px] tw-h-7 tw-px-2
+                         tw-border tw-border-gray-200 tw-rounded
+                         tw-text-xs tw-font-bold tw-text-gray-600">
+              {{ getCellValue(item, col) }}
+            </span>
+          </ng-container>
+
+          <!-- Plain text (sura name, rub, hezb labels etc.) -->
+          <ng-container *ngIf="!isOthmaniCol(col) && !isTextCol(col) && !isBadgeCol(col)">
+            <span class="tw-text-sm tw-text-gray-700">{{ getCellValue(item, col) }}</span>
+          </ng-container>
+
+        </div>
+      </div>
+    </ng-container>
+
+  </section>
+
+  <!-- No columns selected -->
+  <div *ngIf="visibleColumns.length === 0 && originalData.length > 0"
+       class="tw-text-center tw-py-12 tw-text-gray-400 tw-text-sm">
+    <p class="tw-text-2xl tw-mb-2">📊</p>
+    لم تختر أي أعمدة — اضبط الإعدادات لعرض النتائج
+  </div>
+
+  <app-no-results *ngIf="selectedData?.data?.length == 0 && originalData.length > 0"></app-no-results>
 </div>
