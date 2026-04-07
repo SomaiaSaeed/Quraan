@@ -460,9 +460,8 @@ private renderPage(page: number): void {
       }
 
       this.colorsRendered = true;
-      this.buildAllMushafLines();
 
-      // Now render the current page properly (motashabehat side boxes)
+      // Render current page only — other pages build on demand when navigated to
       this.renderPage(this.pageNumber);
     });
 
@@ -470,7 +469,8 @@ private renderPage(page: number): void {
       this._http.get<any[]>(QuranPagesWithLinesURL).subscribe((data) => {
         this._pagesWithLines = data;
         if (this.colorsRendered) {
-          this.buildAllMushafLines();
+          // Only build current page — avoid pre-building stale mushafLines for all pages
+          this.buildMushafLinesForCurrentPage();
         }
       });
     }
