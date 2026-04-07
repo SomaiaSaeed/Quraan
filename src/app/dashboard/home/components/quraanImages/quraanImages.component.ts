@@ -612,7 +612,7 @@ private renderPage(page: number): void {
 
         this._quranInJson.forEach((sura: any) => {
           sura.aya.forEach((aya: any) => {
-            if (aya.text_without_tashkeel.startsWith(this.searchWord)) {
+            if (aya.text_without_tashkeel === this.searchWord || aya.text_without_tashkeel.startsWith(this.searchWord + ' ')) {
               this.x.push({
                 id: ayaInPage.id,
                 errorFactor: ayaInPage.errorFactor,
