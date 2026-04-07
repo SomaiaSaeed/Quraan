@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DataSharingService, ALL_COLUMNS, ColumnDef } from '../../services/data-sharing.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ArabicNormalizerService } from 'src/app/core/services/arabic-normalizer.service';
 
 interface SuraGroup {
   name: string;
@@ -35,14 +36,12 @@ export class SearchTableComponent implements OnInit {
   viewMode: 'flat' | 'grouped' = 'flat';
 
   // ── pagination ────────────────────────────────────────────────────────────
-  pageSize: number = 50;
+  pageSize: number = 20;
   currentPage: number = 1;
-  readonly pageSizeOptions = [25, 50, 100, 200];
+  readonly pageSizeOptions = [20, 50, 100, 200];
 
   // ── grouped view ──────────────────────────────────────────────────────────
   collapsedSuras = new Set<string>();
-
-  // ── export ────────────────────────────────────────────────────────────────
 
   // ── internal display cache ────────────────────────────────────────────────
   private _displayData: any[] = [];
@@ -51,7 +50,8 @@ export class SearchTableComponent implements OnInit {
     private dataSharingService: DataSharingService,
     private cdr: ChangeDetectorRef,
     private sanitizer: DomSanitizer,
-    private router: Router
+    private router: Router,
+    private normalizer: ArabicNormalizerService   // Issue 9 – shared normaliser
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +63,7 @@ export class SearchTableComponent implements OnInit {
       const suraMap = new Map<string, number>();
       this.originalData.forEach(item => {
         const name = item.data?.Sura_Name;
-        const num  = parseInt(item.data?.nOFSura);
+        const num  = parseInt(item.data?.nOFSura ?? '0', 10);  // Bug 7 – radix + null guard
         if (name && !suraMap.has(name)) suraMap.set(name, num);
       });
       this.suraOptions = Array.from(suraMap.entries())
@@ -107,8 +107,7 @@ export class SearchTableComponent implements OnInit {
   }
 
   onInnerQueryChange(): void {
-    this.currentPage = 1;
-    this.updateDisplayData();
+    this.updateDisplayData(); // currentPage reset happens inside updateDisplayData (Bug 3)
   }
 
   onViewModeChange(mode: 'flat' | 'grouped'): void {
@@ -117,7 +116,7 @@ export class SearchTableComponent implements OnInit {
   }
 
   onPageSizeChange(event: any): void {
-    this.pageSize = parseInt(event.target.value);
+    this.pageSize = parseInt(event.target.value, 10);
     this.currentPage = 1;
     this.cdr.detectChanges();
   }
@@ -128,10 +127,10 @@ export class SearchTableComponent implements OnInit {
     let data = [...this.originalData];
 
     if (this.contentMode === 'startOfAyah') {
-      const query = this.stripTashkeel(this.searchQuery?.trim() || '');
+      const query = this.normalizer.strip(this.searchQuery?.trim() || '');
       if (query) {
         data = data.filter(item => {
-          const text = this.stripTashkeel(item.data?.AyaText?.trim() || '');
+          const text = this.normalizer.strip(item.data?.AyaText?.trim() || '');
           return text.startsWith(query);
         });
       }
@@ -141,15 +140,15 @@ export class SearchTableComponent implements OnInit {
 
     if (this.suraOrder === 'mushafOrder') {
       data.sort((a, b) => {
-        const suraDiff = parseInt(a.data?.nOFSura) - parseInt(b.data?.nOFSura);
-        return suraDiff !== 0 ? suraDiff : parseInt(a.data?.Aya_N) - parseInt(b.data?.Aya_N);
+        const suraDiff = parseInt(a.data?.nOFSura ?? '0', 10) - parseInt(b.data?.nOFSura ?? '0', 10);
+        return suraDiff !== 0 ? suraDiff : parseInt(a.data?.Aya_N ?? '0', 10) - parseInt(b.data?.Aya_N ?? '0', 10);
       });
     } else {
       data.sort((a, b) => {
         const nameA = a.data?.Sura_Name?.trim() || '';
         const nameB = b.data?.Sura_Name?.trim() || '';
         const diff  = nameA.localeCompare(nameB, 'ar');
-        return diff !== 0 ? diff : parseInt(a.data?.Aya_N) - parseInt(b.data?.Aya_N);
+        return diff !== 0 ? diff : parseInt(a.data?.Aya_N ?? '0', 10) - parseInt(b.data?.Aya_N ?? '0', 10);
       });
     }
 
@@ -157,22 +156,25 @@ export class SearchTableComponent implements OnInit {
     this.updateDisplayData();
   }
 
+  // Bug 3 fix: always reset currentPage here so every caller (applyFilters + onInnerQueryChange)
+  // lands back on page 1 instead of showing a blank page.
   private updateDisplayData(): void {
     const base = this.selectedData?.data ?? [];
-    const q = this.innerQuery?.trim();
+    const q    = this.innerQuery?.trim();
 
     if (!q) {
       this._displayData = base;
     } else {
-      const qFull   = this.stripTashkeel(q);
-      const qSimple = this.stripTashkeelSimple(q);
+      const qFull   = this.normalizer.strip(q);
+      const qSimple = this.normalizer.stripSimple(q);
       this._displayData = base.filter(item => {
         const text = item.data?.AyaText_Othmani || item.data?.AyaText || '';
-        return this.stripTashkeel(text).includes(qFull) ||
-               this.stripTashkeelSimple(text).includes(qSimple);
+        return this.normalizer.strip(text).includes(qFull) ||
+               this.normalizer.stripSimple(text).includes(qSimple);
       });
     }
 
+    this.currentPage = 1;  // Bug 3 fix
     this.cdr.detectChanges();
   }
 
@@ -193,11 +195,8 @@ export class SearchTableComponent implements OnInit {
     const pages: number[] = [];
     const delta = 2;
     for (let i = 1; i <= total; i++) {
-      if (i === 1 || i === total || (i >= cur - delta && i <= cur + delta)) {
-        pages.push(i);
-      }
+      if (i === 1 || i === total || (i >= cur - delta && i <= cur + delta)) pages.push(i);
     }
-    // Insert ellipsis markers as -1
     const result: number[] = [];
     for (let i = 0; i < pages.length; i++) {
       if (i > 0 && pages[i] - pages[i - 1] > 1) result.push(-1);
@@ -206,29 +205,34 @@ export class SearchTableComponent implements OnInit {
     return result;
   }
 
-  prevPage(): void { if (this.currentPage > 1) { this.currentPage--; this.cdr.detectChanges(); } }
+  prevPage(): void { if (this.currentPage > 1)              { this.currentPage--; this.cdr.detectChanges(); } }
   nextPage(): void { if (this.currentPage < this.totalPages) { this.currentPage++; this.cdr.detectChanges(); } }
   goToPage(n: number): void { if (n >= 1 && n <= this.totalPages) { this.currentPage = n; this.cdr.detectChanges(); } }
 
-  // ── grouped view helpers ───────────────────────────────────────────────────
+  // ── trackBy helpers (Issue 16) ─────────────────────────────────────────────
+
+  trackByItem(_: number, item: any): any    { return item.data?.id ?? _; }
+  trackByGroup(_: number, g: SuraGroup): string { return g.name; }
+
+  // ── grouped view ───────────────────────────────────────────────────────────
 
   get groupedData(): SuraGroup[] {
     const map = new Map<string, SuraGroup>();
     for (const item of this._displayData) {
-      const name = item.data?.Sura_Name || '';
-      const num  = parseInt(item.data?.nOFSura) || 0;
+      const name = (item.data?.Sura_Name || '').trim() || '—';
+      const num  = parseInt(item.data?.nOFSura ?? '0', 10) || 0;  // Bug 7 fix
       if (!map.has(name)) map.set(name, { name, suraNum: num, items: [] });
       map.get(name)!.items.push(item);
     }
-    return Array.from(map.values()).sort((a, b) => {
-      if (this.suraOrder === 'mushafOrder') return a.suraNum - b.suraNum;
-      return a.name.localeCompare(b.name, 'ar');
-    });
+    return Array.from(map.values()).sort((a, b) =>
+      this.suraOrder === 'mushafOrder'
+        ? a.suraNum - b.suraNum
+        : a.name.localeCompare(b.name, 'ar')
+    );
   }
 
   toggleSuraGroup(name: string): void {
-    if (this.collapsedSuras.has(name)) this.collapsedSuras.delete(name);
-    else this.collapsedSuras.add(name);
+    this.collapsedSuras.has(name) ? this.collapsedSuras.delete(name) : this.collapsedSuras.add(name);
     this.cdr.detectChanges();
   }
 
@@ -246,18 +250,35 @@ export class SearchTableComponent implements OnInit {
     this.router.navigateByUrl('/home');
   }
 
-  // ── export ────────────────────────────────────────────────────────────────
+  // ── export helpers ────────────────────────────────────────────────────────
+
+  /** Bug 4 fix: escape HTML special chars before injecting into export markup. */
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private exportCols(): ColumnDef[] {
+    return this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
+  }
 
   exportCSV(): void {
-    const cols = this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
+    const cols   = this.exportCols();
     const header = cols.map(c => c.label).join(',');
-    const rows = this._displayData.map(item =>
+    const rows   = this._displayData.map(item =>
       cols.map(c => {
-        const val = String(item.data?.[c.key] ?? '').replace(/"/g, '""');
+        const val = String(item.data?.[c.key] ?? '')
+          .replace(/"/g, '""')   // escape quotes
+          .replace(/\n/g, ' ')   // Issue 10: escape newlines
+          .replace(/\r/g, '');
         return `"${val}"`;
       }).join(',')
     );
-    const csv = '\uFEFF' + [header, ...rows].join('\n'); // BOM for Arabic in Excel
+    const csv  = '\uFEFF' + [header, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
@@ -268,26 +289,32 @@ export class SearchTableComponent implements OnInit {
   }
 
   exportWord(): void {
-    const cols = this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
-    const headerRow = cols.map(c => `<th style="border:1px solid #ccc;padding:6px 10px;background:#f0f0f0;font-weight:bold;">${c.label}</th>`).join('');
+    const cols      = this.exportCols();
+    const headerRow = cols.map(c =>
+      `<th style="border:1px solid #ccc;padding:6px 10px;background:#f0f0f0;font-weight:bold;">${this.escapeHtml(c.label)}</th>`
+    ).join('');
     const bodyRows  = this._displayData.map(item => {
-      const cells = cols.map(c => `<td style="border:1px solid #ccc;padding:6px 10px;">${item.data?.[c.key] ?? ''}</td>`).join('');
+      const cells = cols.map(c =>
+        `<td style="border:1px solid #ccc;padding:6px 10px;">${this.escapeHtml(String(item.data?.[c.key] ?? ''))}</td>`
+      ).join('');
       return `<tr>${cells}</tr>`;
     }).join('');
 
+    // Issue 13 fix: add dir="rtl" lang="ar" on html tag so Word renders RTL correctly
     const html = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office"
+      <html dir="rtl" lang="ar"
+            xmlns:o="urn:schemas-microsoft-com:office:office"
             xmlns:w="urn:schemas-microsoft-com:office:word"
             xmlns="http://www.w3.org/TR/REC-html40">
       <head><meta charset="utf-8">
         <style>
-          body { font-family: "Traditional Arabic", Arial, sans-serif; direction: rtl; }
+          body  { font-family: "Traditional Arabic", Arial, sans-serif; direction: rtl; }
           table { border-collapse: collapse; width: 100%; }
           th, td { text-align: right; }
         </style>
       </head>
       <body>
-        <h3 style="margin-bottom:12px;">نتائج البحث: ${this.searchQuery} (${this._displayData.length} آية)</h3>
+        <h3 style="margin-bottom:12px;">نتائج البحث: ${this.escapeHtml(this.searchQuery)} (${this._displayData.length} آية)</h3>
         <table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>
       </body></html>`;
 
@@ -301,25 +328,25 @@ export class SearchTableComponent implements OnInit {
   }
 
   exportPDF(): void {
-    const cols = this.visibleColumns.length > 0 ? this.visibleColumns : ALL_COLUMNS.filter(c => c.isDefault);
-    const headerRow = cols.map(c => `<th>${c.label}</th>`).join('');
+    const cols      = this.exportCols();
+    const headerRow = cols.map(c => `<th>${this.escapeHtml(c.label)}</th>`).join('');
     const bodyRows  = this._displayData.map(item => {
-      const cells = cols.map(c => `<td>${item.data?.[c.key] ?? ''}</td>`).join('');
+      const cells = cols.map(c => `<td>${this.escapeHtml(String(item.data?.[c.key] ?? ''))}</td>`).join('');
       return `<tr>${cells}</tr>`;
     }).join('');
 
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    const html = `<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
       <style>
         @page { size: A4 landscape; margin: 15mm; }
-        body { font-family: "Traditional Arabic", Arial, sans-serif; direction: rtl; font-size: 12px; }
-        h3   { margin-bottom: 10px; font-size: 14px; }
+        body  { font-family: "Traditional Arabic", Arial, sans-serif; direction: rtl; font-size: 12px; }
+        h3    { margin-bottom: 10px; font-size: 14px; }
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #bbb; padding: 5px 8px; text-align: right; }
         th { background: #f0f0f0; font-weight: bold; }
         tr:nth-child(even) { background: #fafafa; }
       </style>
     </head><body>
-      <h3>نتائج البحث: ${this.searchQuery} (${this._displayData.length} آية)</h3>
+      <h3>نتائج البحث: ${this.escapeHtml(this.searchQuery)} (${this._displayData.length} آية)</h3>
       <table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>
     </body></html>`;
 
@@ -332,15 +359,13 @@ export class SearchTableComponent implements OnInit {
     iframe.contentWindow!.focus();
     setTimeout(() => {
       iframe.contentWindow!.print();
-      setTimeout(() => document.body.removeChild(iframe), 1000);
+      setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000);
     }, 500);
   }
 
   // ── cell rendering helpers ─────────────────────────────────────────────────
 
-  getCellValue(item: any, col: ColumnDef): string {
-    return item.data?.[col.key] ?? '';
-  }
+  getCellValue(item: any, col: ColumnDef): string { return item.data?.[col.key] ?? ''; }
 
   isOthmaniCol(col: ColumnDef): boolean { return col.type === 'othmani'; }
   isTextCol(col: ColumnDef): boolean    { return col.type === 'text'; }
@@ -348,37 +373,19 @@ export class SearchTableComponent implements OnInit {
 
   // ── text helpers ───────────────────────────────────────────────────────────
 
-  private stripTashkeel(text: string): string {
-    return text
-      .replace(/[\u064B-\u065F]/g, '')              // tashkeel: tanwin, kasra, fatha, damma, shadda, sukun … (U+064B–U+065F)
-      .replace(/\u0670/g, '\u0627')                 // superscript alef ٰ  → ا  (e.g. ٱلرَّحْمَٰنِ → الرحمان)
-      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا  (Othmani word-start alef)
-      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي  (final yeh without dots)
-      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
-      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed (Arabic elongation stroke)
-  }
-
-  private stripTashkeelSimple(text: string): string {
-    return text
-      .replace(/[\u064B-\u065F\u0670]/g, '')        // tashkeel (U+064B–U+065F) + superscript alef ٰ (U+0670) — all stripped, NOT replaced (keeps الرحمن as-is)
-      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا
-      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي
-      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
-      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed
-  }
-
   highlightText(text: string, search: string): SafeHtml {
     if (!search?.trim() || !text) return text || '';
 
     const effectiveSearch = this.innerQuery?.trim() || search;
-    const queryFull   = this.stripTashkeel(effectiveSearch.trim()).split(' ').filter(w => w);
-    const querySimple = this.stripTashkeelSimple(effectiveSearch.trim()).split(' ').filter(w => w);
+    const queryFull   = this.normalizer.strip(effectiveSearch.trim()).split(' ').filter(w => w);
+    const querySimple = this.normalizer.stripSimple(effectiveSearch.trim()).split(' ').filter(w => w);
 
     const highlighted = text.split(' ').map(word => {
-      const sf = this.stripTashkeel(word);
-      const ss = this.stripTashkeelSimple(word);
+      const sf = this.normalizer.strip(word);
+      const ss = this.normalizer.stripSimple(word);
       const matches = queryFull.some(q => sf.includes(q)) || querySimple.some(q => ss.includes(q));
-      return matches ? `<span class="highlight">${word}</span>` : word;
+      // Issue 15 fix: add dir="rtl" so bidi algorithm doesn't reorder highlighted chars
+      return matches ? `<span class="highlight" dir="rtl">${word}</span>` : word;
     }).join(' ');
 
     return this.sanitizer.bypassSecurityTrustHtml(highlighted);

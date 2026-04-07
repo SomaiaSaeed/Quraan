@@ -1,9 +1,13 @@
-import { Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
+import { Subject } from "rxjs";
+import { debounceTime, takeUntil } from "rxjs/operators";
 import { Search } from "src/app/core/services/search.service";
 import { ListenService } from "src/app/dashboard/listen/services/listen.service";
 import { DataSharingService, ALL_COLUMNS, ColumnDef } from "../../services/data-sharing.service";
 import { MatDialog } from "@angular/material/dialog";
+import { ArabicNormalizerService } from "src/app/core/services/arabic-normalizer.service";
+import { SearchHistoryService } from "src/app/core/services/search-history.service";
 
 interface Track { data: string; }
 
@@ -12,7 +16,9 @@ interface Track { data: string; }
 	templateUrl: "./form.component.html",
 	styleUrls: ["./form.component.scss"],
 })
-export class FormComponent implements OnInit {
+export class FormComponent implements OnInit, OnDestroy {
+  private destroy$      = new Subject<void>();
+  private searchInput$  = new Subject<void>();
 	form: FormGroup;
 	searchInstance = new Search();
 	suraNames: string[] = [];
@@ -32,6 +38,11 @@ export class FormComponent implements OnInit {
 	exactMatch: boolean = false;
 	results: any[] = [];
 	isOpenForm: boolean = true;
+
+	// ── autocomplete / history ────────────────────────────────────────────────
+	autocompleteItems: { othmani: string; sura: string; aya: string }[] = [];
+	showDropdown = false;
+	isShowingHistory = false;
 	@ViewChild('searchResult', { static: true }) searchResult!: TemplateRef<any>;
 
 	// ── Columns multi-select ─────────────────────────────────────────────────
@@ -74,7 +85,14 @@ export class FormComponent implements OnInit {
 	get selectedColumnsCount(): number { return this.selectedColumnKeys.size; }
 
 
-	constructor(private fb: FormBuilder, private _listenService: ListenService, private dataSharingService: DataSharingService, public dialog: MatDialog) {
+	constructor(
+		private fb: FormBuilder,
+		private _listenService: ListenService,
+		private dataSharingService: DataSharingService,
+		public dialog: MatDialog,
+		private normalizer: ArabicNormalizerService,   // Issue 9 – shared normaliser
+		private historyService: SearchHistoryService    // Bug 5  – shared history
+	) {
 		this.form = this.fb.group({
 			suraFrom: [''],
 			ayaFrom: [''],
@@ -94,16 +112,18 @@ export class FormComponent implements OnInit {
 	ngOnInit(): void {
 		// this.testSearchWithTashkeel(); // uncomment to run tashkeel coverage test
 		this.getSuraNames();
+
+		// Issue 11 fix: wrap JSON.parse in try/catch — corrupted storage no longer crashes init
 		const savedData = localStorage.getItem('searchFormData');
 		if (savedData) {
-		  const formData = JSON.parse(savedData);
-		  // Build all option lists directly from saved values (no cascade dependency)
-		  this.restoreDropdownOptions(formData);
-		  // After one tick all <mat-option> lists are rendered — patch values
-		  setTimeout(() => {
-		    this.form.patchValue(formData);
-		  }, 0);
-		  this.isOpenForm = false;
+		  try {
+		    const formData = JSON.parse(savedData);
+		    this.restoreDropdownOptions(formData);
+		    setTimeout(() => { this.form.patchValue(formData); }, 0);
+		    this.isOpenForm = false;
+		  } catch {
+		    localStorage.removeItem('searchFormData');
+		  }
 		}
 
 		const savedExactMatch = localStorage.getItem('exactMatch');
@@ -111,8 +131,16 @@ export class FormComponent implements OnInit {
 		  this.exactMatch = savedExactMatch === 'true';
 		}
 
-		// Sync column selection from service (which already loaded from localStorage)
 		this.selectedColumnKeys = new Set(this.dataSharingService.currentColumns);
+
+		// Issue 8 fix: debounce autocomplete suggestions — avoids filtering 6000+ ayat on every keystroke
+		this.searchInput$.pipe(debounceTime(300), takeUntil(this.destroy$))
+		  .subscribe(() => this._performSearchInput());
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
 	}
 
 	getSuraNames() {
@@ -392,12 +420,12 @@ export class FormComponent implements OnInit {
 			return false;
 		});
 
-		const rubNumbers = [...new Set(filteredAyat.map(item => item.rub))];
+		// Issue 12 fix: sort by mushaf order (id) before deduplicating so indexOf/slice works correctly
+		const sorted = filteredAyat.sort((a: any, b: any) => Number(a.id) - Number(b.id));
+		this.rubList = [...new Set(sorted.map((item: any) => item.rub))];
 
-		this.rubList = rubNumbers
-
-		console.log('الأرباع الموجودة بين الاحزاب التي تم اختيارها:', rubNumbers);
-		return rubNumbers;
+		console.log('الأرباع الموجودة بين الاحزاب التي تم اختيارها:', this.rubList);
+		return this.rubList;
 	}
 
 	// عدد الصفحات بناء على الاربع الى تم اختيارها
@@ -525,34 +553,7 @@ export class FormComponent implements OnInit {
 		this.dialog.closeAll();
 	}
 
-	/**
-	 * Full normalization: replaces superscript alef (ٰ U+0670) with ا.
-	 * Use when matching against AyaText (which was generated with this rule)
-	 * or when the user pastes Othmani text.
-	 */
-	private stripTashkeel(text: string): string {
-		return text
-			.replace(/[\u064B-\u065F]/g, '')              // tashkeel: tanwin, kasra, fatha, damma, shadda, sukun … (U+064B–U+065F)
-			.replace(/\u0670/g, '\u0627')              // superscript alef ٰ  → ا  (e.g. ٱلرَّحْمَٰنِ → الرحمان)
-			.replace(/\u0671/g, '\u0627')              // alef wasla       ٱ  → ا  (Othmani word-start alef)
-			.replace(/\u0649/g, '\u064A')              // alef maqsura     ى  → ي  (final yeh without dots)
-			.replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
-			.replace(/\u0640/g, '');                   // kashida (tatweel) ـ  → removed (Arabic elongation stroke)
-	}
-
-	/**
-	 * Simplified normalization: strips superscript alef (ٰ U+0670) instead of
-	 * replacing it. Matches the common simplified spelling users type
-	 * (e.g. "الرحمن" not "الرحمان").
-	 */
-	private stripTashkeelSimple(text: string): string {
-		return text
-			.replace(/[\u064B-\u065F\u0670]/g, '')    // tashkeel (U+064B–U+065F) + superscript alef ٰ (U+0670) — all stripped, NOT replaced (keeps الرحمن as-is)
-			.replace(/\u0671/g, '\u0627')              // alef wasla       ٱ  → ا
-			.replace(/\u0649/g, '\u064A')              // alef maqsura     ى  → ي
-			.replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
-			.replace(/\u0640/g, '');                   // kashida (tatweel) ـ  → removed
-	}
+	// Issue 9 fix: stripTashkeel / stripTashkeelSimple removed — now delegated to ArabicNormalizerService
 
 	private getSearchPool(): any[] {
 		// Use in-memory dataAya if available (set by onSubmit this session)
@@ -566,19 +567,84 @@ export class FormComponent implements OnInit {
 		return this.searchInstance.table_othmani.map((item: any) => ({ data: item }));
 	}
 
+	// ── search bar autocomplete / history ─────────────────────────────────────
+
+	onSearchFocus(): void {
+		if (this.searchQuery?.trim()) return;
+		const history = this.historyService.items;  // Bug 5 – shared service
+		if (history.length > 0) {
+			this.isShowingHistory = true;
+			this.showDropdown = true;
+			this.autocompleteItems = history.map(w => ({ othmani: w, sura: '', aya: '' }));
+		}
+	}
+
+	onSearchBlur(): void {
+		setTimeout(() => { this.showDropdown = false; }, 200);
+	}
+
+	// Issue 8 fix: push to Subject so debounceTime(300) absorbs rapid keystrokes
+	onSearchInput(): void {
+		const word = this.searchQuery?.trim();
+		if (!word) {
+			this.autocompleteItems = [];
+			this.showDropdown = false;
+			this.isShowingHistory = false;
+			return;
+		}
+		this.isShowingHistory = false;
+		this.searchInput$.next();
+	}
+
+	private _performSearchInput(): void {
+		const word = this.searchQuery?.trim();
+		if (!word) return;
+		const pool    = this.getSearchPool();
+		const qFull   = this.normalizer.strip(word);
+		const qSimple = this.normalizer.stripSimple(word);
+		const matched = pool.filter((item: any) => {
+			const ayaText   = item.data?.AyaText || '';
+			const ayaSimple = this.normalizer.stripSimple((item.data?.AyaText_Othmani || '').trim());
+			return ayaText.includes(qFull) || ayaSimple.includes(qSimple);
+		});
+		this.autocompleteItems = matched.slice(0, 8).map((item: any) => ({
+			othmani: item.data?.AyaText_Othmani || '',
+			sura:    item.data?.Sura_Name || '',
+			aya:     item.data?.Aya_N || '',
+		}));
+		this.showDropdown = this.autocompleteItems.length > 0;
+	}
+
+	selectSuggestion(item: { othmani: string; sura: string; aya: string }): void {
+		if (this.isShowingHistory) {
+			this.searchQuery = item.othmani;
+			this.isShowingHistory = false;
+			this.onSearchInput();
+		} else {
+			this.searchQuery = item.othmani;
+			this.showDropdown = false;
+			this.onSearch();
+		}
+	}
+
+	removeHistoryItem(event: MouseEvent, word: string): void {
+		event.stopPropagation();
+		this.historyService.remove(word);   // Bug 5 – shared service
+		this.autocompleteItems = this.autocompleteItems.filter(i => i.othmani !== word);
+		if (this.autocompleteItems.length === 0) this.showDropdown = false;
+	}
+
 	onSearch(): void {
 		const dataArray = this.getSearchPool();
 
 		if (this.searchQuery && this.searchQuery.trim() !== '') {
-			// Two query forms to cover both Othmani paste (ٰ→ا) and typed simplified Arabic (ٰ stripped)
-			const query       = this.stripTashkeel(this.searchQuery.trim());
-			const querySimple = this.stripTashkeelSimple(this.searchQuery.trim());
+			const query       = this.normalizer.strip(this.searchQuery.trim());
+			const querySimple = this.normalizer.stripSimple(this.searchQuery.trim());
 
 			const searchResults = dataArray.filter((item: any) => {
-				// AyaText was generated with ٰ→ا so match query (full normalization)
-				const ayaText   = item.data.AyaText || '';
-				// AyaText_Othmani stripped with ٰ removed covers simplified typed queries
-				const ayaSimple = this.stripTashkeelSimple((item.data.AyaText_Othmani || '').trim());
+				// Bug 1 fix: use optional chaining — data may be null from corrupted localStorage
+				const ayaText   = item.data?.AyaText || '';
+				const ayaSimple = this.normalizer.stripSimple((item.data?.AyaText_Othmani || '').trim());
 
 				if (this.exactMatch) {
 					return ayaText.split(' ').some((w: string) => w === query) ||
@@ -588,6 +654,8 @@ export class FormComponent implements OnInit {
 				}
 			});
 
+			this.historyService.add(this.searchQuery);   // Bug 5 – use shared service
+			this.showDropdown = false;
 			this.dataSharingService.updateSelectedData(searchResults, this.searchQuery);
 			this.results = searchResults;
 		} else {
@@ -596,13 +664,15 @@ export class FormComponent implements OnInit {
 		}
 	}
 
+	// Bug 6 fix: was dead code (never called) with inverted logic; now a proper clear action
 	onClearSearch(): void {
-		if (!this.searchQuery || this.searchQuery.trim() === '') {
-		  this.results = [];
-		  this.dataSharingService.updateSelectedData([],'');
-		  console.log("Search query is empty, hiding table.");
-		}
-	  }
+		this.searchQuery = '';
+		this.autocompleteItems = [];
+		this.showDropdown = false;
+		this.isShowingHistory = false;
+		this.results = [];
+		this.dataSharingService.updateSelectedData([], '');
+	}
 
 	resetForm() {
 		this.form.reset();
@@ -628,10 +698,10 @@ export class FormComponent implements OnInit {
 			const plainText: string = aya.AyaText || '';
 
 			// Strip tashkeel from the Othmani version the same way onSearch() does
-			const strippedQuery = this.stripTashkeel(othmaniText.trim());
+			const strippedQuery = this.normalizer.strip(othmaniText.trim());
 
 			// The search checks if AyaText includes the stripped query
-			const found = this.stripTashkeel(plainText).includes(strippedQuery);
+			const found = this.normalizer.strip(plainText).includes(strippedQuery);
 
 			if (!found) {
 				failures.push({
