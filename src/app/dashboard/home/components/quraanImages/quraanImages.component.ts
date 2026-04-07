@@ -1312,7 +1312,13 @@ private renderPage(page: number): void {
         const to = isLastSegment ? words.length : Math.min(from + seg.wordPositions.length, words.length);
         consumed.set(seg.verseKey, to);
 
-        if (from >= words.length) return;
+        if (from >= words.length) {
+          // All words consumed — this slot is the aya-end ornament position
+          if (isLastSegment) {
+            lineSegments.push({ aya, lineText: '', lineColoredWords: [], isAyaEnd: true });
+          }
+          return;
+        }
 
         const lineWords = words.slice(from, to);
         const lineColoredWords = lineWords.map((w: string, i: number) => ({
