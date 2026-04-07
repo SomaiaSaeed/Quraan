@@ -43,13 +43,42 @@
       </span>
     </div>
 
-    <!-- Search input -->
-    <div class="search-bar">
+    <!-- Search input with autocomplete -->
+    <div class="search-bar" style="position:relative;">
       <input type="text" [(ngModel)]="searchQuery"
-             (keyup.enter)="onSearch()" (keyup)="onClearSearch()"
+             (ngModelChange)="onSearchInput()"
+             (focus)="onSearchFocus()"
+             (blur)="onSearchBlur()"
+             (keyup.enter)="onSearch(); showDropdown=false"
              placeholder="ابحث في النطاق المحدد..."
-             class="search-field" />
-      <button type="button" (click)="onSearch()" class="btn-search">بحـث</button>
+             class="search-field"
+             autocomplete="off" />
+      <button type="button" (click)="onSearch(); showDropdown=false" class="btn-search">بحـث</button>
+
+      <!-- Dropdown -->
+      <div class="ac-dropdown" *ngIf="showDropdown && autocompleteItems.length > 0">
+
+        <!-- History header -->
+        <div class="ac-section-header" *ngIf="isShowingHistory">
+          <span>آخر عمليات البحث</span>
+        </div>
+
+        <!-- Items -->
+        <div class="ac-item"
+             *ngFor="let item of autocompleteItems"
+             (mousedown)="selectSuggestion(item)">
+          <div class="ac-item-main" dir="rtl">{{ item.othmani }}</div>
+          <div class="ac-item-meta" *ngIf="!isShowingHistory">
+            <span class="ac-sura">{{ item.sura }}</span>
+            <span class="ac-aya">{{ item.aya }}</span>
+          </div>
+          <button class="ac-remove"
+                  *ngIf="isShowingHistory"
+                  (mousedown)="removeHistoryItem($event, item.othmani)"
+                  title="حذف">✕</button>
+        </div>
+
+      </div>
     </div>
 
   </ng-container>
@@ -287,13 +316,14 @@
 
       <!-- ── Actions ─────────────────────────────────────────────────── -->
       <div class="actions-bar">
-        <label class="exact-toggle">
-          <input type="checkbox" [(ngModel)]="exactMatch" [ngModelOptions]="{standalone: true}" />
-          <span class="toggle-track">
-            <span class="toggle-thumb"></span>
+        <div class="exact-toggle" (click)="exactMatch = !exactMatch">
+          <span class="toggle-track"
+                [style.background]="exactMatch ? '#94A684' : '#d1d5db'">
+            <span class="toggle-thumb"
+                  [style.right]="exactMatch ? 'calc(100% - 19px)' : '3px'"></span>
           </span>
           <span class="toggle-text">متطابق تماماً</span>
-        </label>
+        </div>
 
         <div class="btn-group">
           <button type="button" (click)="resetForm()" class="btn btn--ghost">

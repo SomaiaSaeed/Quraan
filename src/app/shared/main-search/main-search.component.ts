@@ -1,9 +1,13 @@
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
+import { Subject } from "rxjs";
+import { debounceTime, takeUntil } from "rxjs/operators";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { DataSharingService } from "src/app/dashboard/search/services/data-sharing.service";
 import { Search } from "src/app/core/services/search.service";
-// MatAutocomplete replaced by custom dropdown panel
+import { ArabicNormalizerService } from "src/app/core/services/arabic-normalizer.service";
+import { SearchHistoryService } from "src/app/core/services/search-history.service";
 
 export interface SearchResultItem {
   othmani: string;
@@ -17,7 +21,7 @@ export interface SearchResultItem {
   templateUrl: "./main-search.component.html",
   styleUrls: ["./main-search.component.scss"],
 })
-export class MainSearchComponent implements OnInit {
+export class MainSearchComponent implements OnInit, OnDestroy {
   @ViewChild("searchResult", { static: true }) searchResult: ElementRef | any;
 
   /** Othmani strings shown in the popup (first 5) */
@@ -36,37 +40,31 @@ export class MainSearchComponent implements OnInit {
 
   private searchInstance = new Search();
 
+  // Issue 8 fix: debounce so 6000-aya filter doesn't run on every keystroke
+  private inputSubject = new Subject<string>();
+  private destroy$     = new Subject<void>();
+
   constructor(
     private _router: Router,
     public dialog: MatDialog,
-    private dataSharingService: DataSharingService
+    private dataSharingService: DataSharingService,
+    private normalizer: ArabicNormalizerService,    // Issue 9 – shared normaliser
+    private historyService: SearchHistoryService,   // Bug 5  – shared history
+    private sanitizer: DomSanitizer
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.inputSubject.pipe(debounceTime(250), takeUntil(this.destroy$))
+      .subscribe(value => this._performSearch(value));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   get hasText(): boolean {
     return !!this.searchWord?.trim();
-  }
-
-  // ── normalization ──────────────────────────────────────────────────────────
-
-  private stripTashkeel(text: string): string {
-    return text
-      .replace(/[\u064B-\u065F]/g, '')              // tashkeel: tanwin, kasra, fatha, damma, shadda, sukun … (U+064B–U+065F)
-      .replace(/\u0670/g, '\u0627')                 // superscript alef ٰ  → ا  (e.g. ٱلرَّحْمَٰنِ → الرحمان)
-      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا  (Othmani word-start alef)
-      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي  (final yeh without dots)
-      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
-      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed (Arabic elongation stroke)
-  }
-
-  private stripTashkeelSimple(text: string): string {
-    return text
-      .replace(/[\u064B-\u065F\u0670]/g, '')        // tashkeel (U+064B–U+065F) + superscript alef ٰ (U+0670) — all stripped, NOT replaced (keeps الرحمن as-is)
-      .replace(/\u0671/g, '\u0627')                 // alef wasla       ٱ  → ا
-      .replace(/\u0649/g, '\u064A')                 // alef maqsura     ى  → ي
-      .replace(/[\u06DF\u06E0\u06E2\u06E5\u06E6\u06E8\u06EA\u06EB\u06EC\u06ED\u06DC]/g, '') // Quranic annotation marks: ۟(06DF) ۠(06E0) ۢ(06E2) ۥ(06E5) ۦ(06E6) ۨ(06E8) ۪(06EA) ۫(06EB) ۬(06EC) ۭ(06ED) ۜ(06DC)
-      .replace(/\u0640/g, '');                      // kashida (tatweel) ـ  → removed
   }
 
   // ── search ─────────────────────────────────────────────────────────────────
@@ -87,44 +85,48 @@ export class MainSearchComponent implements OnInit {
     this.isLoading = true;
     this.isShowingHistory = false;
     this.showDropdown = true;
+    this.inputSubject.next(value);  // debounced
+  }
 
-    const query       = this.stripTashkeel(word);
-    const querySimple = this.stripTashkeelSimple(word);
+  private _performSearch(value: string): void {
+    const word = value?.trim();
+    if (!word) return;
 
-    const all = this.searchInstance.table_othmani;
+    const query       = this.normalizer.strip(word);
+    const querySimple = this.normalizer.stripSimple(word);
+
+    const all     = this.searchInstance.table_othmani;
     const matched = all.filter((aya: any) => {
       const ayaText   = aya.AyaText || '';
-      const ayaSimple = this.stripTashkeelSimple((aya.AyaText_Othmani || '').trim());
+      const ayaSimple = this.normalizer.stripSimple((aya.AyaText_Othmani || '').trim());
       return ayaText.includes(query) || ayaSimple.includes(querySimple);
     });
 
     this.searchResults = matched.map((aya: any) => ({ data: aya }));
-    this.results = matched.slice(0, 5).map((aya: any) => aya.AyaText_Othmani);
+    this.results       = matched.slice(0, 5).map((aya: any) => aya.AyaText_Othmani);
     this.autocompleteItems = matched.slice(0, 8).map((aya: any) => ({
       othmani: aya.AyaText_Othmani,
-      sura: aya.Sura_Name,
-      aya: aya.Aya_N,
-      data: aya,
+      sura:    aya.Sura_Name,
+      aya:     aya.Aya_N,
+      data:    aya,
     }));
     this.isLoading = false;
   }
 
   onFocus(): void {
-    if (this.searchWord?.trim()) return; // already has text — keep current results
+    if (this.searchWord?.trim()) return;
 
-    const history = this.getSearchHistory();
+    const history = this.historyService.items;  // Bug 5 – shared service
     if (history.length > 0) {
       this.isShowingHistory = true;
       this.showDropdown = true;
-      // most-recent first, reuse autocompleteItems slot for history strings
-      this.autocompleteItems = history.slice().reverse().map(w => ({
+      this.autocompleteItems = history.map(w => ({
         othmani: w, sura: '', aya: '', data: null
       }));
     }
   }
 
   onBlur(): void {
-    // Delay hiding so click events on dropdown items still fire
     setTimeout(() => { this.showDropdown = false; }, 200);
   }
 
@@ -154,8 +156,7 @@ export class MainSearchComponent implements OnInit {
 
   removeHistoryItem(event: MouseEvent, word: string): void {
     event.stopPropagation();
-    const history = this.getSearchHistory().filter(w => w !== word);
-    localStorage.setItem('searchHistory', JSON.stringify(history));
+    this.historyService.remove(word);  // Bug 5 – shared service
     this.autocompleteItems = this.autocompleteItems.filter(i => i.othmani !== word);
     if (this.autocompleteItems.length === 0) this.showDropdown = false;
   }
@@ -165,11 +166,11 @@ export class MainSearchComponent implements OnInit {
   openSearchResult(inp?: HTMLInputElement): void {
     if (!this.searchWord?.trim()) return;
     if (inp) this.onInput(inp.value);
-    this.saveToHistory(this.searchWord);
+    this.historyService.add(this.searchWord);  // Bug 5 – shared service
     this.showDropdown = false;
 
     this.dialog.open(this.searchResult, {
-      width: "520px",
+      width: "380px",
       panelClass: "popup-center",
     });
   }
@@ -179,30 +180,22 @@ export class MainSearchComponent implements OnInit {
   }
 
   displayResults(): void {
-    this.saveToHistory(this.searchWord);
+    this.historyService.add(this.searchWord);  // Bug 5 – shared service
     this.closeDialog();
     this.dataSharingService.updateSelectedData(this.searchResults, this.searchWord);
     this._router.navigateByUrl("/search");
   }
 
-  // ── history helpers ────────────────────────────────────────────────────────
-
-  private getSearchHistory(): string[] {
-    try {
-      const stored = localStorage.getItem('searchHistory');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private saveToHistory(word: string): void {
-    if (!word?.trim()) return;
-    const history = this.getSearchHistory();
-    const idx = history.indexOf(word);
-    if (idx !== -1) history.splice(idx, 1);
-    history.push(word);
-    if (history.length > 10) history.shift();
-    localStorage.setItem('searchHistory', JSON.stringify(history));
+  highlightText(text: string): SafeHtml {
+    if (!text || !this.searchWord?.trim()) return text || '';
+    const queryFull   = this.normalizer.strip(this.searchWord.trim()).split(' ').filter(w => w);
+    const querySimple = this.normalizer.stripSimple(this.searchWord.trim()).split(' ').filter(w => w);
+    const highlighted = text.split(' ').map(word => {
+      const sf = this.normalizer.strip(word);
+      const ss = this.normalizer.stripSimple(word);
+      const matches = queryFull.some(q => sf.includes(q)) || querySimple.some(q => ss.includes(q));
+      return matches ? `<span class="hw">${word}</span>` : word;
+    }).join(' ');
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
   }
 }

@@ -544,11 +544,6 @@ $radius: 8px;
     }
   }
 
-  input:checked ~ .toggle-track {
-    background: $main;
-
-    .toggle-thumb { right: calc(100% - 19px); }
-  }
 
   .toggle-text {
     font-size: 13px;
@@ -591,4 +586,89 @@ $radius: 8px;
       color: $text;
     }
   }
+}
+
+// ── Autocomplete dropdown ──────────────────────────────────────────────────
+.ac-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  background: #fff;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  z-index: 200;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.ac-section-header {
+  padding: 6px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: $hint;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid $border;
+}
+
+.ac-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+
+  &:not(:last-child) { border-bottom: 1px solid lighten($border, 3%); }
+  &:hover { background: lighten($second, 4%); }
+}
+
+.ac-item-main {
+  flex: 1;
+  font-size: 13px;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.6;
+}
+
+.ac-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ac-sura {
+  font-size: 10px;
+  color: $gray;
+  background: lighten($second, 2%);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.ac-aya {
+  font-size: 10px;
+  font-weight: 700;
+  color: $main;
+  background: lighten($main, 42%);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.ac-remove {
+  background: none;
+  border: none;
+  color: $hint;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 3px;
+  flex-shrink: 0;
+
+  &:hover { color: #ef4444; background: #fee2e2; }
 }

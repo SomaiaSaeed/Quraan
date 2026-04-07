@@ -94,10 +94,10 @@
 
 <!-- Popup -->
 <ng-template #searchResult>
-  <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
+  <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-2 tw-mb-3">
     <div>
-      <h2 class="tw-mb-0 tw-text-base">نتائج البحث</h2>
-      <p class="tw-text-xs tw-text-gray-400 tw-mb-0 tw-mt-0.5">{{ searchResults.length }} نتيجة</p>
+      <h2 class="tw-mb-0 tw-text-sm tw-font-bold">نتائج البحث</h2>
+      <p class="tw-text-[10px] tw-text-gray-400 tw-mb-0 tw-mt-0.5">{{ searchResults.length }} نتيجة</p>
     </div>
     <button title="close" (click)="closeDialog()" mat-flat-button
       class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
@@ -107,23 +107,31 @@
     </button>
   </header>
   <main>
-    <ul class="tw-space-y-3 tw-p-0 tw-list-none">
-      <li *ngFor="let aya of results; let i = index"
-          class="tw-flex tw-items-start tw-gap-3 tw-pb-3 tw-border-b tw-border-gray-100 last:tw-border-0"
+    <ul class="tw-space-y-0 tw-p-0 tw-list-none">
+      <li *ngFor="let item of autocompleteItems | slice:0:5; let i = index"
+          class="tw-flex tw-items-center tw-gap-2 tw-py-2 tw-px-1 tw-border-b tw-border-gray-100 last:tw-border-0"
           dir="rtl">
-        <span class="tw-shrink-0 tw-w-6 tw-h-6 tw-rounded-full tw-bg-secondColor tw-text-mainColor
-                     tw-text-xs tw-font-bold tw-flex tw-items-center tw-justify-center">
+        <span class="tw-shrink-0 tw-w-5 tw-h-5 tw-rounded-full tw-bg-secondColor tw-text-mainColor
+                     tw-text-[10px] tw-font-bold tw-flex tw-items-center tw-justify-center">
           {{ i + 1 }}
         </span>
-        <span class="tw-text-sm tw-leading-7 tw-font-[uthmanic_hafs_v20]">{{ aya }}</span>
+        <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0">
+          <span class="tw-text-sm tw-leading-6 tw-font-[uthmanic_hafs_v20] tw-truncate"
+                [innerHTML]="highlightText(item.othmani)"></span>
+          <div class="tw-flex tw-items-center tw-gap-1.5">
+            <span class="tw-text-[10px] tw-font-semibold tw-text-mainColor">{{ item.sura }}</span>
+            <span class="tw-text-[10px] tw-text-gray-300">•</span>
+            <span class="tw-text-[10px] tw-text-gray-400">آية {{ item.aya }}</span>
+          </div>
+        </div>
       </li>
     </ul>
-    <div class="flex-box tw-justify-end tw-mt-4 tw-pt-3 tw-border-t tw-border-gray-100">
+    <div class="flex-box tw-justify-end tw-mt-3 tw-pt-2 tw-border-t tw-border-gray-100">
       <button (click)="displayResults()" type="button"
-        class="tw-bg-mainColor tw-text-white tw-h-10 tw-px-5 tw-text-sm tw-font-bold
-               tw-rounded-sm hover:tw-opacity-80 flex-box tw-gap-2">
+        class="tw-bg-mainColor tw-text-white tw-h-8 tw-px-4 tw-text-xs tw-font-bold
+               tw-rounded-sm hover:tw-opacity-80 flex-box tw-gap-1.5">
         <span>عرض جميع النتائج</span>
-        <i class="sfi sfi-visibility tw-text-base tw-block"></i>
+        <i class="sfi sfi-visibility tw-text-sm tw-block"></i>
       </button>
     </div>
   </main>
