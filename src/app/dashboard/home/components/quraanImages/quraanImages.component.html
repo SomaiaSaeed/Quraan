@@ -126,6 +126,16 @@
     </ng-template>
   </ng-container>
 </owl-carousel-o>
+
+<!-- Page number indicator -->
+<div class="tw-flex tw-justify-center tw-mt-3 tw-mb-1" dir="rtl">
+  <div class="tw-flex tw-items-center tw-gap-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded-full tw-shadow-sm tw-px-4 tw-py-1.5">
+    <span class="tw-text-xs tw-text-gray-400">من 604</span>
+    <span class="tw-text-sm tw-font-bold tw-text-gray-800">{{ pageNumber }}</span>
+    <span class="tw-text-xs tw-text-gray-400">صفحة</span>
+  </div>
+</div>
+
 <p-contextMenu #menu [model]="contextMenuItems"></p-contextMenu>
 
 <!-- Bookmark dialog overlay -->
