@@ -9,8 +9,6 @@ import {
 const COL_WIDTH = 134;
 /** Max column index (col-span-2 ≈ 400px → 3 columns max) */
 const MAX_COL_INDEX = 2;
-/** Rendered pixel height per mushaf line: font-size 24px × line-height 2.1 */
-const LINE_HEIGHT_PX = 50;
 /** Top padding offset to match tw-pt-5 on the Quran column */
 const QURAN_TOP_OFFSET = 24;
 /** Box vertical padding (top+bottom) + per-line font height (11px × 1.5 lh ≈ 17px) */
@@ -29,6 +27,12 @@ export class HomeComponent {
   inputs: InputItem[] = [];
   rightMotashabehatSpans: any[] = [];
   leftMotashabehatSpans: any[] = [];
+  currentPage = 1;
+  get isRightPage(): boolean { return this.currentPage % 2 !== 0; }
+  /** Width of left stack (pages read) — grows 4 → 28 px */
+  get leftStackWidth(): number { return Math.round(4 + (this.currentPage / 604) * 24); }
+  /** Width of right stack (pages remaining) — shrinks 28 → 4 px */
+  get rightStackWidth(): number { return Math.round(4 + ((604 - this.currentPage) / 604) * 24); }
 
   constructor() {}
 
@@ -53,10 +57,12 @@ export class HomeComponent {
   /** Returns the pixel top of an aya aligned to the actual rendered mushaf line,
    *  clamped so the box never overflows the container bottom. */
   getAyaTop(inp: any): number {
-    const lineIdx  = inp._lineIdx  ?? 0;
-    const extraTop = inp._extraTopPx ?? 0;
-    const natural  = lineIdx * LINE_HEIGHT_PX + extraTop + QURAN_TOP_OFFSET;
-    const containerH = Math.max(600, window.innerHeight - 220);
+    const lineIdx   = inp._lineIdx   ?? 0;
+    const extraTop  = inp._extraTopPx ?? 0;
+    const containerH = Math.max(600, window.innerHeight - 170);
+    const fontSize   = Math.min(40, Math.max(16, (window.innerHeight - 170) / 31.5));
+    const dynamicLineH = fontSize * 2.1;
+    const natural    = lineIdx * dynamicLineH + extraTop + QURAN_TOP_OFFSET;
     const boxH = this.estimateBoxHeight(inp);
     return Math.min(natural, containerH - boxH - BOX_BOTTOM_MARGIN);
   }

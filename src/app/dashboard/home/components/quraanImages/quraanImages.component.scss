@@ -1,19 +1,21 @@
 .carousel-wrapper {
   position: relative;
-  height: calc(100vh - 220px);
+  height: calc(100vh - 170px);
+
   min-height: 600px;
 }
 
-.quick-goto-overlay {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 20;
+.goto-anchor {
+  position: relative;
 }
 
-.quick-goto-panel {
-  margin-top: 6px;
-  width: 280px;
+.goto-panel {
+  position: fixed;
+  bottom: 70px; // sits above the bottom controls bar
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  z-index: 100;
 }
 
 :host ::ng-deep {
@@ -26,56 +28,7 @@
   }
 
   .owl-theme .owl-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
-    left: 0;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-    margin: 0;
-    z-index: 10;
-  }
-
-  .owl-theme .owl-nav [class*='owl-'] {
-    pointer-events: all;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-    transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
-    color: #374151;
-    font-size: 15px;
-    margin: 0 6px;
-    line-height: 1;
-
-    &:hover {
-      background: #f3f4f6;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
-      transform: scale(1.08);
-    }
-
-    &:active {
-      transform: scale(0.96);
-    }
-  }
-
-  .owl-theme .owl-nav .disabled {
-    opacity: 0.25;
-    cursor: default;
-    pointer-events: none;
-
-    &:hover {
-      background: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-      transform: none;
-    }
+    display: none;
   }
 }
 

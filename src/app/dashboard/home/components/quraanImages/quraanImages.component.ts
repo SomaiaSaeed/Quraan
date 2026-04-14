@@ -172,13 +172,14 @@ onPageChange(event: SlidesOutputData) {
   if (newPage === this.lastPageProcessed) return;
 
   this.lastPageProcessed = newPage;
-
+  this.pageNumberChange.emit(newPage);
   this.renderPage(newPage);
 }
 
 
 private renderPage(page: number): void {
   this.pageNumber = page;
+  this.pageNumberChange.emit(page);
 
   this.resetDrawing();
 
@@ -225,6 +226,7 @@ private renderPage(page: number): void {
   @Output() onRight = new EventEmitter<any>();
   @Output() motahabehClick = new EventEmitter<any>();
   @Output() motshabehat = new EventEmitter<InputItem[]>(); // Assuming ayaId is a number
+  @Output() pageNumberChange = new EventEmitter<number>();
 
   @ViewChild('menu') contextMenu!: ContextMenu;
   @ViewChild(CarouselComponent) carousel!: CarouselComponent;
@@ -306,7 +308,7 @@ private renderPage(page: number): void {
         items: 1,
       },
     },
-    nav: true,
+    nav: false,
   };
 
 
@@ -1233,6 +1235,14 @@ private renderPage(page: number): void {
     this.renderPage(page);
   }
 
+  prevPage(): void {
+    if (this.pageNumber > 1) this.navigateToPage(this.pageNumber - 1);
+  }
+
+  nextPage(): void {
+    if (this.pageNumber < 604) this.navigateToPage(this.pageNumber + 1);
+  }
+
   navigateToSura(suraIndex: number | string): void {
     const n = Number(suraIndex);
     const row = this._searchInstance.table_othmani.find(
@@ -1426,13 +1436,18 @@ private renderPage(page: number): void {
       lineExtraTop.push(headerCount * SURA_HEADER_EXTRA_PX);
       if (ml.isSuraStart) headerCount++;
 
+      const totalWords = ml.segments.reduce(
+        (sum: number, seg: any) => sum + (seg.lineColoredWords?.length ?? 1), 0
+      );
+      let wordsBefore = 0;
       ml.segments.forEach((seg: any, si: number) => {
         const id = seg.aya?.id?.toString();
         if (id && !ayaLineIdx.has(id)) {
           ayaLineIdx.set(id, idx);
-          // si===0 means this aya's first word is the rightmost word on the line (RTL)
-          ayaStartsRight.set(id, si === 0);
+          // right side if aya starts in the right (first) half of the line by word count
+          ayaStartsRight.set(id, totalWords === 0 || wordsBefore / totalWords < 0.5);
         }
+        wordsBefore += seg.lineColoredWords?.length ?? 1;
       });
     });
 

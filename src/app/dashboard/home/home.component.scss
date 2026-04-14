@@ -1,12 +1,7 @@
-.highlight {
-  background-color: yellow;
-  border-radius: 5px;
-  padding: 2px;
-}
-
+// ── Motashabehat panels ────────────────────────────────────────────────
 .motashabehat-side {
   position: relative;
-  height: calc(100vh - 220px);
+  height: calc(100vh - 170px);
   min-height: 600px;
   overflow: hidden;
 }
@@ -36,4 +31,41 @@
     border-color: #facc15;
     z-index: 1;
   }
+}
+
+// ── Quran column wrapper + paper-edge strips ───────────────────────────
+.quran-wrapper {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.paper-stack {
+  flex-shrink: 0;
+  width: 10px;
+  // Each horizontal line = one paper edge
+  background: repeating-linear-gradient(
+    to bottom,
+    #b8a97a 0px,
+    #b8a97a 1px,
+    #e4d9b0 1px,
+    #e4d9b0 5px
+  );
+
+  &.paper-stack--left {
+    border-radius: 4px 0 0 4px;
+    box-shadow: -3px 0 6px rgba(0, 0, 0, 0.22);
+  }
+
+  &.paper-stack--right {
+    border-radius: 0 4px 4px 0;
+    box-shadow: 3px 0 6px rgba(0, 0, 0, 0.22);
+  }
+}
+
+// ── Legacy ─────────────────────────────────────────────────────────────
+.highlight {
+  background-color: yellow;
+  border-radius: 5px;
+  padding: 2px;
 }

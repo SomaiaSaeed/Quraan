@@ -2,7 +2,7 @@
 
   <div class="tw-grid tw-grid-cols-7 tw-gap-4">
 
-    <!-- Right motashabehat (visually left of Quran) — columns expand leftward -->
+    <!-- Right motashabehat panel -->
     <div class="tw-col-span-2 motashabehat-side" dir="rtl">
       <div *ngFor="let inp of rightMotashabehatSpans"
         class="motashabehat-box"
@@ -20,14 +20,21 @@
     </div>
 
     <!-- Quran page -->
-    <div class="tw-col-span-3 tw-border-4 tw-border-[#e4e4d0] tw-pt-5 tw-bg-[#f5f5f5] tw-border-double tw-overflow-hidden">
-      <app-quraanImages [images]="images"
-        (motshabehat)="onMotshbehatGenerated($event)"
-        (onClick)="onAyaClick($event)">
-      </app-quraanImages>
+    <div class="quran-wrapper tw-col-span-3">
+      <!-- Left stack: only for left pages (even) — outer edge -->
+      <div class="paper-stack paper-stack--left" *ngIf="!isRightPage"></div>
+      <div class="tw-flex-1 tw-min-w-0 tw-border-4 tw-border-[#e4e4d0] tw-pt-5 tw-bg-[#f5f5f5] tw-border-double tw-overflow-hidden">
+        <app-quraanImages [images]="images"
+          (motshabehat)="onMotshbehatGenerated($event)"
+          (onClick)="onAyaClick($event)"
+          (pageNumberChange)="currentPage = $event">
+        </app-quraanImages>
+      </div>
+      <!-- Right stack: only for right pages (odd) — outer edge -->
+      <div class="paper-stack paper-stack--right" *ngIf="isRightPage"></div>
     </div>
 
-    <!-- Left motashabehat (visually right of Quran) — columns expand rightward -->
+    <!-- Left motashabehat panel -->
     <div class="tw-col-span-2 motashabehat-side" dir="rtl">
       <div *ngFor="let inp of leftMotashabehatSpans"
         class="motashabehat-box"

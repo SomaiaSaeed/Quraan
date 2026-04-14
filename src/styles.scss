@@ -31,9 +31,9 @@
   }
 
   /* Mushaf line view: font scales so exactly 15 lines fill the carousel height.
-     Formula: (100vh - 220px) / (15 lines × 2.1 line-height) = (100vh - 220px) / 31.5 */
+     Formula: (100vh - 170px) / (15 lines × 2.1 line-height) = (100vh - 170px) / 31.5 */
   .mushaf-line span {
-    font-size: clamp(16px, calc((100vh - 220px) / 31.5), 24px);
+    font-size: clamp(16px, calc((100vh - 170px) / 31.5), 40px);
     font-weight: normal;
   }
 }
