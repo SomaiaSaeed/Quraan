@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
 import { CarouselComponent, OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
 import { ContextMenu } from "primeng/contextmenu";
@@ -115,7 +115,7 @@ interface AllAya {
 encapsulation: ViewEncapsulation.None
 
 })
-export class QuraanImagesComponent implements OnInit,AfterViewInit {
+export class QuraanImagesComponent implements OnInit, AfterViewInit, OnDestroy {
   colorsRendered: boolean = false;
   similarCount!: number;
   suraCount!: number;
@@ -235,6 +235,11 @@ private renderPage(page: number): void {
   goToPage   = 1;
   goToSuraIndex  = 1;
   goToAyaIndex   = 1;
+
+  // ── Slideshow ────────────────────────────────────────────────────────────────
+  slideshowPlaying = false;
+  slideshowSpeed   = 3000; // ms per page
+  private slideshowTimer: any = null;
   suraList: { index: number; name: string; ayaCount: number }[] = [];
   private pageToSlideIndex = new Map<number, number>();   // pageNumber → quranPages index
 
@@ -283,10 +288,10 @@ private renderPage(page: number): void {
     mouseDrag: true,
     touchDrag: true,
     pullDrag: false,
-    autoHeight: true,
+    autoHeight: false,
     dots: false,
     navSpeed: 700,
-    navText: ["", ""],
+    navText: ["&#10095;", "&#10094;"],
     responsive: {
       0: {
         items: 1,
@@ -451,6 +456,16 @@ private renderPage(page: number): void {
   loadQuranPages(): void {
     this._http.get<any>(QuranPagesURL).subscribe((response) => {
       this._quranPages = response;
+
+      // Populate textNoTashkeel on slide.ayat so buildMushafLines can use NT word positions
+      this._quranPages.forEach((pg: any) => {
+        const slide = this.quranPages.find((s: any) => s.pageNumber === pg.pageNumber);
+        if (!slide) return;
+        pg.ayas.forEach((qAya: any) => {
+          const slideAya = slide.ayat.find((a: any) => a.id === qAya.id);
+          if (slideAya) slideAya.textNoTashkeel = qAya.text_without_tashkeel;
+        });
+      });
 
       // Process colors for ALL pages so every slide has arrOfColoredWords
       for (let p = 1; p <= this._quranPages.length; p++) {
@@ -942,7 +957,7 @@ private renderPage(page: number): void {
   }
 });
 
-    this.motshabehat.emit(this.inputs);
+    // Emit happens after buildMushafLines so _lineIdx is populated
   }
 
   private drawMotashabehat(
@@ -1256,6 +1271,37 @@ private renderPage(page: number): void {
     this.goToOpen = false;
   }
 
+  // ── Slideshow ────────────────────────────────────────────────────────────────
+
+  toggleSlideshow(): void {
+    this.slideshowPlaying ? this.pauseSlideshow() : this.playSlideshow();
+  }
+
+  playSlideshow(): void {
+    this.slideshowPlaying = true;
+    this.slideshowTimer = setInterval(() => {
+      const next = this.pageNumber < 604 ? this.pageNumber + 1 : 1;
+      this.navigateToPage(next);
+    }, this.slideshowSpeed);
+  }
+
+  pauseSlideshow(): void {
+    this.slideshowPlaying = false;
+    clearInterval(this.slideshowTimer);
+    this.slideshowTimer = null;
+  }
+
+  onSlideshowSpeedChange(): void {
+    if (this.slideshowPlaying) {
+      this.pauseSlideshow();
+      this.playSlideshow();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.pauseSlideshow();
+  }
+
   // ── Mushaf line rendering ───────────────────────────────────────────────────
 
   /** Build mushaf lines for ALL pages (called once after all colors are ready) */
@@ -1294,6 +1340,7 @@ private renderPage(page: number): void {
       });
     });
 
+    // consumed tracks NT (text_without_tashkeel) word positions — matches wordPositions in lines JSON
     const consumed = new Map<string, number>();
     const mushafLines: any[] = [];
 
@@ -1304,15 +1351,16 @@ private renderPage(page: number): void {
         const aya = ayaLookup.get(seg.verseKey);
         if (!aya) return;
 
-        const words: string[] = aya.text.split(' ');
+        // Use NT words for position tracking (aligns with wordPositions in lines JSON)
+        const ntWords: string[] = (aya.textNoTashkeel || this.stripTashkeel(aya.text)).split(' ');
         const coloredWords: any[] = aya.arrOfColoredWords || [];
         const from = consumed.get(seg.verseKey) || 0;
         const isLastSegment = lastLineForVerse.get(seg.verseKey) === li;
 
-        const to = isLastSegment ? words.length : Math.min(from + seg.wordPositions.length, words.length);
+        const to = isLastSegment ? ntWords.length : Math.min(from + seg.wordPositions.length, ntWords.length);
         consumed.set(seg.verseKey, to);
 
-        if (from >= words.length) {
+        if (from >= ntWords.length) {
           // All words consumed — this slot is the aya-end ornament position
           if (isLastSegment) {
             lineSegments.push({ aya, lineText: '', lineColoredWords: [], isAyaEnd: true });
@@ -1320,17 +1368,29 @@ private renderPage(page: number): void {
           return;
         }
 
-        const lineWords = words.slice(from, to);
-        const lineColoredWords = lineWords.map((w: string, i: number) => ({
-          word: w,
-          color: (from + i) < coloredWords.length ? (coloredWords[from + i]?.color || '') : ''
-        }));
+        // Build display map: NT index → Othmani display word
+        // Handles merged يا forms (1 Othmani word = 2 NT words)
+        const displayMap = this.buildDisplayWordMap(aya.text, ntWords);
 
-        const cleanColoredWords = lineColoredWords.map((cw: any) => ({
-          ...cw,
-          word: this.stripQuranicMarks(cw.word)
-        }));
-        lineSegments.push({ aya, lineText: this.stripQuranicMarks(lineWords.join(' ')), lineColoredWords: cleanColoredWords, isAyaEnd: isLastSegment });
+        const lineColoredWords: any[] = [];
+        for (let i = from; i < to; i++) {
+          const display = displayMap[i];
+          if (!display) continue; // null = second half of merged يا, skip
+
+          // For merged يا words (1 Othmani word = 2 NT words), use the color from
+          // either NT position so the single merged word gets the correct underline
+          let color = i < coloredWords.length ? (coloredWords[i]?.color || '') : '';
+          if (!color && displayMap[i + 1] === null && (i + 1) < coloredWords.length) {
+            color = coloredWords[i + 1]?.color || '';
+          }
+
+          lineColoredWords.push({
+            word: this.stripQuranicMarks(display),
+            color
+          });
+        }
+
+        lineSegments.push({ aya, lineText: '', lineColoredWords, isAyaEnd: isLastSegment });
       });
 
       // Determine sura name for sura-start lines
@@ -1353,6 +1413,94 @@ private renderPage(page: number): void {
     });
 
     slide.mushafLines = mushafLines;
+
+    // Build alignment metadata for side boxes
+    // Sura-start lines add an extra ~84px (h-16=64 + mt-2=8 + mb-3=12) above their text line
+    const SURA_HEADER_EXTRA_PX = 84;
+    const ayaLineIdx    = new Map<string, number>();
+    const ayaStartsRight = new Map<string, boolean>();
+    const lineExtraTop: number[] = [];
+    let headerCount = 0;
+
+    mushafLines.forEach((ml: any, idx: number) => {
+      lineExtraTop.push(headerCount * SURA_HEADER_EXTRA_PX);
+      if (ml.isSuraStart) headerCount++;
+
+      ml.segments.forEach((seg: any, si: number) => {
+        const id = seg.aya?.id?.toString();
+        if (id && !ayaLineIdx.has(id)) {
+          ayaLineIdx.set(id, idx);
+          // si===0 means this aya's first word is the rightmost word on the line (RTL)
+          ayaStartsRight.set(id, si === 0);
+        }
+      });
+    });
+
+    const total = mushafLines.length;
+    this.inputs.forEach((inp: any) => {
+      const li = ayaLineIdx.get(inp.ayaId);
+      if (li !== undefined) {
+        inp._lineIdx      = li;
+        inp._totalLines   = total;
+        inp._extraTopPx   = lineExtraTop[li] ?? 0;
+        inp._startsRight  = ayaStartsRight.get(inp.ayaId) ?? true;
+      }
+    });
+
+    if (this.inputs.length) this.motshabehat.emit(this.inputs);
+  }
+
+  /**
+   * Maps each NT (text_without_tashkeel) word position to an Othmani display word.
+   * Handles merged يا forms where 1 Othmani word = 2 NT words:
+   *   NT[i]="يا", NT[i+1]="قوم" → Othmani[j]="يَٰقَوْمِ"
+   *   displayMap[i] = "يَٰقَوْمِ", displayMap[i+1] = null (skip in rendering)
+   */
+  private buildDisplayWordMap(othmaniText: string, ntWords: string[]): (string | null)[] {
+    const othmaniWords = othmaniText.split(' ');
+    const displayMap: (string | null)[] = [];
+    let oIdx = 0;
+
+    for (let ni = 0; ni < ntWords.length; ni++) {
+      if (oIdx >= othmaniWords.length) {
+        displayMap.push(ntWords[ni]);
+        continue;
+      }
+      const ow = othmaniWords[oIdx];
+      const nOW  = this.normalizeForWordMapping(ow);
+      const nNT1 = this.normalizeForWordMapping(ntWords[ni]);
+      const nNT2 = ni + 1 < ntWords.length ? this.normalizeForWordMapping(ntWords[ni + 1]) : '';
+
+      if (nNT2 && nOW === nNT1 + nNT2) {
+        // Merged يا: 1 Othmani word covers 2 NT words
+        console.log('[MERGE] Othmani:', ow, 'nOW:', nOW, '= nNT1:', nNT1, '+ nNT2:', nNT2);
+        displayMap.push(ow);   // first NT position → show Othmani merged word
+        displayMap.push(null); // second NT position → renders nothing
+        ni++;                   // consume both NT words
+        oIdx++;
+      } else {
+        // 1-to-1 match or fallback
+        if (nNT1 === 'يا' || nNT1 === '\u064A\u0627') {
+          console.log('[NO-MERGE] ow:', ow, 'nOW:', nOW, 'nNT1:', nNT1, 'nNT2:', nNT2, 'concat:', nNT1 + nNT2);
+        }
+        displayMap.push(ow);
+        oIdx++;
+      }
+    }
+
+    return displayMap;
+  }
+
+  /** Normalise Arabic text for word-boundary comparison (strip diacritics, unify alef/ya/ta-marbuta forms, remove tatweel) */
+  private normalizeForWordMapping(text: string): string {
+    return text
+      .replace(/[\u064B-\u065F\u0653\u0654\u0655]/g, '') // tashkeel + maddah/hamza marks
+      .replace(/\u0670/g, 'ا')                            // superscript alef → ا
+      .replace(/[\u0622\u0623\u0625\u0671]/g, 'ا')       // alef forms → ا
+      .replace(/\u0649/g, '\u064A')                       // alef maksura ى → ya ي
+      .replace(/\u0629/g, '\u0647')                       // ta marbuta ة → ha ه
+      .replace(/\u0640/g, '')                              // tatweel
+      .replace(/[\u06D6-\u06FF]/g, '');                   // Quranic annotation marks
   }
 
   private stripTashkeel(text: string): string {

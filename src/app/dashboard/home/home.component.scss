@@ -1,5 +1,39 @@
 .highlight {
-    background-color: yellow;
-    border-radius: 5px;
-    padding: 2px;
+  background-color: yellow;
+  border-radius: 5px;
+  padding: 2px;
+}
+
+.motashabehat-side {
+  position: relative;
+  height: calc(100vh - 220px);
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.motashabehat-box {
+  position: absolute;
+  width: 128px;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  background: #f0fdf4;
+  cursor: default;
+  transition: background 0.15s, border-color 0.15s;
+  word-break: break-word;
+  overflow-wrap: break-word;
+
+  &:hover {
+    background: #dcfce7;
+    border-color: #4ade80;
+    z-index: 2;
   }
+
+  &.motashabehat-box--active {
+    background: #fefce8;
+    border-color: #facc15;
+    z-index: 1;
+  }
+}
