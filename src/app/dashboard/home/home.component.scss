@@ -63,6 +63,15 @@
   }
 }
 
+// ── Active sura entry in motashabehat box ─────────────────────────────
+.sura-active {
+  font-weight: 600;
+  color: #92400e;           // amber-800
+  background: #fef3c7;     // amber-100
+  border-radius: 4px;
+  padding: 0 3px;
+}
+
 // ── Legacy ─────────────────────────────────────────────────────────────
 .highlight {
   background-color: yellow;

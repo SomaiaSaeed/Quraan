@@ -11,9 +11,7 @@
         [style.right.px]="getColOffset(inp)">
         <span *ngFor="let sura of inp.mergedSuras"
           class="tw-block"
-          [class.tw-font-semibold]="sura.highlighted"
-          [class.tw-text-green-800]="sura.highlighted"
-          [class.tw-text-green-600]="!sura.highlighted">
+          [class.tw-text-green-700]="true">
           {{ sura.text }}
         </span>
       </div>
@@ -42,10 +40,7 @@
         [style.top.px]="getAyaTop(inp)"
         [style.left.px]="getColOffset(inp)">
         <span *ngFor="let sura of inp.mergedSuras"
-          class="tw-block"
-          [class.tw-font-semibold]="sura.highlighted"
-          [class.tw-text-green-800]="sura.highlighted"
-          [class.tw-text-green-600]="!sura.highlighted">
+          class="tw-block tw-text-green-700">
           {{ sura.text }}
         </span>
       </div>

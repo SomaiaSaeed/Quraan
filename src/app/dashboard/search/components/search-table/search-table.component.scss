@@ -171,6 +171,32 @@
   flex-wrap: wrap;
 }
 
+// ── Navigate-to-page icon button ─────────────────────────────────────────────
+.nav-to-page-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--mainColor, #4caf50);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+  line-height: 1;
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    background: #f0fdf4;
+    border-color: var(--mainColor, #4caf50);
+  }
+}
+
 .page-btn {
   display: inline-flex;
   align-items: center;

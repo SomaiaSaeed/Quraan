@@ -79,9 +79,7 @@
   <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded-full tw-shadow-sm tw-px-4 tw-py-1.5"
     [class.tw-border-green-400]="slideshowPlaying"
     [class.tw-bg-green-50]="slideshowPlaying">
-    <span class="tw-text-xs tw-text-gray-400">صفحة</span>
-    <span class="tw-text-sm tw-font-bold tw-text-gray-800">{{ pageNumber }}</span>
-    <span class="tw-text-xs tw-text-gray-400">من 604</span>
+    <span class="tw-text-sm tw-font-bold tw-text-gray-800">{{ convertToArabicNumbers(pageNumber) }}</span>
   </div>
 
   <!-- Speed selector -->
