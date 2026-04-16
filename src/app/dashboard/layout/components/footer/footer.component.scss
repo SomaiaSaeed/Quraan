@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+}
+
+// Mobile bottom nav active state
+.bottom-nav-item {
+  &.bottom-nav-active {
+    color: #94A684;
+
+    .bottom-nav-icon {
+      color: #94A684;
+    }
+  }
+
+  &:hover {
+    color: #94A684;
+  }
+}
