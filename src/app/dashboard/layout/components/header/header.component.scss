@@ -1,0 +1,67 @@
+// Nav link base + hover
+.nav-link {
+  opacity: 0.82;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background-color: #E4E4D0;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.22s ease;
+  }
+
+  &:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.12);
+
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+
+  &.nav-link-active {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.15);
+
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+}
+
+// Chevron transition
+.more-chevron {
+  transition: transform 0.2s ease;
+}
+
+// Dropdown panel fade-in
+.dropdown-panel {
+  animation: dropdownIn 0.15s ease forwards;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Dropdown item left-border accent on hover
+.dropdown-item {
+  border-right: 3px solid transparent !important;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-right-color: #94A684 !important;
+  }
+}

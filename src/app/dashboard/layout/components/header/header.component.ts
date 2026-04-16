@@ -1,69 +1,82 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PrintComponent } from 'src/app/shared/print/print.component';
 import { ReadersComponent } from 'src/app/shared/readers/readers.component';
-import { } from 'stream';
-
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
   isOpenMenu: boolean = false;
 
-  constructor(public dialog: MatDialog,private router: Router) { }
+  constructor(
+    public dialog: MatDialog,
+    private router: Router,
+    private elementRef: ElementRef
+  ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  toggleDropdown() {
+    this.isOpenMenu = !this.isOpenMenu;
   }
 
-  OpenMenu() {
-    this.isOpenMenu = !this.isOpenMenu
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: HTMLElement) {
+    if (this.isOpenMenu && !this.elementRef.nativeElement.contains(target)) {
+      this.isOpenMenu = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.isOpenMenu = false;
+  }
+
+  private closeMenu() {
+    this.isOpenMenu = false;
   }
 
   openReads(): void {
     const dialogRef = this.dialog.open(ReadersComponent, {
-      width: "1000px",
-      panelClass: "popup-center",
-      data:this.isOpenMenu = false
+      width: '1000px',
+      panelClass: 'popup-center',
+      data: null,
     });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log("The dialog was closed");
-    });
+    this.closeMenu();
+    dialogRef.afterClosed().subscribe(() => {});
   }
 
   openPrint(): void {
     const dialogRef = this.dialog.open(PrintComponent, {
-      width: "600px",
-      panelClass: "popup-center",
-      data:this.isOpenMenu = false
+      width: '600px',
+      panelClass: 'popup-center',
+      data: null,
     });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log("The dialog was closed");
-    });
+    this.closeMenu();
+    dialogRef.afterClosed().subscribe(() => {});
   }
 
-  openFavorite(){
+  openFavorite() {
     this.router.navigate(['/favorite']);
-    this.isOpenMenu = false
+    this.closeMenu();
   }
 
-  openSimilarities(){
+  openSimilarities() {
     this.router.navigate(['/similarities']);
-    this.isOpenMenu = false
+    this.closeMenu();
   }
 
-  openAlsajadat(){
+  openAlsajadat() {
     this.router.navigate(['/alsajadat']);
-    this.isOpenMenu = false
+    this.closeMenu();
   }
 
-  openFehres(){
+  openFehres() {
     this.router.navigate(['/fehres']);
-    this.isOpenMenu = false
+    this.closeMenu();
   }
-
 }

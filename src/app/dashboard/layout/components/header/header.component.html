@@ -1,59 +1,88 @@
-<div class=" header tw-bg-mainColor">
-  <!-- main-menu -->
-<div class="tw-fixed tw-top-3.5 tw-right-[30px]">
-	<button type="" title="menu" mat-mini-fab (click)="OpenMenu()"
-		class="tw-mx-[35px] tw-w-12 tw-h-12 tw-bg-[#6f835e] tw-min-w-0 tw-text-2xl tw-justify-center flex-box tw-rounded-full tw-shadow-none">
-		<span class="sfi sfi-menu tw-text-white tw-text-xl tw-block" *ngIf="!isOpenMenu"></span>
-		<span class="sfi sfi-cancel-1 tw-text-white" *ngIf="isOpenMenu"></span>
-	</button>
-	<div *ngIf="isOpenMenu"
-		class="tw-bg-white tw-py-3 tw-w-48 tw-h-auto tw-border tw-border-gray-200 tw-rounded-md tw-absolute tw-top-16 tw-right-[30px] tw-shadow-xl3 tw-shadow-gray-200">
-		<button (click)="openSimilarities()" type="" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			عدد المتشابهات
-		</button>
-		<button type="" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			تفـسـير
-		</button>
-		<button type="" mat-flat-button  (click)="openReads()"
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			القراء
-		</button>
-		<!-- <button type="" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			متشابهات السـور
-		</button> -->
-		<button (click)="openAlsajadat()" type="" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			السجدات
-		</button>
-		<button (click)="openPrint()" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			طباعة
-		</button>
-		<button (click)="openFavorite()" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-b tw-border-gray-200 tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			المفضلة
-		</button>
-		<button (click)="openFehres()" mat-flat-button
-			class="tw-bg-transparent tw-text-mainColor hover:tw-text-black tw-h-auto tw-w-full tw-border-solid tw-border-0 tw-rounded-none tw-py-1.5 transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			الفهرس
-		</button>
-	</div>
-</div>
-  <div class="tw-container tw-mx-auto tw-py-4 flex-c-b tw-flex-col md:tw-flex-row tw-px-0">
-    <div class="tw-flex tw-items-center tw-gap-14 tw-mb-4 md:tw-mb-0">
-      <div>
-        <h1 routerLink="/home" class="tw-font-quraanFont tw-text-2xl tw-text-white tw-drop-shadow-lg tw-mb-0 tw-cursor-pointer">قرءان كريم</h1>
+<div class="tw-bg-mainColor">
+  <div class="tw-container tw-mx-auto tw-px-4 tw-py-3 tw-flex tw-items-center tw-justify-between tw-gap-4">
+
+    <!-- Logo -->
+    <h1 routerLink="/home"
+      class="tw-font-quraanFont tw-text-2xl tw-text-white tw-drop-shadow-lg tw-mb-0 tw-cursor-pointer tw-select-none tw-whitespace-nowrap tw-flex-shrink-0">
+      قرءان كريم
+    </h1>
+
+    <!-- Nav Links -->
+    <nav class="tw-hidden md:tw-flex tw-items-center tw-gap-1 tw-flex-1 tw-justify-center">
+
+      <a routerLink="/listen" routerLinkActive="nav-link-active"
+        class="nav-link tw-text-white tw-text-sm tw-font-medium tw-px-3 tw-py-2 tw-rounded-md tw-no-underline tw-transition-all tw-whitespace-nowrap">
+        ضبط الاستماع
+      </a>
+
+      <a routerLink="/search" routerLinkActive="nav-link-active"
+        class="nav-link tw-text-white tw-text-sm tw-font-medium tw-px-3 tw-py-2 tw-rounded-md tw-no-underline tw-transition-all tw-whitespace-nowrap">
+        إعدادت البحث
+      </a>
+
+      <a routerLink="/favorite" routerLinkActive="nav-link-active"
+        class="nav-link tw-text-white tw-text-sm tw-font-medium tw-px-3 tw-py-2 tw-rounded-md tw-no-underline tw-transition-all tw-whitespace-nowrap">
+        المفضلة
+      </a>
+
+      <a routerLink="/fehres" routerLinkActive="nav-link-active"
+        class="nav-link tw-text-white tw-text-sm tw-font-medium tw-px-3 tw-py-2 tw-rounded-md tw-no-underline tw-transition-all tw-whitespace-nowrap">
+        الفهرس
+      </a>
+
+      <!-- More dropdown -->
+      <div class="tw-relative">
+        <button (click)="toggleDropdown()"
+          class="nav-link tw-flex tw-items-center tw-gap-1 tw-text-white tw-text-sm tw-font-medium tw-px-3 tw-py-2 tw-rounded-md tw-border-0 tw-bg-transparent tw-cursor-pointer tw-transition-all tw-whitespace-nowrap"
+          [class.nav-link-active]="isOpenMenu">
+          <span>المزيد</span>
+          <mat-icon class="more-chevron tw-text-base tw-leading-none" style="font-size:18px;width:18px;height:18px;line-height:18px"
+            [style.transform]="isOpenMenu ? 'rotate(180deg)' : 'rotate(0deg)'">
+            expand_more
+          </mat-icon>
+        </button>
+
+        <!-- Dropdown Panel -->
+        <div *ngIf="isOpenMenu"
+          class="dropdown-panel tw-absolute tw-top-full tw-mt-1 tw-bg-white tw-rounded-lg tw-shadow-lg tw-border tw-border-gray-100 tw-py-1 tw-z-50 tw-min-w-[160px]"
+          [ngClass]="{'tw-right-0': true}">
+
+          <button (click)="openSimilarities()"
+            class="dropdown-item tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-4 tw-py-2.5 tw-border-0 tw-bg-transparent tw-cursor-pointer tw-text-gray-700 tw-text-sm tw-text-right hover:tw-bg-secondColor hover:tw-text-mainColor tw-transition-colors tw-whitespace-nowrap">
+            <mat-icon class="tw-text-mainColor tw-text-base" style="font-size:18px;width:18px;height:18px;line-height:18px">compare_arrows</mat-icon>
+            عدد المتشابهات
+          </button>
+
+          <button
+            class="dropdown-item tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-4 tw-py-2.5 tw-border-0 tw-bg-transparent tw-cursor-pointer tw-text-gray-700 tw-text-sm tw-text-right hover:tw-bg-secondColor hover:tw-text-mainColor tw-transition-colors tw-whitespace-nowrap">
+            <mat-icon class="tw-text-mainColor tw-text-base" style="font-size:18px;width:18px;height:18px;line-height:18px">menu_book</mat-icon>
+            تفـسـير
+          </button>
+
+          <button (click)="openReads()"
+            class="dropdown-item tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-4 tw-py-2.5 tw-border-0 tw-bg-transparent tw-cursor-pointer tw-text-gray-700 tw-text-sm tw-text-right hover:tw-bg-secondColor hover:tw-text-mainColor tw-transition-colors tw-whitespace-nowrap">
+            <mat-icon class="tw-text-mainColor tw-text-base" style="font-size:18px;width:18px;height:18px;line-height:18px">headset</mat-icon>
+            القراء
+          </button>
+
+          <button (click)="openAlsajadat()"
+            class="dropdown-item tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-4 tw-py-2.5 tw-border-0 tw-bg-transparent tw-cursor-pointer tw-text-gray-700 tw-text-sm tw-text-right hover:tw-bg-secondColor hover:tw-text-mainColor tw-transition-colors tw-whitespace-nowrap">
+            <mat-icon class="tw-text-mainColor tw-text-base" style="font-size:18px;width:18px;height:18px;line-height:18px">brightness_low</mat-icon>
+            السجدات
+          </button>
+
+          <button (click)="openPrint()"
+            class="dropdown-item tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-4 tw-py-2.5 tw-border-0 tw-bg-transparent tw-cursor-pointer tw-text-gray-700 tw-text-sm tw-text-right hover:tw-bg-secondColor hover:tw-text-mainColor tw-transition-colors tw-whitespace-nowrap">
+            <mat-icon class="tw-text-mainColor tw-text-base" style="font-size:18px;width:18px;height:18px;line-height:18px">print</mat-icon>
+            طباعة
+          </button>
+
+        </div>
       </div>
-      <!-- menu -->
-      <nav class="tw-space-x-4 rtl:tw-space-x-reverse">
-        <a routerLink="/listen" class="tw-text-white tw-text-base hover:tw-text-secondColor tw-font-medium tw-inline-block"> ضبط الاستماع  </a>
-        <a routerLink="/search" class="tw-text-white tw-text-base hover:tw-text-secondColor tw-font-medium tw-inline-block">إعدادت البحث</a>
-      </nav>
-    </div>
-    <!-- search -->
-   <app-main-search></app-main-search>
+    </nav>
+
+    <!-- Search -->
+    <app-main-search class="tw-flex-shrink-0"></app-main-search>
+
   </div>
 </div>
