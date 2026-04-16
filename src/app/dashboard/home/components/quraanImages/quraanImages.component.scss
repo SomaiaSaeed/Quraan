@@ -1,11 +1,34 @@
-:host ::ng-deep{
-  .owl-carousel,.owl-stage-outer,.owl-stage{
+.carousel-wrapper {
+  position: relative;
+  height: calc(100vh - 170px);
+
+  min-height: 600px;
+}
+
+.goto-anchor {
+  position: relative;
+}
+
+.goto-panel {
+  position: fixed;
+  bottom: 70px; // sits above the bottom controls bar
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  z-index: 100;
+}
+
+:host ::ng-deep {
+  .owl-carousel, .owl-stage-outer, .owl-stage, .owl-item {
     height: 100%;
   }
-  .owl-theme .owl-nav{
-    z-index: 99999;
-    position: relative;
-    top: -45px;
+
+  .owl-stage-outer {
+    overflow: hidden; // keeps slide transition clipped horizontally
+  }
+
+  .owl-theme .owl-nav {
+    display: none;
   }
 }
 
@@ -36,6 +59,12 @@
 }
 
 /* ── Mushaf Al-Madinah line layout ────────────────────────── */
+
+.quran-page {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
 .mushaf-body {
   line-height: 2.1;

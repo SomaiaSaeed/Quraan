@@ -19,6 +19,7 @@
   font-family: 'uthmanic_hafs_v20';
   src: url('./assets/fonts/uthmanic_hafs_v20.ttf') format('truetype');
   font-style: normal;
+  font-display: block;
 }
 .quran-page {
   text-align: center;
@@ -29,9 +30,10 @@
     line-height: 2;
   }
 
-  /* Mushaf line view: scale font so each JSON line fits in one visual line */
+  /* Mushaf line view: font scales so exactly 15 lines fill the carousel height.
+     Formula: (100vh - 170px) / (15 lines × 2.1 line-height) = (100vh - 170px) / 31.5 */
   .mushaf-line span {
-    font-size: clamp(18px, 5.2vw, 24px);
+    font-size: clamp(16px, calc((100vh - 170px) / 31.5), 40px);
     font-weight: normal;
   }
 }

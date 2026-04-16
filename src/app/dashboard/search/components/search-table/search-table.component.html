@@ -151,9 +151,7 @@
     <!-- Dynamic rows -->
     <ng-container *ngFor="let item of pagedData; trackBy: trackByItem">
       <div class="tw-table-row tw-bg-white tw-border-b tw-border-gray-100
-                  hover:tw-bg-gray-50 tw-transition-colors tw-cursor-pointer tw-group"
-           (click)="goToAya(item)"
-           title="انتقل إلى الصفحة {{ item.data?.nOFPage }} في المصحف">
+                  hover:tw-bg-gray-50 tw-transition-colors tw-group">
 
         <div *ngFor="let col of visibleColumns"
              class="tw-table-cell tw-align-middle tw-px-4 tw-py-2 tw-text-right">
@@ -180,9 +178,7 @@
       <ng-container *ngIf="!isSuraCollapsed(group.name)">
         <div *ngFor="let item of group.items; trackBy: trackByItem"
              class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-2 tw-bg-white
-                    tw-border-b tw-border-gray-100 hover:tw-bg-gray-50 tw-cursor-pointer tw-group"
-             (click)="goToAya(item)"
-             title="انتقل إلى الصفحة {{ item.data?.nOFPage }} في المصحف">
+                    tw-border-b tw-border-gray-100 hover:tw-bg-gray-50">
 
           <!-- Othmani text + aya number at end (Quran style) -->
           <p class="tw-mb-0 tw-flex-1 tw-leading-8 tw-text-right tw-text-base"
@@ -195,13 +191,19 @@
             </span>
           </p>
 
-          <!-- Page indicator on hover -->
-          <div class="tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity tw-shrink-0">
-            <span class="tw-text-mainColor tw-text-base tw-leading-none">←</span>
-            <span class="tw-text-gray-400 tw-text-[9px] tw-leading-none tw-block tw-text-center">
+          <!-- Navigation icon button -->
+          <button class="nav-to-page-btn tw-shrink-0"
+                  (click)="goToAya(item)"
+                  title="انتقل إلى الصفحة {{ item.data?.nOFPage }}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            <span class="tw-text-[9px] tw-leading-none tw-block tw-text-center tw-mt-0.5">
               ص {{ item.data?.nOFPage }}
             </span>
-          </div>
+          </button>
 
         </div>
       </ng-container>
@@ -271,13 +273,18 @@
                 tw-text-right tw-text-base"
          dir="rtl"
          [innerHTML]="highlightText(getCellValue(item, col), searchQuery)"></p>
-      <div class="tw-opacity-0 group-hover:tw-opacity-100 tw-transition-opacity
-                  tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-shrink-0 tw-self-center tw-mr-auto">
-        <span class="tw-text-mainColor tw-text-base tw-leading-none">←</span>
-        <span class="tw-text-gray-400 tw-text-[9px] tw-leading-none tw-whitespace-nowrap">
+      <button class="nav-to-page-btn tw-shrink-0 tw-self-center tw-mr-auto"
+              (click)="goToAya(item); $event.stopPropagation()"
+              title="انتقل إلى الصفحة {{ item.data?.nOFPage }}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span class="tw-text-[9px] tw-leading-none tw-block tw-text-center tw-mt-0.5">
           ص {{ item.data?.nOFPage }}
         </span>
-      </div>
+      </button>
     </div>
   </ng-container>
 
