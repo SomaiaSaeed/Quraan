@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, V
 import { CarouselComponent, OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
 import { ContextMenu } from "primeng/contextmenu";
+import { forkJoin } from "rxjs";
 import { BookmarkService } from "src/app/core/services/bookmark.service";
 import { Search } from "src/app/core/services/search.service";
 
@@ -139,21 +140,64 @@ export class QuraanImagesComponent implements OnInit, AfterViewInit, OnDestroy {
 private lastPageProcessed = -1;
 pageNumber: number = 1;
 
+/** Pages already loaded via loadPageQuick — prevents duplicate requests */
+private _quickLoadedPages = new Set<number>();
+
+/**
+ * Fast path: loads only the current page's data (~3 KB each file) so the
+ * mushaf renders immediately instead of waiting for the full 12 MB payload.
+ * The full loadQuranJson() still runs in background for motashabehat colors.
+ */
+private loadPageQuick(pageNumber: number): void {
+  if (this._quickLoadedPages.has(pageNumber)) return;
+  this._quickLoadedPages.add(pageNumber);
+
+  forkJoin({
+    lines: this._http.get<any>(`assets/jsonData/mushaf-lines/page-${pageNumber}.json`),
+    page:  this._http.get<any>(`assets/jsonData/quran-pages/page-${pageNumber}.json`)
+  }).subscribe({
+    next: ({ lines, page }) => {
+      const slide = this.quranPages.find((s: any) => s.pageNumber === pageNumber);
+      if (!slide) return;
+
+      // Populate textNoTashkeel needed by buildMushafLines word matching
+      page.ayas?.forEach((qAya: any) => {
+        const slideAya = slide.ayat.find((a: any) => a.id === qAya.id);
+        if (slideAya) slideAya.textNoTashkeel = qAya.text_without_tashkeel;
+      });
+
+      // Render immediately — colors will be applied later by drawColoredWords()
+      if (lines?.lines) {
+        this.buildMushafLines(slide, lines.lines);
+      }
+    },
+    error: () => {
+      // Per-page files missing — remove from cache so full loader can take over
+      this._quickLoadedPages.delete(pageNumber);
+    }
+  });
+}
+
 ngAfterViewInit(): void {
 
   setTimeout(() => {
     const pendingPage = localStorage.getItem('pendingNavPage');
+    const targetPage = pendingPage ? Number(pendingPage) : 1;
+
     if (pendingPage) {
       localStorage.removeItem('pendingNavPage');
-      const page = Number(pendingPage);
-      this.pageNumber = page;
-      this.navigateToPage(page);
+      this.pageNumber = targetPage;
+      this.navigateToPage(targetPage);
     } else {
       this.pageNumber = 1;
     }
 
     this.resetDrawing();
 
+    // Fast path: render current page immediately from tiny per-page files (~3 KB)
+    this.loadPageQuick(targetPage);
+
+    // Background: load full data for motashabehat colors and similarities
     if (!this._quranInJson || !this._quranPages) {
       this.loadQuranJson();
     } else {
@@ -1326,7 +1370,11 @@ private renderPage(page: number): void {
 
   /** Rebuild mushaf lines for the current page only (after color recalculation) */
   private buildMushafLinesForCurrentPage(): void {
-    if (!this._pagesWithLines.length) return;
+    if (!this._pagesWithLines.length) {
+      // Full JSON not loaded yet — use per-page fast loader as fallback
+      this.loadPageQuick(this.pageNumber);
+      return;
+    }
     const slide = this.quranPages.find((s: any) => s.pageNumber === this.pageNumber);
     if (!slide) return;
     const pageData = this._pagesWithLines[slide.pageNumber - 1];

@@ -38,6 +38,8 @@
   position: relative;
   display: flex;
   align-items: stretch;
+  min-width: 0;        // allow flex/grid child to shrink below content size
+  overflow: hidden;    // prevent owl-carousel stage from blowing up the layout
 }
 
 .paper-stack {

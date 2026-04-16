@@ -1,8 +1,17 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .carousel-wrapper {
   position: relative;
+  width: 100%;
+  min-width: 0;
   height: calc(100vh - 170px);
-
   min-height: 600px;
+  overflow: hidden;
 }
 
 .goto-anchor {

@@ -1,9 +1,9 @@
 <div dir="ltr">
 
-  <div class="tw-grid tw-grid-cols-7 tw-gap-4">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-7 tw-gap-4">
 
     <!-- Right motashabehat panel -->
-    <div class="tw-col-span-2 motashabehat-side" dir="rtl">
+    <div class="tw-hidden md:tw-block md:tw-col-span-2 motashabehat-side" dir="rtl">
       <div *ngFor="let inp of rightMotashabehatSpans"
         class="motashabehat-box"
         [class.motashabehat-box--active]="hasHighlight(inp)"
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Quran page -->
-    <div class="quran-wrapper tw-col-span-3">
+    <div class="quran-wrapper md:tw-col-span-3">
       <!-- Left stack: only for left pages (even) — outer edge -->
       <div class="paper-stack paper-stack--left" *ngIf="!isRightPage"></div>
       <div class="tw-flex-1 tw-min-w-0 tw-border-4 tw-border-[#e4e4d0] tw-pt-5 tw-bg-[#f5f5f5] tw-border-double tw-overflow-hidden">
@@ -33,7 +33,7 @@
     </div>
 
     <!-- Left motashabehat panel -->
-    <div class="tw-col-span-2 motashabehat-side" dir="rtl">
+    <div class="tw-hidden md:tw-block md:tw-col-span-2 motashabehat-side" dir="rtl">
       <div *ngFor="let inp of leftMotashabehatSpans"
         class="motashabehat-box"
         [class.motashabehat-box--active]="hasHighlight(inp)"

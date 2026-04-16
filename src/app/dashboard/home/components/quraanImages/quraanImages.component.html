@@ -186,7 +186,7 @@
   class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center"
   style="background: rgba(0,0,0,0.4);"
   (click)="showBookmarkDialog = false">
-  <div class="tw-bg-white tw-rounded-2xl tw-shadow-xl tw-w-[420px] tw-p-6" dir="rtl"
+  <div class="tw-bg-white tw-rounded-2xl tw-shadow-xl tw-w-[calc(100vw-32px)] tw-max-w-[420px] tw-p-4 md:tw-p-6" dir="rtl"
     (click)="$event.stopPropagation()">
     <h3 class="tw-text-base tw-font-semibold tw-text-gray-800 tw-mb-4">حفظ الآية في المفضلة</h3>
     <div class="tw-mb-4" *ngIf="selectedAya">

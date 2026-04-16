@@ -13,6 +13,11 @@ $radius:  6px;
   flex-direction: column;
   min-width: 340px;
   direction: rtl;
+
+  @media (max-width: 767px) {
+    min-width: unset;
+    width: 100%;
+  }
 }
 
 // ── Input row ──────────────────────────────────────────────────────────────
