@@ -1,190 +1,238 @@
-<form [formGroup]="form" class="tw-w-10/12 lg:tw-w-6/12 tw-m-auto tw-mt-8 tw-border tw-border-gray-200 tw-p-4">
-	<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-		<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">اسم السورة</label>
-			<div class="flex-box tw-gap-2">
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">من</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<!-- من سورة" -->
-					<mat-select formControlName="suraFrom" (selectionChange)="updateAyaNumbers('from')">
-						<mat-option  *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
-					</mat-select>
-				</mat-form-field>
+<div class="tw-max-w-2xl tw-mx-auto tw-mt-6 tw-px-4 tw-space-y-4" dir="rtl">
 
-				<!-- إلى سورة -->
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">إلى</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<mat-select formControlName="suraTo" (selectionChange)="updateAyaNumbers('to')">
-						<mat-option  *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
-					</mat-select>
-				</mat-form-field>
-			</div>
-		</div>
-		<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-			<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block">رقـم الاية</label>
-			<div class="flex-box tw-gap-2">
-				<!-- من اية -->
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">من</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<mat-select formControlName="ayaFrom">
-						<mat-option *ngFor="let ayah of ayaNumbersFrom" [value]="ayah" >{{ ayah }}</mat-option>
-					</mat-select>
-				</mat-form-field>
-				<!-- إلى اية -->
-				<mat-form-field appearance="outline"
-					class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0 tw-bg-white tw-rounded-md">
-					<mat-label class="tw-text-sm">إلى</mat-label>
-					<span matSuffix
-						class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-					<mat-select formControlName="ayaTo" (selectionChange)="generateAyaNumbers()">
-						<mat-option *ngFor="let ayah of ayaNumbersTo" [value]="ayah">{{ ayah }}</mat-option>
-					</mat-select>
-				</mat-form-field>
-			</div>
-		</div>
-	</div>
-	<!-- advanced search -->
-	<!--  *ngIf="isOpen" -->
-	<div class="tw-mt-4 tw-border-t tw-border-gray-200 tw-pt-4 tw-space-y-3">
-		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الجـزء</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="JozFrom"> 
-							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
-						</mat-select>
-					</mat-form-field>
+  <!-- Step 1: Reader -->
+  <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
+    <button type="button" (click)="readerOpen = !readerOpen"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      [class.tw-border-b]="readerOpen" [class.tw-border-[#E4E4D0]]="readerOpen">
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">١</span>
+        <span class="tw-font-bold tw-text-sm">اختر القارئ</span>
+        <span *ngIf="!readerOpen" class="tw-text-xs tw-text-mainColor tw-font-medium">— {{ _listenService.selectedReader.name }}</span>
+      </div>
+      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
+        [class.tw-rotate-180]="readerOpen">▾</span>
+    </button>
+    <div *ngIf="readerOpen" class="tw-p-4 tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3">
+      <button *ngFor="let reader of readers" type="button"
+        (click)="_listenService.setReader(reader)"
+        class="tw-flex tw-flex-col tw-items-center tw-gap-1.5 tw-p-3 tw-rounded-lg tw-border-2 tw-transition-all tw-text-center"
+        [class.tw-border-mainColor]="_listenService.selectedReader.id === reader.id"
+        [class.tw-bg-[#f0f4ee]]="_listenService.selectedReader.id === reader.id"
+        [class.tw-border-gray-100]="_listenService.selectedReader.id !== reader.id"
+        [class.tw-bg-gray-50]="_listenService.selectedReader.id !== reader.id">
+        <span class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-[#E4E4D0] tw-flex tw-items-center tw-justify-center tw-text-lg">🎙</span>
+        <span class="tw-text-xs tw-font-medium tw-leading-tight"
+          [class.tw-text-mainColor]="_listenService.selectedReader.id === reader.id">
+          {{ reader.name }}
+        </span>
+        <span *ngIf="_listenService.selectedReader.id === reader.id"
+          class="tw-text-[10px] tw-text-mainColor tw-font-bold">✓ محدد</span>
+      </button>
+    </div>
+  </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- (selectionChange)="toPartFun($event)" -->
-						<mat-select formControlName="JozTo"  (selectionChange)="getHezbNumbersInRange()">
-							<mat-option *ngFor="let Joz of uniqueJozNumbersList" [value]="Joz">{{Joz}}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الحـزب</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="hezbFrom">
-							<!-- {{ h.nOFHezb }} -->
-							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
-						</mat-select>
-					</mat-form-field>
+  <!-- Step 2: Range -->
+  <form [formGroup]="form">
+  <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
+    <button type="button" (click)="rangeOpen = !rangeOpen"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      [class.tw-border-b]="rangeOpen" [class.tw-border-[#E4E4D0]]="rangeOpen">
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">٢</span>
+        <span class="tw-font-bold tw-text-sm">حدد النطاق</span>
+      </div>
+      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
+        [class.tw-rotate-180]="rangeOpen">▾</span>
+    </button>
+    <div *ngIf="rangeOpen" class="tw-p-4 tw-space-y-4">
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-1 tw-block">اسم السورة</label>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-bg-white tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <mat-select formControlName="suraFrom" (selectionChange)="updateAyaNumbers('from')">
+              <mat-option *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-bg-white tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <mat-select formControlName="suraTo" (selectionChange)="updateAyaNumbers('to')">
+              <mat-option *ngFor="let sora of suraNames" [value]="sora">{{ sora }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-1 tw-block">رقم الآية</label>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-bg-white tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <mat-select formControlName="ayaFrom">
+              <mat-option *ngFor="let ayah of ayaNumbersFrom" [value]="ayah">{{ ayah }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-bg-white tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <mat-select formControlName="ayaTo" (selectionChange)="generateAyaNumbers()">
+              <mat-option *ngFor="let ayah of ayaNumbersTo" [value]="ayah">{{ ayah }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="hezbTo" (selectionChange)="getRubbNumbersInRange()">
-							<!-- {{ h.nOFHezb }} -->
-							<mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-		</div>
-		<div class="flex-c-b tw-gap-8 tw-flex-col md:tw-flex-row">
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الربـع</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="rubFrom">
-							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
-						</mat-select>
-					</mat-form-field>
+  <!-- Step 3: Repeat -->
+  <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
+    <button type="button" (click)="repeatOpen = !repeatOpen"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      [class.tw-border-b]="repeatOpen" [class.tw-border-[#E4E4D0]]="repeatOpen">
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">٣</span>
+        <span class="tw-font-bold tw-text-sm">التكرار</span>
+        <span *ngIf="!repeatOpen" class="tw-text-xs tw-text-gray-400">
+          آية ×{{ repeatEachAya }} &nbsp;|&nbsp; مقطع {{ repeatRange === 100 ? '∞' : '×' + repeatRange }}
+        </span>
+      </div>
+      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
+        [class.tw-rotate-180]="repeatOpen">▾</span>
+    </button>
+    <div *ngIf="repeatOpen" class="tw-p-4 tw-space-y-4">
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-2 tw-block">تكرار كل آية</label>
+        <div class="tw-flex tw-flex-wrap tw-gap-2">
+          <button *ngFor="let n of repeatOptions" type="button" (click)="repeatEachAya = n"
+            class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all"
+            [class.tw-border-mainColor]="repeatEachAya === n" [class.tw-bg-mainColor]="repeatEachAya === n"
+            [class.tw-text-white]="repeatEachAya === n"   [class.tw-border-[#E4E4D0]]="repeatEachAya !== n"
+            [class.tw-bg-white]="repeatEachAya !== n"     [class.tw-text-gray-600]="repeatEachAya !== n">
+            {{ n }}×
+          </button>
+        </div>
+      </div>
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-2 tw-block">تكرار المقطع</label>
+        <div class="tw-flex tw-flex-wrap tw-gap-2">
+          <button *ngFor="let n of repeatOptions" type="button" (click)="repeatRange = n"
+            class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all"
+            [class.tw-border-mainColor]="repeatRange === n" [class.tw-bg-mainColor]="repeatRange === n"
+            [class.tw-text-white]="repeatRange === n"   [class.tw-border-[#E4E4D0]]="repeatRange !== n"
+            [class.tw-bg-white]="repeatRange !== n"     [class.tw-text-gray-600]="repeatRange !== n">
+            {{ n }}×
+          </button>
+          <button type="button" (click)="repeatRange = 100"
+            class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all"
+            [class.tw-border-mainColor]="repeatRange === 100" [class.tw-bg-mainColor]="repeatRange === 100"
+            [class.tw-text-white]="repeatRange === 100" [class.tw-border-[#E4E4D0]]="repeatRange !== 100"
+            [class.tw-bg-white]="repeatRange !== 100"   [class.tw-text-gray-600]="repeatRange !== 100">
+            ∞
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="rubTo" (selectionChange)="getPagesNumbersInRange()">
-							<mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-			<div class="tw-w-full md:tw-w-auto select-box tw-flex-1">
-				<label class="tw-text-xs tw-font-medium tw-mb-2 tw-block"> الصفحة</label>
-				<div class="flex-box tw-gap-2">
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">من</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<!-- من سورة" -->
-						<mat-select formControlName="pageFrom">
-							<mat-option  *ngFor="let page of pagesList" [value]="page">{{page}}
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
+  <!-- Step 4: Advanced -->
+  <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
+    <button type="button" (click)="advancedOpen = !advancedOpen"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      [class.tw-border-b]="advancedOpen" [class.tw-border-[#E4E4D0]]="advancedOpen">
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">٤</span>
+        <span class="tw-font-bold tw-text-sm">تصفية متقدمة</span>
+        <span class="tw-text-xs tw-text-gray-400">(اختياري)</span>
+      </div>
+      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
+        [class.tw-rotate-180]="advancedOpen">▾</span>
+    </button>
+    <div *ngIf="advancedOpen" class="tw-p-4 tw-space-y-4">
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-1 tw-block">الجزء</label>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <mat-select formControlName="JozFrom">
+              <mat-option *ngFor="let joz of uniqueJozNumbersList" [value]="joz">{{joz}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <mat-select formControlName="JozTo" (selectionChange)="getHezbNumbersInRange()">
+              <mat-option *ngFor="let joz of uniqueJozNumbersList" [value]="joz">{{joz}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-1 tw-block">الحزب</label>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <mat-select formControlName="hezbFrom">
+              <mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <mat-select formControlName="hezbTo" (selectionChange)="getRubbNumbersInRange()">
+              <mat-option *ngFor="let hezb of hezbList" [value]="hezb">{{hezb}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-1 tw-block">الربع</label>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <mat-select formControlName="rubFrom">
+              <mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <mat-select formControlName="rubTo" (selectionChange)="getPagesNumbersInRange()">
+              <mat-option *ngFor="let rub of rubList" [value]="rub">{{rub}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div>
+        <label class="tw-text-xs tw-text-gray-500 tw-mb-1 tw-block">الصفحة</label>
+        <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">من</mat-label>
+            <mat-select formControlName="pageFrom">
+              <mat-option *ngFor="let page of pagesList" [value]="page">{{page}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="tw-w-full tw-pb-0 tw-rounded-md">
+            <mat-label class="tw-text-sm">إلى</mat-label>
+            <mat-select formControlName="pageTo" (selectionChange)="getAyatOfOages()">
+              <mat-option *ngFor="let page of pagesList" [value]="page">{{page}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
 
-					<!-- إلى سورة -->
-					<mat-form-field appearance="outline"
-						class="tw-w-full tw-flex-1 tw-mt-4 sm:tw-mt-0 tw-pb-0  tw-rounded-md">
-						<mat-label class="tw-text-sm">إلى</mat-label>
-						<span matSuffix
-							class="sfi sfi-arrow-down1 tw-text-gray-500 tw-font-medium tw-mt-[-5px] tw-block tw-text-xs"></span>
-						<mat-select formControlName="pageTo" (selectionChange)="getAyatOfOages()">
-							<mat-option *ngFor="let page of pagesList" [value]="page">{{page}}
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- actions -->
-	<div class="tw-mt-5">
-		<!-- (click)="isOpen = !isOpen" -->
-		<button type="submit" 
-			class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			بحث متقدم
-		</button>
-		<span class="tw-mx-1"></span>
-		<!-- (click)="rest()" -->
-		<button type="submit"  (click)="resetForm()"
-			class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-4 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-			إعادة تعيين
-		</button>
-	</div>
-</form>
+  <!-- Actions -->
+  <div class="tw-flex tw-gap-3">
+    <button type="button" (click)="saveSettings()"
+      class="tw-flex-1 tw-h-11 tw-rounded-lg tw-font-bold tw-text-sm tw-transition-all"
+      [class.tw-bg-mainColor]="!saved"  [class.tw-text-white]="!saved"
+      [class.tw-bg-green-500]="saved"   [class.tw-text-white]="saved">
+      {{ saved ? '✓ تم الحفظ' : 'حفظ الإعدادات' }}
+    </button>
+    <button type="button" (click)="resetForm()"
+      class="tw-flex-1 tw-border tw-border-[#E4E4D0] tw-bg-white tw-text-gray-600 tw-font-medium tw-h-11 tw-rounded-lg hover:tw-bg-gray-50 tw-transition-colors tw-text-sm">
+      إعادة تعيين
+    </button>
+  </div>
 
+  </form>
+</div>
 
- <!--  [data]="sorats" -->
-<app-audio-player [data]="audioFiles"></app-audio-player>
+<app-audio-player [data]="audioFiles" [repeatEachAya]="repeatEachAya" [repeatRange]="repeatRange"></app-audio-player>

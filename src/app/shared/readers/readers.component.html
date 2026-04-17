@@ -1,63 +1,48 @@
-<div>
-	<header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
-		<h2 class="tw-mb-0">القراء</h2>
-		<button title="close" (click)="closeDialog()" mat-flat-button
-			class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
-			<span class="tw-text-white tw-text-sm tw-block tw-py-px">
-				<i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
-			</span>
-		</button>
-	</header>
-	<main>
-		<div class="tw-grid tw-grid-cols-4 tw-gap-5">
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40 ">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40 activeItem">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-			<div class="tw-col-span-1">
-				<div class="tw-text-center tw-border tw-border-neutral-100 tw-rounded-sm tw-cursor-pointer hover:tw-opacity-40">
-					<img src="../../../assets/images/avatar.png" width="150" class="tw-m-auto tw-pt-2 tw-opacity-70" alt="">
-					<span class="tw-block tw-bg-neutral-100 tw-py-2.5 tw-mt-2.5 tw-font-medium">الشيخ مشارى راشد</span>
-				</div>
-			</div>
-		</div>	
-	</main>
+<div dir="rtl" class="tw-min-w-[320px] sm:tw-min-w-[560px]">
+
+  <!-- Header -->
+  <header class="tw-flex tw-items-center tw-justify-between tw-border-b tw-border-[#E4E4D0] tw-pb-3 tw-mb-5">
+    <div>
+      <h2 class="tw-mb-0 tw-text-base tw-font-bold">القراء</h2>
+      <p class="tw-text-xs tw-text-gray-400 tw-mb-0">اختر القارئ المفضل لديك</p>
+    </div>
+    <button title="إغلاق" (click)="closeDialog()" mat-flat-button
+      class="tw-bg-[#E4E4D0] tw-w-8 tw-h-8 tw-min-w-0 tw-px-0 tw-rounded-full">
+      <span class="tw-text-gray-600 tw-text-sm tw-block">✕</span>
+    </button>
+  </header>
+
+  <!-- Readers grid -->
+  <main>
+    <div class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3">
+      <div *ngFor="let reader of readers">
+        <div (click)="selectReader(reader)"
+          class="reader-card tw-relative tw-flex tw-flex-col tw-items-center tw-gap-2 tw-p-3 tw-rounded-xl tw-border-2 tw-cursor-pointer tw-transition-all tw-select-none"
+          [class.selected]="listenService.selectedReader.id === reader.id">
+
+          <!-- Check badge -->
+          <span *ngIf="listenService.selectedReader.id === reader.id"
+            class="tw-absolute tw-top-2 tw-left-2 tw-w-5 tw-h-5 tw-rounded-full tw-bg-mainColor tw-flex tw-items-center tw-justify-center tw-text-white tw-text-[10px] tw-font-bold tw-shadow">
+            ✓
+          </span>
+
+          <!-- Avatar -->
+          <div class="tw-w-14 tw-h-14 tw-rounded-full tw-overflow-hidden tw-border-2 tw-transition-all"
+            [class.tw-border-mainColor]="listenService.selectedReader.id === reader.id"
+            [class.tw-border-[#E4E4D0]]="listenService.selectedReader.id !== reader.id">
+            <img src="../../../assets/images/avatar.png" class="tw-w-full tw-h-full tw-object-cover tw-opacity-80" alt="">
+          </div>
+
+          <!-- Name -->
+          <span class="tw-text-xs tw-font-medium tw-text-center tw-leading-snug"
+            [class.tw-text-mainColor]="listenService.selectedReader.id === reader.id"
+            [class.tw-text-gray-700]="listenService.selectedReader.id !== reader.id">
+            {{ reader.name }}
+          </span>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
 </div>

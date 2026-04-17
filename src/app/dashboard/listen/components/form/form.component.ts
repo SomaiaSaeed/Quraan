@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Search } from 'src/app/core/services/search.service';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ListenService } from '../../services/listen.service';
+import { ListenService, READERS } from '../../services/listen.service';
 interface Track {
 	title: string;
 	link: string;
@@ -15,23 +13,30 @@ interface Track {
 })
 
 export class FormComponent implements OnInit {
-	form: FormGroup; // تعريف النموذج
-	searchInstance = new Search(); 
+	form: FormGroup;
+	searchInstance = new Search();
+	readers = READERS;
+	readerOpen   = true;
+	rangeOpen    = true;
+	repeatOpen   = true;
+	advancedOpen = false;
+	saved        = false;
+
+	repeatEachAya = 1;
+	repeatRange    = 1;
+	readonly repeatOptions = [1, 2, 3, 5, 10];
 	suraNames: string[] = [];
 	ayaNumbersFrom: number[] = [];
 	ayaNumbersTo: number[] = [];
-	selectedAyaNumbers: number[] = []; 
-	audioFiles: Track[] = []; 
-	ayaIdsFrom: any[] = [];
-	ayaIdsTo: any[] = [];
-	selectedAyaIds: number[] = [];
+	audioFiles: Track[] = [];
+	ayaNumbersFromIds: number[] = [];
+	ayaNumbersToIds: number[] = [];
 	uniqueJozNumbersList: number[] = [];
 	hezbList: number[] = [];
 	rubList: string[] = [];
 	pagesList: number[] = [];
-	ayatListOfPages: number[] = []
 
-	constructor(private fb: FormBuilder, private _listenService: ListenService) {
+	constructor(private fb: FormBuilder, public _listenService: ListenService) {
 		this.form = this.fb.group({
 			suraFrom: ['', Validators.required],
 			ayaFrom: ['', Validators.required],
@@ -49,7 +54,33 @@ export class FormComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.getSuraNames()
+		this.getSuraNames();
+		this._restoreSettings();
+	}
+
+	saveSettings(): void {
+		const settings = {
+			readerId:      this._listenService.selectedReader.id,
+			repeatEachAya: this.repeatEachAya,
+			repeatRange:   this.repeatRange,
+		};
+		localStorage.setItem('listenSettings', JSON.stringify(settings));
+		this.saved = true;
+		setTimeout(() => this.saved = false, 2000);
+	}
+
+	private _restoreSettings(): void {
+		const raw = localStorage.getItem('listenSettings');
+		if (!raw) return;
+		try {
+			const s = JSON.parse(raw);
+			if (s.readerId) {
+				const r = READERS.find(r => r.id === s.readerId);
+				if (r) this._listenService.setReader(r);
+			}
+			if (s.repeatEachAya) this.repeatEachAya = s.repeatEachAya;
+			if (s.repeatRange)   this.repeatRange   = s.repeatRange;
+		} catch {}
 	}
 
 	getSuraNames() {
@@ -69,26 +100,23 @@ export class FormComponent implements OnInit {
 
 			if (type === 'from') {
 				this.ayaNumbersFrom = ayaNumbers;
-				this.ayaIdsFrom = ayaIds; 
-				this.form.get('ayaFrom')?.setValue('');  
+				this.ayaNumbersFromIds = ayaIds;
+				this.form.get('ayaFrom')?.setValue('');
 			} else {
 				this.ayaNumbersTo = ayaNumbers;
-				this.ayaIdsTo = ayaIds; 
+				this.ayaNumbersToIds = ayaIds;
 				this.form.get('ayaTo')?.setValue('');
 			}
-		}
-		 else {
+		} else {
 			if (type === 'from') {
 				this.ayaNumbersFrom = [];
-				this.ayaIdsFrom = [];
+				this.ayaNumbersFromIds = [];
 			} else {
 				this.ayaNumbersTo = [];
-				this.ayaIdsTo = [];
+				this.ayaNumbersToIds = [];
 			}
 		}
 
-		console.log("ayaIdsFrom", this.ayaIdsFrom);
-		console.log("ayaIdsTo", this.ayaIdsTo);
 	}
 
 	// تحديث مصفوفة ملفات الصوت بعد اختيار عدد الايات من - إلى
@@ -97,11 +125,6 @@ export class FormComponent implements OnInit {
 		const ayaTo = Number(this.form.get('ayaTo')?.value);
 		const selectedSuraFrom = this.form.get('suraFrom')?.value;
 		const selectedSuraTo = this.form.get('suraTo')?.value;
-
-		console.log("ayaFrom:", ayaFrom);
-		console.log("ayaTo:", ayaTo);
-		console.log("selectedSuraFrom:", selectedSuraFrom);
-		console.log("selectedSuraTo:", selectedSuraTo);
 
 		const allAyatSorted = this.searchInstance.table_othmani.sort((a, b) => Number(a.id) - Number(b.id));
 
@@ -121,25 +144,9 @@ export class FormComponent implements OnInit {
 			return itemId >= startId && itemId <= endId;
 		});
 
-		const ayaNumbers = filteredAyat.map(item => Number(item.Aya_N));
-
-		console.log("Generated Aya Numbers:", ayaNumbers);
-
 		if (ayaFrom && ayaTo) {
-			this.selectedAyaNumbers = ayaNumbers
-
-			this.audioFiles = this.selectedAyaNumbers.map(ayahNumber => {
-
-				const aya = this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber)); 
-				const title = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`;
-
-				return {
-					title: title, 
-					link: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
-				};
-			});
-			this.generateJozNumbers()
-			console.log(this.audioFiles);
+			this.audioFiles = this.buildAudioFiles(filteredAyat);
+			this.generateJozNumbers();
 		}
 	}
 
@@ -164,11 +171,7 @@ export class FormComponent implements OnInit {
 				new Set(ayatRange.map(item => item.nOFJoz))
 			);
 
-			console.log("الأجزاء الفريدة:", uniqueJozNumbers);
-
-			this.uniqueJozNumbersList = uniqueJozNumbers
-		} else {
-			console.error('تأكد من اختيار الآيات بشكل صحيح');
+				this.uniqueJozNumbersList = uniqueJozNumbers;
 		}
 	}
 
@@ -202,9 +205,7 @@ export class FormComponent implements OnInit {
 
 		const hezbNumbers = [...new Set(filteredAyat.map(item => Number(item.nOFHezb)))];
 
-		this.hezbList = hezbNumbers
-
-		console.log('الأحزاب الموجودة بين الاجزاء التي تم اختيارها:', hezbNumbers);
+		this.hezbList = hezbNumbers;
 		return hezbNumbers;
 	}
 
@@ -239,9 +240,7 @@ export class FormComponent implements OnInit {
 
 		const rubNumbers = [...new Set(filteredAyat.map(item => item.rub))];
 
-		this.rubList = rubNumbers
-
-		console.log('الأرباع الموجودة بين الاحزاب التي تم اختيارها:', rubNumbers);
+		this.rubList = rubNumbers;
 		return rubNumbers;
 	}
 
@@ -275,9 +274,7 @@ export class FormComponent implements OnInit {
 
 		const pagesNumbers = [...new Set(filteredAyat.map(item => item.nOFPage))];
 
-		this.pagesList = pagesNumbers
-
-		console.log('الصفحات الموجودة بين الأربع التي تم اختيارها:', pagesNumbers);
+		this.pagesList = pagesNumbers;
 		return pagesNumbers;
 	}
 
@@ -309,30 +306,20 @@ export class FormComponent implements OnInit {
 			return false;
 		});
 
-		const pagesNumbers = [...new Set(filteredAyat.map(item => item.Aya_N))];
+		this.audioFiles = this.buildAudioFiles(filteredAyat);
+	}
 
-		this.ayatListOfPages = pagesNumbers;
-
-		console.log('الآيات الموجودة في الصفحات المختارة:', this.ayatListOfPages);
-
-		// الصوتيات
-		if (this.ayatListOfPages) {
-			this.audioFiles = this.ayatListOfPages.map(ayahNumber => {
-				// البحث عن نص الآية في table_othmani باستخدام Aya_N
-				const aya = this.searchInstance.table_othmani.find(item => item.Aya_N === String(ayahNumber));
-				const title = aya ? aya.AyaText_Othmani : `Ayah ${ayahNumber}`;
-
-				return {
-					title: title,
-					link: `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`
-				};
-			});
-			console.log("this.audioFiles222222",this.audioFiles)
-		}
+	private buildAudioFiles(filteredAyat: any[]): Track[] {
+		return filteredAyat.map(item => ({
+			title: item.AyaText_Othmani,
+			link: this._listenService.buildAudioUrl(item.id)
+		}));
 	}
 
 	resetForm(){
 		this.form.reset();
+		this.repeatEachAya = 1;
+		this.repeatRange = 1;
 	}
 
 }

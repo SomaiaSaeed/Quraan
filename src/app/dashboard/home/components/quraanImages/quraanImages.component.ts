@@ -5,6 +5,7 @@ import { MenuItem } from "primeng/api";
 import { ContextMenu } from "primeng/contextmenu";
 import { forkJoin } from "rxjs";
 import { BookmarkService } from "src/app/core/services/bookmark.service";
+import { ListenService } from "src/app/dashboard/listen/services/listen.service";
 import { Search } from "src/app/core/services/search.service";
 
 
@@ -358,8 +359,9 @@ private renderPage(page: number): void {
 
   showBookmarkDialog = false;
   bookmarkNote = '';
+  private _ayaAudio: HTMLAudioElement | null = null;
 
-  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService) { }
+  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService) { }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
@@ -481,6 +483,11 @@ private renderPage(page: number): void {
         label: '⭐ حفظ الآية',
         icon: 'pi pi-bookmark',
         command: () => this.bookmarkAya()
+      },
+      {
+        label: '🔊 استماع للآية',
+        icon: 'pi pi-volume-up',
+        command: () => this.listenToAya()
       }
     ];
 
@@ -507,6 +514,17 @@ private renderPage(page: number): void {
     if (!this.selectedAya) return;
     this.bookmarkNote = '';
     this.showBookmarkDialog = true;
+  }
+
+  private listenToAya(): void {
+    if (!this.selectedAya) return;
+    if (this._ayaAudio) {
+      this._ayaAudio.pause();
+      this._ayaAudio = null;
+    }
+    const url = this._listenService.buildAudioUrl(this.selectedAya.id);
+    this._ayaAudio = new Audio(url);
+    this._ayaAudio.play();
   }
 
   confirmBookmark(): void {

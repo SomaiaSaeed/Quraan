@@ -1,54 +1,34 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { BehaviorSubject } from 'rxjs';
 
-@Injectable({
-	providedIn: 'root'
-})
+export interface Reader {
+  id: string;
+  name: string;
+}
+
+export const READERS: Reader[] = [
+  { id: 'ar.alafasy',             name: 'مشارى راشد العفاسى' },
+  { id: 'ar.abdurrahmaansudais',  name: 'عبدالرحمن السديس' },
+  { id: 'ar.husary',              name: 'محمود خليل الحصرى' },
+  { id: 'ar.minshawi',            name: 'محمد صديق المنشاوى' },
+  { id: 'ar.abdullahbasfar',      name: 'عبدالله بصفر' },
+  { id: 'ar.mahermuaiqly',        name: 'ماهر المعيقلى' },
+  { id: 'ar.shaatree',            name: 'أبو بكر الشاطرى' },
+  { id: 'ar.ibrahimakhbar',       name: 'إبراهيم الأخضر' },
+  { id: 'ar.hudhaify',             name: 'على الحذيفى' },
+];
+
+@Injectable({ providedIn: 'root' })
 export class ListenService {
 
-	private Quraan_URL = environment.API_BASE_URL;
-	private Quraan_SOUND = environment.Quraan_Sound_URL;
+  private _reader = new BehaviorSubject<Reader>(READERS[0]);
+  selectedReader$ = this._reader.asObservable();
 
-	constructor(private http: HttpClient) { }
+  get selectedReader(): Reader { return this._reader.value; }
 
-	getAllSoras(): Observable<any> {
-		return this.http.get<any>(this.Quraan_URL);
-	}
+  setReader(reader: Reader): void { this._reader.next(reader); }
 
-	// استدعاء تفاصيل سورة معينة بناءً على رقمها
-	getSurahById(id: number): Observable<any> {
-		return this.http.get<any>(`${this.Quraan_URL}/${id}`);
-	}
-
-	generateAudioLink(ayahNumber: number): string {
-		return `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahNumber}.mp3`;
-	}
-
-	  getAllAyahs(): Observable<string[]> {
-		return this.http.get(this.Quraan_URL).pipe(
-		  map((response: any) => {
-			const ayahLinks: string[] = [];
-			let ayahNumber = 1;
-	
-			response.data.forEach((surah: any) => {
-			  for (let i = 0; i < surah.numberOfAyahs; i++) {
-				ayahLinks.push(`${this.Quraan_SOUND}/${ayahNumber}.mp3`);
-				ayahNumber++;
-			  }
-			});
-	
-			return ayahLinks;
-		  })
-		);
-	  }
-	
-	  getSurahAyahs(surahNumber: number): Observable<number> {
-		return this.http.get(`${this.Quraan_URL}/${surahNumber}`).pipe(
-		  map((response: any) => response.data.ayahs)
-		);
-	  }
-
+  buildAudioUrl(ayahId: number | string): string {
+    return `https://cdn.islamic.network/quran/audio/64/${this.selectedReader.id}/${ayahId}.mp3`;
+  }
 }

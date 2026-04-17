@@ -1,27 +1,114 @@
-<!-- result -->
-<!-- <div class="tw-grid tw-grid-cols-4 tw-gap-4 tw-mt-6 tw-justify-center">
-  <ng-container *ngFor="let row of data; let i = index">
-    <div class="flex-box">
-      <span class="tw-font-medium tw-bg-secondColor tw-w-8 tw-min-w-[30px] tw-h-full flex-c-c">{{i + 1}}</span>
-      <div class="tw-rounded-none tw-border tw-border-secondColor tw-bg-[#f1f3f4]">
-        <audio [id]="'surahPlayer' + i" controls="controls" (play)="onPlay(i)" (ended)="audioEnded(i)"
-          class="tw-max-w-[265px]">
-          <source id="activeAyah" src="{{ row }}" title="{{ 1 }}" type="audio/mp3" />
-        </audio>
-      </div>
+<div class="tw-max-w-3xl tw-mx-auto tw-mt-6 tw-px-4" *ngIf="playlist.length > 0" dir="rtl">
+
+  <!-- ── Master Control Bar ───────────────────────────────────────────────── -->
+  <div class="tw-bg-white tw-rounded-xl tw-border tw-border-[#E4E4D0] tw-shadow-sm tw-mb-4 tw-overflow-hidden">
+
+    <!-- Now Playing -->
+    <div class="tw-bg-[#fdf9ee] tw-border-b tw-border-[#E4E4D0] tw-px-4 tw-py-2 tw-flex tw-items-center tw-gap-2">
+      <span class="tw-text-[10px] tw-text-gray-400 tw-shrink-0">يُشغَّل الآن</span>
+      <p class="tw-flex-1 tw-mb-0 tw-text-sm tw-font-medium tw-text-right tw-truncate tw-leading-relaxed"
+        [class.tw-text-gray-400]="!isPlaying"
+        [class.tw-text-mainColor]="isPlaying">
+        {{ isPlaying && currentTrack ? currentTrack.title : '—' }}
+      </p>
+      <span *ngIf="isPlaying" class="tw-shrink-0 tw-text-[10px] tw-text-gray-400 tw-whitespace-nowrap">
+        {{ progressLabel }}
+      </span>
     </div>
-  </ng-container>
-</div> -->
-<div class="tw-max-w-3xl tw-mx-auto tw-mt-8" *ngIf="data.length > 0">
-  <ngx-audio-player [autoPlay]="false" muted="muted" [playlist]="data"
-    [disablePositionSlider]="msaapDisablePositionSlider" [displayRepeatControls]="msaapDisplayRepeatControls"
-    [displayVolumeControls]="msaapDisplayVolumeControls" 
-    [displayTitle]="msaapDisplayTitle" [displayPlaylist]="msaapDisplayPlayList" 
-    [tableHeader]="msaapTableHeader" [titleHeader]="msaapTitleHeader"
-    [expanded]="true">
-  </ngx-audio-player>
-</div>
-<div  class="tw-text-center tw-pt-20">
-  <app-no-results *ngIf="data.length == 0"></app-no-results>
+
+    <!-- Controls -->
+    <div class="tw-flex tw-items-center tw-justify-center tw-gap-4 tw-py-4 tw-px-4">
+
+      <!-- Stop -->
+      <button type="button" (click)="stop()" [disabled]="!isPlaying && currentIdx === 0"
+        class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-500 hover:tw-border-red-300 hover:tw-text-red-400 tw-transition-all disabled:tw-opacity-30">
+        <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+      </button>
+
+      <!-- Prev -->
+      <button type="button" (click)="prev()" [disabled]="!playlist.length"
+        class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-500 hover:tw-border-mainColor hover:tw-text-mainColor tw-transition-all disabled:tw-opacity-30">
+        <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6V6zm3.5 6 8.5 6V6l-8.5 6z"/></svg>
+      </button>
+
+      <!-- Play / Pause (large) -->
+      <button type="button" (click)="togglePlay()" [disabled]="!playlist.length"
+        class="tw-w-14 tw-h-14 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-shadow-md tw-transition-all hover:tw-scale-105 disabled:tw-opacity-30"
+        [class.tw-bg-mainColor]="!isPlaying"
+        [class.tw-bg-amber-500]="isPlaying">
+        <!-- Play icon -->
+        <svg *ngIf="!isPlaying" class="tw-w-6 tw-h-6 tw-text-white tw-ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <!-- Pause icon -->
+        <svg *ngIf="isPlaying" class="tw-w-6 tw-h-6 tw-text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+      </button>
+
+      <!-- Next -->
+      <button type="button" (click)="next()" [disabled]="!playlist.length"
+        class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-500 hover:tw-border-mainColor hover:tw-text-mainColor tw-transition-all disabled:tw-opacity-30">
+        <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2V6z"/></svg>
+      </button>
+
+      <!-- Repeat badges -->
+      <div class="tw-flex tw-flex-col tw-items-end tw-gap-1 tw-mr-auto">
+        <span class="tw-text-[10px] tw-px-2 tw-py-0.5 tw-rounded-full tw-bg-[#f0f4ee] tw-border tw-border-[#E4E4D0] tw-text-mainColor tw-font-medium">
+          آية ×{{ repeatEachAya }}
+        </span>
+        <span class="tw-text-[10px] tw-px-2 tw-py-0.5 tw-rounded-full tw-bg-[#f0f4ee] tw-border tw-border-[#E4E4D0] tw-text-mainColor tw-font-medium">
+          مقطع {{ repeatRange === 100 ? '∞' : '×' + repeatRange }}
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Track List ──────────────────────────────────────────────────────────── -->
+  <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
+    <div class="tw-text-xs tw-text-gray-400 tw-px-4 tw-py-2 tw-border-b tw-border-gray-100 tw-flex tw-justify-between">
+      <span>القائمة</span>
+      <span>{{ playlist.length }} آية</span>
+    </div>
+    <div *ngFor="let track of playlist; let i = index"
+      (click)="playFrom(i)"
+      class="tw-flex tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-border-b tw-border-gray-100 last:tw-border-b-0 tw-cursor-pointer tw-transition-colors"
+      [class.tw-bg-[#f0f4ee]]="isPlaying && currentIdx === i"
+      [class.hover:tw-bg-gray-50]="!(isPlaying && currentIdx === i)">
+
+      <!-- Playing indicator or index -->
+      <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-shrink-0 tw-text-xs tw-font-medium"
+        [class.tw-bg-mainColor]="isPlaying && currentIdx === i"
+        [class.tw-text-white]="isPlaying && currentIdx === i"
+        [class.tw-bg-[#E4E4D0]]="!(isPlaying && currentIdx === i)"
+        [class.tw-text-gray-600]="!(isPlaying && currentIdx === i)">
+        <span *ngIf="isPlaying && currentIdx === i">♪</span>
+        <span *ngIf="!(isPlaying && currentIdx === i)">{{ i + 1 }}</span>
+      </span>
+
+      <!-- Aya text -->
+      <p class="tw-flex-1 tw-mb-0 tw-text-sm tw-leading-relaxed tw-text-right tw-truncate"
+        [class.tw-text-mainColor]="isPlaying && currentIdx === i"
+        [class.tw-font-medium]="isPlaying && currentIdx === i">
+        {{ track.title }}
+      </p>
+
+      <!-- Repeat badge -->
+      <span *ngIf="repeatEachAya > 1"
+        class="tw-shrink-0 tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[10px] tw-font-bold"
+        [class.tw-bg-mainColor]="isPlaying && currentIdx === i"
+        [class.tw-text-white]="isPlaying && currentIdx === i"
+        [class.tw-bg-[#E4E4D0]]="!(isPlaying && currentIdx === i)"
+        [class.tw-text-gray-600]="!(isPlaying && currentIdx === i)">
+        ×{{ repeatEachAya }}
+      </span>
+
+    </div>
+  </div>
+
 </div>
 
+<div class="tw-text-center tw-pt-20">
+  <app-no-results *ngIf="!playlist.length"></app-no-results>
+</div>

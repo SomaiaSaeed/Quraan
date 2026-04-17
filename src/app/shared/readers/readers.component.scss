@@ -1,0 +1,17 @@
+.reader-card {
+  border-color: #E4E4D0;
+  background: #fafafa;
+
+  &:hover {
+    border-color: #94A684;
+    background: #f6f9f5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(148, 166, 132, 0.15);
+  }
+
+  &.selected {
+    border-color: #94A684;
+    background: #f0f4ee;
+    box-shadow: 0 4px 12px rgba(148, 166, 132, 0.2);
+  }
+}
