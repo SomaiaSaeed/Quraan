@@ -45,11 +45,26 @@
   direction: rtl;
 }
 
-.highlight {
-  background-color: yellow;
-  border-radius: 5px;
-  padding: 2px;
+/* ── Aya highlight ─────────────────────────────────────────────
+   Word-level: each word gets a soft background tint — follows
+   exact word boundaries without touching the flex layout at all.
+   Line-level: connected border box drawn around the aya lines.
+   ─────────────────────────────────────────────────────────── */
+
+// Individual word tint — direct flex child, layout never broken
+.word-hl {
+  background: rgba(148, 166, 132, 0.2);
+  border-radius: 3px;
+  padding: 1px 1px;
 }
+
+.line-hl, .line-hl-first, .line-hl-last {}
+
+@keyframes ayaFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 
 .aya-aya {
   width: 24px;
@@ -120,4 +135,52 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ── Color legend strip ──────────────────────────────────────── */
+.color-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+  margin: 6px 8px 2px;
+  padding: 6px 10px;
+  background: #faf9f5;
+  border: 1px solid #e4e4d0;
+  border-radius: 8px;
+  direction: rtl;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #4b5563;
+  font-family: 'Cairo', sans-serif;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  outline-offset: 1px;
+}
+
+.legend-sep {
+  display: inline-block;
+  width: 1px;
+  height: 10px;
+  background: #d1d5db;
+  flex-shrink: 0;
+
+  // hide separators when they would wrap to a new line
+  @media (max-width: 400px) {
+    display: none;
+  }
 }

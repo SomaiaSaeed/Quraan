@@ -9,6 +9,7 @@
         [class.motashabehat-box--active]="hasHighlight(inp)"
         [style.top.px]="getAyaTop(inp)"
         [style.right.px]="getColOffset(inp)">
+        <span *ngIf="hasHighlight(inp)" class="mot-indicator"></span>
         <span *ngFor="let sura of inp.mergedSuras"
           class="tw-block"
           [class.tw-text-green-700]="true">
@@ -21,7 +22,7 @@
     <div class="quran-wrapper md:tw-col-span-3">
       <!-- Left stack: only for left pages (even) — outer edge -->
       <div class="paper-stack paper-stack--left" *ngIf="!isRightPage"></div>
-      <div class="tw-flex-1 tw-min-w-0 tw-border-4 tw-border-[#e4e4d0] tw-pt-5 tw-bg-[#f5f5f5] tw-border-double tw-overflow-hidden">
+      <div class="tw-flex-1 tw-min-w-0 tw-border-4 tw-border-[#e4e4d0] tw-pt-5 tw-bg-[#fdf9ee] tw-border-double tw-overflow-hidden">
         <app-quraanImages [images]="images"
           (motshabehat)="onMotshbehatGenerated($event)"
           (onClick)="onAyaClick($event)"
@@ -39,6 +40,7 @@
         [class.motashabehat-box--active]="hasHighlight(inp)"
         [style.top.px]="getAyaTop(inp)"
         [style.left.px]="getColOffset(inp)">
+        <span *ngIf="hasHighlight(inp)" class="mot-indicator"></span>
         <span *ngFor="let sura of inp.mergedSuras"
           class="tw-block tw-text-green-700">
           {{ sura.text }}
@@ -48,35 +50,5 @@
 
   </div>
 
-  <!-- Color legend -->
-  <div dir="rtl" class="tw-mt-6 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-sm tw-p-5">
-    <p class="tw-text-sm tw-font-semibold tw-text-gray-500 tw-mb-4 tw-tracking-wide">دليل الألوان</p>
-    <div class="tw-flex tw-flex-wrap tw-gap-3">
-      <div class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-full tw-px-4 tw-py-1.5">
-        <div class="tw-w-3 tw-h-3 tw-rounded-full tw-flex-shrink-0" style="background-color: #FF0000"></div>
-        <span class="tw-text-sm tw-text-gray-700">كلمة وحيدة بداية الأية</span>
-      </div>
-      <div class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-full tw-px-4 tw-py-1.5">
-        <div class="tw-w-3 tw-h-3 tw-rounded-full tw-flex-shrink-0" style="background-color: #00FF00"></div>
-        <span class="tw-text-sm tw-text-gray-700">موضعين</span>
-      </div>
-      <div class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-full tw-px-4 tw-py-1.5">
-        <div class="tw-w-3 tw-h-3 tw-rounded-full tw-flex-shrink-0" style="background-color: #0000FF"></div>
-        <span class="tw-text-sm tw-text-gray-700">ثلاث مواضع</span>
-      </div>
-      <div class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-full tw-px-4 tw-py-1.5">
-        <div class="tw-w-3 tw-h-3 tw-rounded-full tw-flex-shrink-0" style="background-color: #FFFF00; border: 1px solid #ccc;"></div>
-        <span class="tw-text-sm tw-text-gray-700">أربع مواضع</span>
-      </div>
-      <div class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-full tw-px-4 tw-py-1.5">
-        <div class="tw-w-3 tw-h-3 tw-rounded-full tw-flex-shrink-0" style="background-color: #800080"></div>
-        <span class="tw-text-sm tw-text-gray-700">أكثر من أربع مواضع</span>
-      </div>
-      <div class="tw-flex tw-items-center tw-gap-2 tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-full tw-px-4 tw-py-1.5">
-        <div class="tw-w-3 tw-h-3 tw-rounded-full tw-flex-shrink-0" style="background-color: #FFA500"></div>
-        <span class="tw-text-sm tw-text-gray-700">كلمة وحيدة وسط الأية</span>
-      </div>
-    </div>
-  </div>
 
 </div>

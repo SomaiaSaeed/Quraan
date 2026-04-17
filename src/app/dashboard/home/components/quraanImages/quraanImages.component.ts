@@ -443,8 +443,24 @@ private renderPage(page: number): void {
 
   toggleHighlight(aya: any) {
     aya.highlighted = !aya.highlighted;
-    this.onClick.emit(aya)
+    this.onClick.emit(aya);
   }
+
+  /** Returns true if any segment in the line belongs to a highlighted aya */
+  isLineHighlighted(line: any): boolean {
+    return line.segments?.some((seg: any) => seg.aya?.highlighted) ?? false;
+  }
+
+  /** True if this is the FIRST line of a highlighted aya */
+  isFirstHighlightedLine(line: any, lineIdx: number): boolean {
+    return line.segments?.some((seg: any) => seg.aya?.highlighted && seg.aya?._hlFirstLine === lineIdx) ?? false;
+  }
+
+  /** True if this is the LAST line of a highlighted aya */
+  isLastHighlightedLine(line: any, lineIdx: number): boolean {
+    return line.segments?.some((seg: any) => seg.aya?.highlighted && seg.aya?._hlLastLine === lineIdx) ?? false;
+  }
+
 
   onRightClick(event: MouseEvent, aya: any) {
     event.preventDefault();
@@ -1471,6 +1487,18 @@ private renderPage(page: number): void {
     });
 
     slide.mushafLines = mushafLines;
+
+    // Track first/last mushaf line index for each aya — used by connected highlight box
+    const ayaFirstLine = new Map<any, number>();
+    const ayaLastLine  = new Map<any, number>();
+    mushafLines.forEach((ml: any, idx: number) => {
+      ml.segments.forEach((seg: any) => {
+        if (!ayaFirstLine.has(seg.aya)) ayaFirstLine.set(seg.aya, idx);
+        ayaLastLine.set(seg.aya, idx);
+      });
+    });
+    ayaFirstLine.forEach((lineIdx, aya) => { aya._hlFirstLine = lineIdx; });
+    ayaLastLine.forEach((lineIdx, aya)  => { aya._hlLastLine  = lineIdx; });
 
     // Build alignment metadata for side boxes
     // Sura-start lines add an extra ~84px (h-16=64 + mt-2=8 + mb-3=12) above their text line

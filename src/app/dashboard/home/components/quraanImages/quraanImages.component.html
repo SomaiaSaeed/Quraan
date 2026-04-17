@@ -8,7 +8,7 @@
 
             <!-- Mushaf Al-Madinah line view -->
             <ng-container *ngIf="page.mushafLines?.length">
-              <ng-container *ngFor="let line of page.mushafLines">
+              <ng-container *ngFor="let line of page.mushafLines; let li = index">
 
                 <!-- Inline sura header -->
                 <div *ngIf="line.isSuraStart" class="tw-relative tw-mb-3 tw-mt-2">
@@ -19,11 +19,15 @@
                 </div>
 
                 <!-- Mushaf line -->
-                <div class="mushaf-line" [class.mushaf-line-centered]="line.isCentered">
+                <div class="mushaf-line"
+                  [class.mushaf-line-centered]="line.isCentered"
+                  [class.line-hl]="isLineHighlighted(line)"
+                  [class.line-hl-first]="isFirstHighlightedLine(line, li)"
+                  [class.line-hl-last]="isLastHighlightedLine(line, li)">
                   <ng-container *ngFor="let seg of line.segments">
                     <ng-container *ngFor="let w of seg.lineColoredWords">
                       <span class="mushaf-word"
-                        [class.highlight]="seg.aya.highlighted"
+                        [class.word-hl]="seg.aya.highlighted"
                         [style.text-decoration-line]="w.color ? 'underline' : 'none'"
                         [style.text-decoration-color]="w.color"
                         (click)="toggleHighlight(seg.aya)"
@@ -179,7 +183,34 @@
 
 </div>
 
-<p-contextMenu #menu [model]="contextMenuItems"></p-contextMenu>
+<p-contextMenu #menu [model]="contextMenuItems" appendTo="body"></p-contextMenu>
+
+<!-- Color legend — compact strip, in context with the page -->
+<div class="color-legend" dir="rtl">
+  <span class="legend-item">
+    <span class="legend-dot" style="background:#FF0000"></span>كلمة وحيدة بداية الآية
+  </span>
+  <span class="legend-sep"></span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:#00CC44"></span>موضعين
+  </span>
+  <span class="legend-sep"></span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:#0000FF"></span>ثلاث مواضع
+  </span>
+  <span class="legend-sep"></span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:#CCCC00; outline:1px solid #bbb;"></span>أربع مواضع
+  </span>
+  <span class="legend-sep"></span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:#800080"></span>أكثر من أربع
+  </span>
+  <span class="legend-sep"></span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background:#FFA500"></span>كلمة وحيدة وسط الآية
+  </span>
+</div>
 
 <!-- Bookmark dialog -->
 <div *ngIf="showBookmarkDialog"

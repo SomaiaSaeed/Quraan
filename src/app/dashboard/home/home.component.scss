@@ -16,7 +16,7 @@
   line-height: 1.5;
   background: #f0fdf4;
   cursor: default;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   word-break: break-word;
   overflow-wrap: break-word;
 
@@ -27,10 +27,29 @@
   }
 
   &.motashabehat-box--active {
-    background: #fefce8;
-    border-color: #facc15;
-    z-index: 1;
+    border-color: #94A684;
+    background: #edf7ed;
+    z-index: 3;
   }
+}
+
+// ── Active indicator dot ──────────────────────────────────────
+.mot-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #94A684;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px rgba(148, 166, 132, 0.4);
+  animation: indicatorPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes indicatorPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(148, 166, 132, 0.4); }
+  50%       { box-shadow: 0 0 0 5px rgba(148, 166, 132, 0);   }
 }
 
 // ── Quran column wrapper + paper-edge strips ───────────────────────────

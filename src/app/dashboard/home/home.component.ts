@@ -38,10 +38,10 @@ export class HomeComponent {
 
   onAyaClick(aya: any) {
     this.leftMotashabehatSpans.forEach((mot) => {
-      if (mot.id === parseInt(aya.id)) mot.highlighted = aya.highlighted;
+      if (parseInt(mot.ayaId) === parseInt(aya.id)) mot.highlighted = aya.highlighted;
     });
     this.rightMotashabehatSpans.forEach((mot) => {
-      if (mot.id === parseInt(aya.id)) mot.highlighted = aya.highlighted;
+      if (parseInt(mot.ayaId) === parseInt(aya.id)) mot.highlighted = aya.highlighted;
     });
   }
 
