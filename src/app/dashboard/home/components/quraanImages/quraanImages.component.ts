@@ -361,6 +361,19 @@ private renderPage(page: number): void {
   bookmarkNote = '';
   private _ayaAudio: HTMLAudioElement | null = null;
 
+  // ── Tafseer bottom sheet ──────────────────────────────────────────────────
+  readonly TAFSEER_EDITIONS = [
+    { id: 'ar.muyassar',  name: 'الميسر' },
+    { id: 'ar.jalalayn',  name: 'الجلالين' },
+    { id: 'ar.ibnikathir', name: 'ابن كثير' },
+    { id: 'ar.tabari',    name: 'الطبري' },
+    { id: 'ar.wahidi',    name: 'الواحدي' },
+  ];
+  tafseerOpen     = false;
+  tafseerLoading  = false;
+  tafseerText     = '';
+  tafseerEdition  = 'ar.muyassar';
+
   constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService) { }
 
   ngOnInit() {
@@ -488,6 +501,11 @@ private renderPage(page: number): void {
         label: '🔊 استماع للآية',
         icon: 'pi pi-volume-up',
         command: () => this.listenToAya()
+      },
+      {
+        label: '📖 تفسير الآية',
+        icon: 'pi pi-book',
+        command: () => this.showTafseer()
       }
     ];
 
@@ -525,6 +543,40 @@ private renderPage(page: number): void {
     const url = this._listenService.buildAudioUrl(this.selectedAya.id);
     this._ayaAudio = new Audio(url);
     this._ayaAudio.play();
+  }
+
+  showTafseer(): void {
+    if (!this.selectedAya) return;
+    this.tafseerOpen = true;
+    this._fetchTafseer();
+  }
+
+  selectTafseerEdition(id: string): void {
+    this.tafseerEdition = id;
+    this._fetchTafseer();
+  }
+
+  closeTafseer(): void {
+    this.tafseerOpen = false;
+    this.tafseerText = '';
+  }
+
+  private _fetchTafseer(): void {
+    if (!this.selectedAya) return;
+    this.tafseerLoading = true;
+    this.tafseerText = '';
+    this._http
+      .get<any>(`https://api.alquran.cloud/v1/ayah/${this.selectedAya.id}/${this.tafseerEdition}`)
+      .subscribe({
+        next: res => {
+          this.tafseerText = res?.data?.text ?? 'لا يوجد تفسير متاح.';
+          this.tafseerLoading = false;
+        },
+        error: () => {
+          this.tafseerText = 'حدث خطأ أثناء تحميل التفسير.';
+          this.tafseerLoading = false;
+        }
+      });
   }
 
   confirmBookmark(): void {
