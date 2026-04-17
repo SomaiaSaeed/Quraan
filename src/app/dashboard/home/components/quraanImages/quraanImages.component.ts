@@ -364,7 +364,7 @@ private renderPage(page: number): void {
   // ── Tafseer bottom sheet ──────────────────────────────────────────────────
   readonly TAFSEER_EDITIONS = [
     { id: 'ar.muyassar',  name: 'الميسر' },
-  //   { id: 'ar.jalalayn',  name: 'الجلالين' },
+    { id: 'ar.jalalayn',  name: 'الجلالين' },
   //   { id: 'ar.ibnikathir', name: 'ابن كثير' },
   //   { id: 'ar.tabari',    name: 'الطبري' },
   //   { id: 'ar.wahidi',    name: 'الواحدي' },
