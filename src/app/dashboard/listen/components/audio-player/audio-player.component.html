@@ -21,34 +21,34 @@
 
       <!-- Stop -->
       <button type="button" (click)="stop()" [disabled]="!isPlaying && currentIdx === 0"
-        class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-500 hover:tw-border-red-300 hover:tw-text-red-400 tw-transition-all disabled:tw-opacity-30">
-        <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        class="tw-w-11 tw-h-11 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-400 hover:tw-border-red-300 hover:tw-text-red-400 hover:tw-bg-red-50 tw-transition-all hover:tw-scale-110 active:tw-scale-95 disabled:tw-opacity-30 tw-shadow-sm">
+        <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg>
       </button>
 
       <!-- Prev -->
       <button type="button" (click)="prev()" [disabled]="!playlist.length"
-        class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-500 hover:tw-border-mainColor hover:tw-text-mainColor tw-transition-all disabled:tw-opacity-30">
+        class="tw-w-11 tw-h-11 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-400 hover:tw-border-mainColor hover:tw-text-mainColor hover:tw-bg-[#f0f4ee] tw-transition-all hover:tw-scale-110 active:tw-scale-95 disabled:tw-opacity-30 tw-shadow-sm">
         <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6V6zm3.5 6 8.5 6V6l-8.5 6z"/></svg>
       </button>
 
       <!-- Play / Pause (large) -->
       <button type="button" (click)="togglePlay()" [disabled]="!playlist.length"
-        class="tw-w-14 tw-h-14 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-shadow-md tw-transition-all hover:tw-scale-105 disabled:tw-opacity-30"
+        class="tw-w-16 tw-h-16 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-shadow-lg tw-transition-all hover:tw-scale-110 active:tw-scale-95 disabled:tw-opacity-30"
         [class.tw-bg-mainColor]="!isPlaying"
         [class.tw-bg-amber-500]="isPlaying">
         <!-- Play icon -->
-        <svg *ngIf="!isPlaying" class="tw-w-6 tw-h-6 tw-text-white tw-ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+        <svg *ngIf="!isPlaying" class="tw-w-7 tw-h-7 tw-text-white tw-ml-1" fill="currentColor" viewBox="0 0 24 24">
           <path d="M8 5v14l11-7z"/>
         </svg>
         <!-- Pause icon -->
-        <svg *ngIf="isPlaying" class="tw-w-6 tw-h-6 tw-text-white" fill="currentColor" viewBox="0 0 24 24">
+        <svg *ngIf="isPlaying" class="tw-w-7 tw-h-7 tw-text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
         </svg>
       </button>
 
       <!-- Next -->
       <button type="button" (click)="next()" [disabled]="!playlist.length"
-        class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-500 hover:tw-border-mainColor hover:tw-text-mainColor tw-transition-all disabled:tw-opacity-30">
+        class="tw-w-11 tw-h-11 tw-rounded-full tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-flex tw-items-center tw-justify-center tw-text-gray-400 hover:tw-border-mainColor hover:tw-text-mainColor hover:tw-bg-[#f0f4ee] tw-transition-all hover:tw-scale-110 active:tw-scale-95 disabled:tw-opacity-30 tw-shadow-sm">
         <svg class="tw-w-4 tw-h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2V6z"/></svg>
       </button>
 

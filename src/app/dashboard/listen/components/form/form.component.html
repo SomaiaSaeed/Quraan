@@ -3,31 +3,37 @@
   <!-- Step 1: Reader -->
   <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
     <button type="button" (click)="readerOpen = !readerOpen"
-      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3.5 hover:tw-bg-[#f0ede3] tw-transition-colors tw-cursor-pointer"
       [class.tw-border-b]="readerOpen" [class.tw-border-[#E4E4D0]]="readerOpen">
       <div class="tw-flex tw-items-center tw-gap-3">
-        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">١</span>
-        <span class="tw-font-bold tw-text-sm">اختر القارئ</span>
-        <span *ngIf="!readerOpen" class="tw-text-xs tw-text-mainColor tw-font-medium">— {{ _listenService.selectedReader.name }}</span>
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0 tw-shadow-sm">١</span>
+        <span class="tw-font-bold tw-text-sm tw-text-gray-700">اختر القارئ</span>
+        <span *ngIf="!readerOpen" class="tw-text-xs tw-text-mainColor tw-font-semibold tw-bg-[#f0f4ee] tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-[#E4E4D0]">{{ _listenService.selectedReader.name }}</span>
       </div>
-      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
-        [class.tw-rotate-180]="readerOpen">▾</span>
+      <svg class="tw-w-4 tw-h-4 tw-text-mainColor tw-transition-transform tw-duration-200 tw-shrink-0"
+        [class.tw-rotate-180]="readerOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+      </svg>
     </button>
-    <div *ngIf="readerOpen" class="tw-p-4 tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3">
+    <div *ngIf="readerOpen" class="tw-p-4 tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 tw-gap-3">
       <button *ngFor="let reader of readers" type="button"
         (click)="_listenService.setReader(reader)"
-        class="tw-flex tw-flex-col tw-items-center tw-gap-1.5 tw-p-3 tw-rounded-lg tw-border-2 tw-transition-all tw-text-center"
+        class="tw-flex tw-items-center tw-gap-3 tw-p-3 tw-rounded-xl tw-border-2 tw-transition-all tw-text-right hover:tw-scale-[1.02] tw-shadow-sm"
         [class.tw-border-mainColor]="_listenService.selectedReader.id === reader.id"
         [class.tw-bg-[#f0f4ee]]="_listenService.selectedReader.id === reader.id"
-        [class.tw-border-gray-100]="_listenService.selectedReader.id !== reader.id"
-        [class.tw-bg-gray-50]="_listenService.selectedReader.id !== reader.id">
-        <span class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-[#E4E4D0] tw-flex tw-items-center tw-justify-center tw-text-lg">🎙</span>
-        <span class="tw-text-xs tw-font-medium tw-leading-tight"
-          [class.tw-text-mainColor]="_listenService.selectedReader.id === reader.id">
+        [class.tw-border-[#E4E4D0]]="_listenService.selectedReader.id !== reader.id"
+        [class.tw-bg-white]="_listenService.selectedReader.id !== reader.id">
+        <span class="tw-w-9 tw-h-9 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-text-base tw-shrink-0 tw-transition-colors"
+          [class.tw-bg-mainColor]="_listenService.selectedReader.id === reader.id"
+          [class.tw-bg-[#E4E4D0]]="_listenService.selectedReader.id !== reader.id">
+          <span *ngIf="_listenService.selectedReader.id === reader.id" class="tw-text-white tw-text-sm tw-font-bold">✓</span>
+          <span *ngIf="_listenService.selectedReader.id !== reader.id">🎙</span>
+        </span>
+        <span class="tw-text-xs tw-font-semibold tw-leading-snug"
+          [class.tw-text-mainColor]="_listenService.selectedReader.id === reader.id"
+          [class.tw-text-gray-600]="_listenService.selectedReader.id !== reader.id">
           {{ reader.name }}
         </span>
-        <span *ngIf="_listenService.selectedReader.id === reader.id"
-          class="tw-text-[10px] tw-text-mainColor tw-font-bold">✓ محدد</span>
       </button>
     </div>
   </div>
@@ -36,14 +42,16 @@
   <form [formGroup]="form">
   <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
     <button type="button" (click)="rangeOpen = !rangeOpen"
-      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3.5 hover:tw-bg-[#f0ede3] tw-transition-colors tw-cursor-pointer"
       [class.tw-border-b]="rangeOpen" [class.tw-border-[#E4E4D0]]="rangeOpen">
       <div class="tw-flex tw-items-center tw-gap-3">
-        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">٢</span>
-        <span class="tw-font-bold tw-text-sm">حدد النطاق</span>
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0 tw-shadow-sm">٢</span>
+        <span class="tw-font-bold tw-text-sm tw-text-gray-700">حدد النطاق</span>
       </div>
-      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
-        [class.tw-rotate-180]="rangeOpen">▾</span>
+      <svg class="tw-w-4 tw-h-4 tw-text-mainColor tw-transition-transform tw-duration-200 tw-shrink-0"
+        [class.tw-rotate-180]="rangeOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+      </svg>
     </button>
     <div *ngIf="rangeOpen" class="tw-p-4 tw-space-y-4">
       <div>
@@ -86,27 +94,30 @@
   <!-- Step 3: Repeat -->
   <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
     <button type="button" (click)="repeatOpen = !repeatOpen"
-      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3.5 hover:tw-bg-[#f0ede3] tw-transition-colors tw-cursor-pointer"
       [class.tw-border-b]="repeatOpen" [class.tw-border-[#E4E4D0]]="repeatOpen">
       <div class="tw-flex tw-items-center tw-gap-3">
-        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">٣</span>
-        <span class="tw-font-bold tw-text-sm">التكرار</span>
-        <span *ngIf="!repeatOpen" class="tw-text-xs tw-text-gray-400">
-          آية ×{{ repeatEachAya }} &nbsp;|&nbsp; مقطع {{ repeatRange === 100 ? '∞' : '×' + repeatRange }}
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0 tw-shadow-sm">٣</span>
+        <span class="tw-font-bold tw-text-sm tw-text-gray-700">التكرار</span>
+        <span *ngIf="!repeatOpen" class="tw-text-xs tw-text-mainColor tw-font-semibold tw-bg-[#f0f4ee] tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-[#E4E4D0]">
+          آية ×{{ repeatEachAya }} &nbsp;·&nbsp; مقطع {{ repeatRange === 100 ? '∞' : '×' + repeatRange }}
         </span>
       </div>
-      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
-        [class.tw-rotate-180]="repeatOpen">▾</span>
+      <svg class="tw-w-4 tw-h-4 tw-text-mainColor tw-transition-transform tw-duration-200 tw-shrink-0"
+        [class.tw-rotate-180]="repeatOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+      </svg>
     </button>
     <div *ngIf="repeatOpen" class="tw-p-4 tw-space-y-4">
       <div>
         <label class="tw-text-xs tw-text-gray-500 tw-mb-2 tw-block">تكرار كل آية</label>
         <div class="tw-flex tw-flex-wrap tw-gap-2">
           <button *ngFor="let n of repeatOptions" type="button" (click)="repeatEachAya = n"
-            class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all"
+            class="tw-w-11 tw-h-11 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all hover:tw-scale-110 tw-shadow-sm"
             [class.tw-border-mainColor]="repeatEachAya === n" [class.tw-bg-mainColor]="repeatEachAya === n"
-            [class.tw-text-white]="repeatEachAya === n"   [class.tw-border-[#E4E4D0]]="repeatEachAya !== n"
-            [class.tw-bg-white]="repeatEachAya !== n"     [class.tw-text-gray-600]="repeatEachAya !== n">
+            [class.tw-text-white]="repeatEachAya === n"
+            [class.tw-border-[#E4E4D0]]="repeatEachAya !== n"
+            [class.tw-bg-white]="repeatEachAya !== n"     [class.tw-text-gray-500]="repeatEachAya !== n">
             {{ n }}×
           </button>
         </div>
@@ -115,17 +126,19 @@
         <label class="tw-text-xs tw-text-gray-500 tw-mb-2 tw-block">تكرار المقطع</label>
         <div class="tw-flex tw-flex-wrap tw-gap-2">
           <button *ngFor="let n of repeatOptions" type="button" (click)="repeatRange = n"
-            class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all"
+            class="tw-w-11 tw-h-11 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all hover:tw-scale-110 tw-shadow-sm"
             [class.tw-border-mainColor]="repeatRange === n" [class.tw-bg-mainColor]="repeatRange === n"
-            [class.tw-text-white]="repeatRange === n"   [class.tw-border-[#E4E4D0]]="repeatRange !== n"
-            [class.tw-bg-white]="repeatRange !== n"     [class.tw-text-gray-600]="repeatRange !== n">
+            [class.tw-text-white]="repeatRange === n"
+            [class.tw-border-[#E4E4D0]]="repeatRange !== n"
+            [class.tw-bg-white]="repeatRange !== n"     [class.tw-text-gray-500]="repeatRange !== n">
             {{ n }}×
           </button>
           <button type="button" (click)="repeatRange = 100"
-            class="tw-w-10 tw-h-10 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all"
+            class="tw-w-11 tw-h-11 tw-rounded-full tw-border-2 tw-text-sm tw-font-bold tw-transition-all hover:tw-scale-110 tw-shadow-sm"
             [class.tw-border-mainColor]="repeatRange === 100" [class.tw-bg-mainColor]="repeatRange === 100"
-            [class.tw-text-white]="repeatRange === 100" [class.tw-border-[#E4E4D0]]="repeatRange !== 100"
-            [class.tw-bg-white]="repeatRange !== 100"   [class.tw-text-gray-600]="repeatRange !== 100">
+            [class.tw-text-white]="repeatRange === 100"
+            [class.tw-border-[#E4E4D0]]="repeatRange !== 100"
+            [class.tw-bg-white]="repeatRange !== 100"   [class.tw-text-gray-500]="repeatRange !== 100">
             ∞
           </button>
         </div>
@@ -136,15 +149,17 @@
   <!-- Step 4: Advanced -->
   <div class="tw-bg-white tw-rounded-lg tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
     <button type="button" (click)="advancedOpen = !advancedOpen"
-      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3 hover:tw-bg-[#f0ede3] tw-transition-colors"
+      class="tw-w-full tw-flex tw-items-center tw-justify-between tw-bg-[#fdf9ee] tw-px-4 tw-py-3.5 hover:tw-bg-[#f0ede3] tw-transition-colors tw-cursor-pointer"
       [class.tw-border-b]="advancedOpen" [class.tw-border-[#E4E4D0]]="advancedOpen">
       <div class="tw-flex tw-items-center tw-gap-3">
-        <span class="tw-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0">٤</span>
-        <span class="tw-font-bold tw-text-sm">تصفية متقدمة</span>
-        <span class="tw-text-xs tw-text-gray-400">(اختياري)</span>
+        <span class="tw-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-full tw-bg-mainColor tw-text-white tw-text-xs tw-font-bold tw-shrink-0 tw-shadow-sm">٤</span>
+        <span class="tw-font-bold tw-text-sm tw-text-gray-700">تصفية متقدمة</span>
+        <span class="tw-text-[11px] tw-text-gray-400 tw-bg-gray-100 tw-px-2 tw-py-0.5 tw-rounded-full">اختياري</span>
       </div>
-      <span class="tw-text-mainColor tw-text-sm tw-transition-transform tw-duration-200"
-        [class.tw-rotate-180]="advancedOpen">▾</span>
+      <svg class="tw-w-4 tw-h-4 tw-text-mainColor tw-transition-transform tw-duration-200 tw-shrink-0"
+        [class.tw-rotate-180]="advancedOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+      </svg>
     </button>
     <div *ngIf="advancedOpen" class="tw-p-4 tw-space-y-4">
       <div>
@@ -219,15 +234,24 @@
   </div>
 
   <!-- Actions -->
-  <div class="tw-flex tw-gap-3">
+  <div class="tw-flex tw-gap-3 tw-mt-2">
     <button type="button" (click)="saveSettings()"
-      class="tw-flex-1 tw-h-11 tw-rounded-lg tw-font-bold tw-text-sm tw-transition-all"
+      class="tw-flex-1 tw-h-12 tw-rounded-xl tw-font-bold tw-text-sm tw-transition-all tw-shadow-md tw-flex tw-items-center tw-justify-center tw-gap-2 hover:tw-shadow-lg hover:tw-scale-[1.02] active:tw-scale-95"
       [class.tw-bg-mainColor]="!saved"  [class.tw-text-white]="!saved"
       [class.tw-bg-green-500]="saved"   [class.tw-text-white]="saved">
-      {{ saved ? '✓ تم الحفظ' : 'حفظ الإعدادات' }}
+      <svg *ngIf="!saved" class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+      </svg>
+      <svg *ngIf="saved" class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+      </svg>
+      {{ saved ? 'تم الحفظ' : 'حفظ الإعدادات' }}
     </button>
     <button type="button" (click)="resetForm()"
-      class="tw-flex-1 tw-border tw-border-[#E4E4D0] tw-bg-white tw-text-gray-600 tw-font-medium tw-h-11 tw-rounded-lg hover:tw-bg-gray-50 tw-transition-colors tw-text-sm">
+      class="tw-flex-1 tw-h-12 tw-rounded-xl tw-font-medium tw-text-sm tw-transition-all tw-border-2 tw-border-[#E4E4D0] tw-bg-white tw-text-gray-500 tw-flex tw-items-center tw-justify-center tw-gap-2 hover:tw-border-red-300 hover:tw-text-red-400 hover:tw-bg-red-50 active:tw-scale-95">
+      <svg class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
       إعادة تعيين
     </button>
   </div>
