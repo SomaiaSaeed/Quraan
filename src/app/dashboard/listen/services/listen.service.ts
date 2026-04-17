@@ -10,11 +10,11 @@ export const READERS: Reader[] = [
   { id: 'ar.alafasy',             name: 'مشارى راشد العفاسى' },
   { id: 'ar.abdurrahmaansudais',  name: 'عبدالرحمن السديس' },
   { id: 'ar.husary',              name: 'محمود خليل الحصرى' },
-  { id: 'ar.minshawi',            name: 'محمد صديق المنشاوى' },
+  // { id: 'ar.minshawi',            name: 'محمد صديق المنشاوى' },
   { id: 'ar.abdullahbasfar',      name: 'عبدالله بصفر' },
   { id: 'ar.mahermuaiqly',        name: 'ماهر المعيقلى' },
   { id: 'ar.shaatree',            name: 'أبو بكر الشاطرى' },
-  { id: 'ar.ibrahimakhbar',       name: 'إبراهيم الأخضر' },
+  // { id: 'ar.ibrahimakhbar',       name: 'إبراهيم الأخضر' },
   { id: 'ar.hudhaify',             name: 'على الحذيفى' },
 ];
 
