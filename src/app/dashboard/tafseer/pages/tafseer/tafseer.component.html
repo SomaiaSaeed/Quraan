@@ -1,0 +1,127 @@
+<div class="tw-min-h-screen tw-bg-[#f8f5ee]" dir="rtl">
+
+  <!-- ── Page Header ────────────────────────────────────────────────────────── -->
+  <div style="background: #94A684;" class="tw-px-4 tw-pt-8 tw-pb-6">
+    <div class="tw-max-w-3xl tw-mx-auto">
+      <h1 class="tw-text-white tw-text-2xl tw-font-bold tw-mb-1 tw-drop-shadow-sm">التفسير</h1>
+      <p class="tw-text-white/70 tw-text-sm tw-mb-0">اختر السورة والآية لعرض تفسيرها</p>
+    </div>
+  </div>
+
+  <div class="tw-max-w-3xl tw-mx-auto tw-px-4 tw-pb-12">
+
+    <!-- ── Selector Card ─────────────────────────────────────────────────────── -->
+    <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-border tw-border-[#E4E4D0] tw-p-5 tw-mt-6 tw-mb-4">
+
+      <!-- Sura + Aya selects -->
+      <div class="tw-grid tw-grid-cols-2 tw-gap-3 tw-mb-4">
+
+        <div>
+          <label class="tw-text-xs tw-text-gray-400 tw-mb-1 tw-block">السورة</label>
+          <select [(ngModel)]="selectedSura" (ngModelChange)="_onSuraChange()"
+            class="tw-w-full tw-border tw-border-[#E4E4D0] tw-rounded-xl tw-px-3 tw-py-2.5 tw-text-sm tw-text-gray-700 tw-bg-[#fdf9ee] focus:tw-outline-none focus:tw-border-mainColor tw-transition-colors tw-appearance-none">
+            <option *ngFor="let s of suraNames" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="tw-text-xs tw-text-gray-400 tw-mb-1 tw-block">الآية</label>
+          <select [(ngModel)]="selectedAya" (ngModelChange)="_onAyaChange()"
+            class="tw-w-full tw-border tw-border-[#E4E4D0] tw-rounded-xl tw-px-3 tw-py-2.5 tw-text-sm tw-text-gray-700 tw-bg-[#fdf9ee] focus:tw-outline-none focus:tw-border-mainColor tw-transition-colors tw-appearance-none">
+            <option *ngFor="let n of ayaNumbers" [value]="n">{{ n }}</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Mufassir chips -->
+      <div>
+        <label class="tw-text-xs tw-text-gray-400 tw-mb-2 tw-block">المفسِّر</label>
+        <div class="tw-flex tw-flex-wrap tw-gap-2">
+          <button *ngFor="let ed of EDITIONS" type="button" (click)="setEdition(ed.id)"
+            class="tw-px-4 tw-py-1.5 tw-rounded-full tw-text-xs tw-font-semibold tw-border-2 tw-transition-all hover:tw-scale-105"
+            [class.tw-bg-mainColor]="edition === ed.id"
+            [class.tw-text-white]="edition === ed.id"
+            [class.tw-border-mainColor]="edition === ed.id"
+            [class.tw-bg-white]="edition !== ed.id"
+            [class.tw-text-gray-500]="edition !== ed.id"
+            [class.tw-border-[#E4E4D0]]="edition !== ed.id">
+            {{ ed.name }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Aya + Tafseer Card ─────────────────────────────────────────────────── -->
+    <div class="tw-bg-white tw-rounded-2xl tw-shadow-sm tw-border tw-border-[#E4E4D0] tw-overflow-hidden">
+
+      <!-- Aya header strip -->
+      <div class="tw-flex tw-items-center tw-justify-between tw-px-5 tw-py-3"
+        style="background: #f0f4ee; border-bottom: 1px solid #E4E4D0;">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <span class="tw-text-xs tw-text-gray-400">تفسير</span>
+          <span class="tw-text-sm tw-font-bold tw-text-mainColor">{{ currentEditionName }}</span>
+        </div>
+        <span class="tw-text-sm tw-font-semibold tw-text-gray-600">
+          {{ selectedSura }} — آية {{ selectedAya }}
+        </span>
+      </div>
+
+      <!-- Aya text -->
+      <div class="tw-px-5 tw-py-4" style="border-bottom: 1px solid #E4E4D0; background: #fdf9ee;">
+        <p class="tw-text-xl tw-leading-10 tw-text-gray-800 tw-text-right tw-mb-0"
+          style="font-family: 'Amiri', 'Noto Naskh Arabic', serif;">
+          {{ ayaText }}
+        </p>
+      </div>
+
+      <!-- Tafseer text -->
+      <div class="tw-px-5 tw-py-6 tw-min-h-[200px] tw-flex tw-flex-col tw-justify-center">
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-py-8">
+          <div class="tw-w-9 tw-h-9 tw-rounded-full tw-border-4 tw-border-[#E4E4D0] tw-border-t-mainColor tw-animate-spin"></div>
+          <p class="tw-text-xs tw-text-gray-400 tw-mb-0">جارٍ تحميل التفسير...</p>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="!loading && error" class="tw-text-center tw-py-8">
+          <p class="tw-text-sm tw-text-red-400 tw-mb-2">تعذّر تحميل التفسير</p>
+          <button (click)="setEdition(edition)"
+            class="tw-px-4 tw-py-1.5 tw-text-xs tw-bg-mainColor tw-text-white tw-rounded-full hover:tw-opacity-90">
+            إعادة المحاولة
+          </button>
+        </div>
+
+        <!-- Text -->
+        <p *ngIf="!loading && !error && tafseerText"
+          class="tafseer-text tw-text-[15px] tw-text-gray-700 tw-text-right tw-mb-0 tw-leading-9">
+          {{ tafseerText }}
+        </p>
+
+      </div>
+
+      <!-- Prev / Next navigation -->
+      <div class="tw-flex tw-items-center tw-justify-between tw-px-5 tw-py-3"
+        style="border-top: 1px solid #E4E4D0; background: #fdf9ee;">
+        <button type="button" (click)="next()"
+          class="tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-medium tw-text-gray-500 hover:tw-text-mainColor tw-transition-colors tw-px-3 tw-py-2 tw-rounded-lg hover:tw-bg-[#f0f4ee]">
+          <svg class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          الآية التالية
+        </button>
+        <button type="button" (click)="prev()"
+          class="tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-medium tw-text-gray-500 hover:tw-text-mainColor tw-transition-colors tw-px-3 tw-py-2 tw-rounded-lg hover:tw-bg-[#f0f4ee]">
+          الآية السابقة
+          <svg class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

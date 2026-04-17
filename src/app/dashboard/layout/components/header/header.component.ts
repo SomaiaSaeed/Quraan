@@ -79,4 +79,9 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/fehres']);
     this.closeMenu();
   }
+
+  openTafseer() {
+    this.router.navigate(['/tafseer']);
+    this.closeMenu();
+  }
 }

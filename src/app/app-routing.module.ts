@@ -10,7 +10,8 @@ const routes: Routes = [
   { path: 'favorite', loadChildren: () => import('./dashboard/favorite/favorite.module').then(m => m.FavoriteModule) },
   { path: 'similarities', loadChildren: () => import('./dashboard/similarities/similarities.module').then(m => m.SimilaritiesModule) },
   { path: 'alsajadat', loadChildren: () => import('./dashboard/alsajadat/alsajadat.module').then(m => m.AlsajadatModule) },
-  { path: 'fehres', loadChildren: () => import('./dashboard/fehres/fehres.module').then(m => m.FehresModule) }
+  { path: 'fehres', loadChildren: () => import('./dashboard/fehres/fehres.module').then(m => m.FehresModule) },
+  { path: 'tafseer', loadChildren: () => import('./dashboard/tafseer/tafseer.module').then(m => m.TafseerModule) }
 
 ];
 
