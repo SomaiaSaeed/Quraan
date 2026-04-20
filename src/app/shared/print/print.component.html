@@ -1,33 +1,88 @@
-<div>
-  <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-3 tw-mb-4">
-    <h2 class="tw-mb-0">طبـاعة</h2>
-    <button title="close" (click)="closeDialog()" mat-flat-button class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
-      <span class="tw-text-white tw-text-sm tw-block tw-py-px">
-        <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
-      </span>
+<div dir="rtl" class="tw-w-full">
+
+  <!-- Header -->
+  <div class="tw-flex tw-items-center tw-justify-between tw-mb-5 tw-pb-4 tw-border-b tw-border-[#E4E4D0]">
+    <h2 class="tw-text-base tw-font-bold tw-text-gray-700 tw-mb-0 tw-flex tw-items-center tw-gap-2">
+      <svg class="tw-w-5 tw-h-5 tw-text-mainColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+      </svg>
+      طباعة القرآن الكريم
+    </h2>
+    <button type="button" (click)="closeDialog()"
+      class="tw-w-8 tw-h-8 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-bg-gray-100 tw-text-gray-400 hover:tw-bg-red-50 hover:tw-text-red-400 tw-transition-all">
+      <svg class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
     </button>
-  </header>
-  <section>
-    <h4 class="tw-font-medium">اسـم السورة</h4>
-    <div class="tw-flex tw-items-center tw-gap-5">
-      <div class="form-group group">
-        <div class="relative">
-          <label for="" class="labelInput">مـن</label>
-          <input type="text" name="search" placeholder="رقم الاية" class="input">
-        </div>
+  </div>
+
+  <!-- Page range -->
+  <div class="tw-mb-5">
+    <label class="tw-text-xs tw-text-gray-500 tw-font-medium tw-mb-3 tw-block">نطاق الصفحات (١ — ٦٠٤)</label>
+    <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+
+      <div>
+        <label class="tw-text-[11px] tw-text-gray-400 tw-mb-1 tw-block">من صفحة</label>
+        <input type="number" [(ngModel)]="pageFrom" min="1" max="604"
+          class="tw-w-full tw-border-2 tw-border-[#E4E4D0] tw-rounded-xl tw-px-3 tw-py-2.5 tw-text-sm tw-text-gray-700 tw-bg-[#fdf9ee] focus:tw-outline-none focus:tw-border-mainColor tw-transition-colors tw-text-center">
       </div>
-      <div class="form-group group">
-        <div class="relative">
-          <label for="" class="labelInput">إلى</label>
-          <input type="text" name="search" placeholder="رقم الاية" class="input">
-        </div>
+
+      <div>
+        <label class="tw-text-[11px] tw-text-gray-400 tw-mb-1 tw-block">إلى صفحة</label>
+        <input type="number" [(ngModel)]="pageTo" min="1" max="604"
+          class="tw-w-full tw-border-2 tw-border-[#E4E4D0] tw-rounded-xl tw-px-3 tw-py-2.5 tw-text-sm tw-text-gray-700 tw-bg-[#fdf9ee] focus:tw-outline-none focus:tw-border-mainColor tw-transition-colors tw-text-center">
       </div>
+
     </div>
-    <div class="tw-flex tw-justify-end">
-      <button type="submit"
-        class="tw-bg-secondColor tw-text-mainColor tw-font-bold hover:tw-text-white tw-h-10 tw-px-7 hover:tw-bg-[#AEC3AE] transition-du200 disabled:tw-bg-gray-200 disabled:tw-cursor-no-drop disabled:tw-text-gray-400">
-        طباعة
-      </button>
+  </div>
+
+  <!-- Options -->
+  <div class="tw-mb-4">
+    <label class="tw-flex tw-items-center tw-gap-3 tw-cursor-pointer tw-p-3 tw-rounded-xl tw-border-2 tw-transition-all"
+      [class.tw-border-mainColor]="withMotashabehat" [class.tw-bg-[#f0f4ee]]="withMotashabehat"
+      [class.tw-border-[#E4E4D0]]="!withMotashabehat" [class.tw-bg-white]="!withMotashabehat">
+      <input type="checkbox" [(ngModel)]="withMotashabehat" class="tw-w-4 tw-h-4 tw-accent-mainColor">
+      <div>
+        <p class="tw-text-sm tw-font-semibold tw-text-gray-700 tw-mb-0">تضمين صناديق المتشابهات</p>
+        <p class="tw-text-[11px] tw-text-gray-400 tw-mb-0">تظهر مراجع الآيات المتشابهة بجانب كل آية</p>
+      </div>
+    </label>
+  </div>
+
+  <!-- Info strip -->
+  <div class="tw-bg-[#f0f4ee] tw-border tw-border-[#E4E4D0] tw-rounded-xl tw-px-4 tw-py-3 tw-mb-5 tw-text-xs tw-text-gray-500 tw-flex tw-flex-col tw-gap-1">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <svg class="tw-w-3.5 tw-h-3.5 tw-text-mainColor tw-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      ستُطبع كل صفحة على ورقة A4 مستقلة
     </div>
-  </section>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <svg class="tw-w-3.5 tw-h-3.5 tw-text-mainColor tw-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+      </svg>
+      تُحفظ ألوان المتشابهات إن كانت الصفحة محمَّلة مسبقاً
+    </div>
+  </div>
+
+  <!-- Print button -->
+  <button type="button" (click)="doPrint()" [disabled]="loading"
+    class="tw-w-full tw-h-12 tw-rounded-xl tw-font-bold tw-text-sm tw-text-white tw-bg-mainColor tw-flex tw-items-center tw-justify-center tw-gap-2 hover:tw-opacity-90 hover:tw-scale-[1.01] tw-transition-all tw-shadow-md disabled:tw-opacity-50 disabled:tw-cursor-not-allowed active:tw-scale-95">
+
+    <ng-container *ngIf="!loading">
+      <svg class="tw-w-4 tw-h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+      </svg>
+      طباعة
+    </ng-container>
+
+    <ng-container *ngIf="loading">
+      <div class="tw-w-4 tw-h-4 tw-rounded-full tw-border-2 tw-border-white/30 tw-border-t-white tw-animate-spin"></div>
+      جارٍ التحضير...
+    </ng-container>
+
+  </button>
+
 </div>

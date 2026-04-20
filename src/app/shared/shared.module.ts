@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material/material.module';
 import { MainSearchComponent } from './main-search/main-search.component';
 import { ReadersComponent } from './readers/readers.component';
@@ -18,7 +19,8 @@ import { NoResultsComponent } from './no-results/no-results.component';
     MaterialModule,
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    HttpClientModule
   ],
   exports:[
     NoResultsComponent,

@@ -7,6 +7,7 @@ import { forkJoin } from "rxjs";
 import { BookmarkService } from "src/app/core/services/bookmark.service";
 import { ListenService } from "src/app/dashboard/listen/services/listen.service";
 import { Search } from "src/app/core/services/search.service";
+import { PrintService } from "src/app/shared/print/print.service";
 
 
 const QuranInJsonURL = "assets/jsonData/QuranInJson.json";
@@ -374,7 +375,7 @@ private renderPage(page: number): void {
   tafseerText     = '';
   tafseerEdition  = 'ar.muyassar';
 
-  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService) { }
+  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService, private _printService: PrintService) { }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
@@ -1086,6 +1087,7 @@ private renderPage(page: number): void {
   if (pageAya) {
     pageAya.matchedWord = input.matchedWord;
     pageAya.arrOfColoredWords = input.arrOfColoredWords;
+    pageAya.motashabehat = input.motashabehat;
   }
 });
 
@@ -1247,6 +1249,7 @@ private renderPage(page: number): void {
       if (pageAya) {
         pageAya.matchedWord = input.matchedWord;
         pageAya.arrOfColoredWords = input.arrOfColoredWords;
+        pageAya.motashabehat = input.motashabehat;
       }
     });
   }
@@ -1557,6 +1560,7 @@ private renderPage(page: number): void {
     });
 
     slide.mushafLines = mushafLines;
+    this._printService.quranPages = this.quranPages;
 
     // Track first/last mushaf line index for each aya — used by connected highlight box
     const ayaFirstLine = new Map<any, number>();
@@ -1605,6 +1609,10 @@ private renderPage(page: number): void {
         inp._totalLines   = total;
         inp._extraTopPx   = lineExtraTop[li] ?? 0;
         inp._startsRight  = ayaStartsRight.get(inp.ayaId) ?? true;
+
+        // Copy _startsRight to the aya object so print component can read it
+        const pageAya = slide.ayat.find((a: any) => a.id.toString() === inp.ayaId);
+        if (pageAya) pageAya._startsRight = inp._startsRight;
       }
     });
 
