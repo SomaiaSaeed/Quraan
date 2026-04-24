@@ -4,6 +4,7 @@ import {
   InputItem,
   MotashabehatSpan,
 } from "src/app/core/constants/quraanImages.constant";
+import { NgxSpinnerService } from "ngx-spinner";
 
 /** Width of each motashabehat column in px (box + gap) */
 const COL_WIDTH = 134;
@@ -34,7 +35,7 @@ export class HomeComponent {
   /** Width of right stack (pages remaining) — shrinks 28 → 4 px */
   get rightStackWidth(): number { return Math.round(4 + ((604 - this.currentPage) / 604) * 24); }
 
-  constructor() {}
+  constructor(private _spinner: NgxSpinnerService) {}
 
   onAyaClick(aya: any) {
     this.leftMotashabehatSpans.forEach((mot) => {
@@ -97,6 +98,8 @@ onMotshbehatGenerated($event: InputItem[]) {
 
     this.assignColumns(this.rightMotashabehatSpans);
     this.assignColumns(this.leftMotashabehatSpans);
+    // All boxes positioned — hide after one rAF so Angular paints the boxes first
+    requestAnimationFrame(() => this._spinner.hide('page-nav'));
   }
 
   private assignColumns(spans: any[]): void {

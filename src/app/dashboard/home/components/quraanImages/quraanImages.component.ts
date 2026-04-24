@@ -8,6 +8,7 @@ import { BookmarkService } from "src/app/core/services/bookmark.service";
 import { ListenService } from "src/app/dashboard/listen/services/listen.service";
 import { Search } from "src/app/core/services/search.service";
 import { PrintService } from "src/app/shared/print/print.service";
+import { NgxSpinnerService } from "ngx-spinner";
 
 
 const QuranInJsonURL = "assets/jsonData/QuranInJson.json";
@@ -375,7 +376,7 @@ private renderPage(page: number): void {
   tafseerText     = '';
   tafseerEdition  = 'ar.muyassar';
 
-  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService, private _printService: PrintService) { }
+  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService, private _printService: PrintService, private _spinner: NgxSpinnerService) { }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
@@ -637,8 +638,13 @@ private renderPage(page: number): void {
   }
 
   loadQuranJson(): void {
+    // Show page-nav spinner for BOTH paths:
+    // - Cache hit: no HTTP so the default interceptor spinner never fires
+    // - Non-cache: HTTP interceptor covers the download, but hides BEFORE the
+    //   heavy CPU work (processPages loop); page-nav stays up through that too
+    this._spinner.show('page-nav');
+
     if (this._printService.quranInJson) {
-      // Cache hit — skip the 12 MB download entirely
       this._quranInJson = this._printService.quranInJson;
       this.loadQuranPages();
       return;
@@ -1382,9 +1388,11 @@ private renderPage(page: number): void {
     if (idx === undefined) return;
     this.carousel.to((idx + 1).toString());
     this.goToOpen = false;
-    // Render immediately with the correct page and block onPageChange from re-rendering
     this.lastPageProcessed = page;
-    this.renderPage(page);
+    // Show named spinner, wait two rAF frames so the browser paints the overlay
+    // before the synchronous render pipeline blocks the thread
+    this._spinner.show('page-nav');
+    requestAnimationFrame(() => requestAnimationFrame(() => this.renderPage(page)));
   }
 
   prevPage(): void {
@@ -1636,6 +1644,7 @@ private renderPage(page: number): void {
     });
 
     if (this.inputs.length) this.motshabehat.emit(this.inputs);
+    // Spinner is hidden by home.component after onMotshbehatGenerated renders the boxes
   }
 
   /**
