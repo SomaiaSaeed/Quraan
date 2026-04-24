@@ -587,7 +587,7 @@ private renderPage(page: number): void {
 
 
   loadQuranPages(): void {
-    this._http.get<any>(QuranPagesURL).subscribe((response) => {
+    const processPages = (response: any) => {
       this._quranPages = response;
 
       // Populate textNoTashkeel on slide.ayat so buildMushafLines can use NT word positions
@@ -611,22 +611,41 @@ private renderPage(page: number): void {
 
       // Render current page only — other pages build on demand when navigated to
       this.renderPage(this.pageNumber);
-    });
+    };
 
-    if (!this._pagesWithLines.length) {
+    if (this._printService.quranPagesData.length) {
+      // Cache hit — skip HTTP, run computation immediately
+      processPages(this._printService.quranPagesData);
+    } else {
+      this._http.get<any>(QuranPagesURL).subscribe((response) => {
+        this._printService.quranPagesData = response; // cache for next navigation
+        processPages(response);
+      });
+    }
+
+    if (this._printService.pagesWithLines.length) {
+      // Cache hit — reuse without HTTP
+      this._pagesWithLines = this._printService.pagesWithLines;
+      if (this.colorsRendered) this.buildMushafLinesForCurrentPage();
+    } else if (!this._pagesWithLines.length) {
       this._http.get<any[]>(QuranPagesWithLinesURL).subscribe((data) => {
         this._pagesWithLines = data;
-        if (this.colorsRendered) {
-          // Only build current page — avoid pre-building stale mushafLines for all pages
-          this.buildMushafLinesForCurrentPage();
-        }
+        this._printService.pagesWithLines = data; // cache for next navigation
+        if (this.colorsRendered) this.buildMushafLinesForCurrentPage();
       });
     }
   }
 
   loadQuranJson(): void {
+    if (this._printService.quranInJson) {
+      // Cache hit — skip the 12 MB download entirely
+      this._quranInJson = this._printService.quranInJson;
+      this.loadQuranPages();
+      return;
+    }
     this._http.get<any>(QuranInJsonURL).subscribe((response) => {
       this._quranInJson = response;
+      this._printService.quranInJson = response; // cache for next navigation
       this.loadQuranPages();
     });
   }
