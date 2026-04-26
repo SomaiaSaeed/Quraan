@@ -285,7 +285,9 @@ export class PrintComponent {
 </td></tr>`;
       }
 
-      const hasRichWords = line.segments?.some((s: any) => s.lineColoredWords?.length > 0);
+      const hasRichWords = line.segments?.some((s: any) =>
+        s.lineColoredWords?.length > 0 || s.lineGroups?.length > 0
+      );
 
       if (hasRichWords) {
         // ── Rich path: colored words + aya ornaments + motashabehat ──────────
@@ -294,9 +296,21 @@ export class PrintComponent {
         let motLeft   = ''; // aya starts in left  half of line (_startsRight = false)
 
         for (const seg of line.segments) {
-          for (const w of (seg.lineColoredWords || [])) {
-            const style = w.color ? ` style="text-decoration-color:${w.color}"` : '';
-            lineText += `<span class="word${w.color ? ' colored' : ''}"${style}>${w.word}</span>`;
+          // Handle lineColoredWords format (print-converted pages)
+          if (seg.lineColoredWords?.length) {
+            for (const w of seg.lineColoredWords) {
+              const style = w.color ? ` style="text-decoration-color:${w.color}"` : '';
+              lineText += `<span class="word${w.color ? ' colored' : ''}"${style}>${w.word}</span>`;
+            }
+          }
+          // Handle lineGroups format (pages loaded from main carousel)
+          else if (seg.lineGroups?.length) {
+            for (const g of seg.lineGroups) {
+              for (const word of (g.words || [])) {
+                const style = g.color ? ` style="text-decoration-color:${g.color}"` : '';
+                lineText += `<span class="word${g.color ? ' colored' : ''}"${style}>${word}</span>`;
+              }
+            }
           }
           if (seg.isAyaEnd && seg.aya) {
             lineText += `<span class="aya-mark">${this._toArabic(seg.aya.ayaNumber)}</span>`;
