@@ -25,7 +25,7 @@
   text-align: center;
   span{
     font-family: 'uthmanic_hafs_v20', sans-serif !important;
-    font-size: 24px;
+    font-size: 17px;
     font-weight: normal;
     line-height: 2;
   }
@@ -548,6 +548,26 @@ input[type="checkbox"]+span {
 
 .owl-theme .owl-nav {
   padding-bottom: 20px;
+}
+
+/* Constrain owl-carousel-o to its container so quran-page overflow-y:auto works */
+owl-carousel-o {
+  display: block !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+owl-carousel-o .owl-carousel,
+owl-carousel-o .owl-stage-outer,
+owl-carousel-o owl-stage,
+owl-carousel-o owl-stage > div,
+owl-carousel-o owl-stage > div > div,
+owl-carousel-o .owl-stage,
+owl-carousel-o .owl-item {
+  display: block !important;
+  height: 100% !important;
+  max-height: 100% !important;
 }
 
 .mat-option-disabled{

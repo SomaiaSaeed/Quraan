@@ -20,7 +20,7 @@
 
 .goto-panel {
   position: fixed;
-  bottom: 70px; // sits above the bottom controls bar
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   width: 300px;
@@ -28,12 +28,12 @@
 }
 
 :host ::ng-deep {
-  .owl-carousel, .owl-stage-outer, .owl-stage, .owl-item {
+  owl-carousel-o, .owl-carousel, .owl-stage-outer, .owl-stage, .owl-item {
     height: 100%;
   }
 
   .owl-stage-outer {
-    overflow: hidden; // keeps slide transition clipped horizontally
+    overflow: hidden;
   }
 
   .owl-theme .owl-nav {
@@ -41,21 +41,16 @@
   }
 }
 
-.aya-text{
+.aya-text {
   direction: rtl;
 }
 
-/* ── Aya highlight ─────────────────────────────────────────────
-   Word-level: each word gets a soft background tint — follows
-   exact word boundaries without touching the flex layout at all.
-   Line-level: connected border box drawn around the aya lines.
-   ─────────────────────────────────────────────────────────── */
-
-// Individual word tint — direct flex child, layout never broken
+/* ── Enhancement 3: Aya word highlight — warm amber glow ──────── */
 .word-hl {
-  background: rgba(148, 166, 132, 0.2);
+  background: rgba(212, 160, 23, 0.18);
   border-radius: 3px;
-  padding: 1px 1px;
+  padding: 0 2px;
+  box-shadow: 0 0 0 1.5px rgba(212, 160, 23, 0.25);
 }
 
 .line-hl, .line-hl-first, .line-hl-last {}
@@ -65,57 +60,236 @@
   to   { opacity: 1; }
 }
 
+/* ── Page top header: juz + sura name ───────────────────────── */
+.page-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  margin: 0 0 1px;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  line-height: 1;
 
+  &__juz, &__sura {
+    font-size: 6px;
+    font-weight: 600;
+    color: #a07828;
+    opacity: 0.7;
+  }
+
+  &__juz {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    &::before {
+      content: '◈';
+      font-size: 5px;
+      color: #c9a052;
+    }
+  }
+
+  &__sura {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    &::after {
+      content: '◈';
+      font-size: 5px;
+      color: #c9a052;
+    }
+  }
+
+  &__divider {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,160,82,0.25), transparent);
+    margin: 0 5px;
+  }
+}
+
+/* ── Enhancement 1: Sura header — pure CSS ───────────────────── */
+.sura-header {
+  margin: 4px 0 3px;
+  direction: rtl;
+
+  &__frame {
+    display: flex;
+    align-items: stretch;
+    height: 42px;
+    border: 1.5px solid #c9a052;
+    border-radius: 3px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fdf5e0 0%, #f5e3b0 45%, #fdf5e0 100%);
+    box-shadow:
+      0 2px 8px rgba(139, 90, 20, 0.12),
+      inset 0 1px 0 rgba(255,255,255,0.6),
+      inset 0 -1px 0 rgba(180,130,30,0.2);
+    position: relative;
+
+    // top + bottom decorative rule
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border: 1px solid rgba(201, 160, 82, 0.4);
+      border-radius: 1px;
+      pointer-events: none;
+    }
+  }
+
+  &__side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    min-width: 42px;
+    background: linear-gradient(180deg, #e8c97a 0%, #c9a052 50%, #e8c97a 100%);
+    border-color: #c9a052;
+    position: relative;
+    z-index: 1;
+
+    &--right { border-left: 1px solid #c9a052; order: 1; }
+    &--left  { border-right: 1px solid #c9a052; order: 3; }
+  }
+
+  &__num-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff8e8, #f0d080);
+    border: 1.5px solid rgba(255,255,255,0.7);
+    box-shadow: 0 1px 4px rgba(100,60,0,0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    font-family: 'Cairo', sans-serif;
+    color: #5c3a0e;
+  }
+
+  &__count-badge {
+    text-align: center;
+    font-family: 'Cairo', sans-serif;
+    color: #4a2c06;
+
+    b {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    small {
+      display: block;
+      font-size: 8px;
+      font-weight: 600;
+      line-height: 1.2;
+      opacity: 0.85;
+    }
+  }
+
+  &__center {
+    flex: 1;
+    order: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  &__name {
+    font-family: 'Uthmani', 'KFGQPC Uthmanic Script HAFS', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c1a06;
+    letter-spacing: 3px;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.7);
+  }
+
+  &__gem {
+    font-size: 0.7rem;
+    color: #a07828;
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Aya end ornament ─────────────────────────────────────────── */
 .aya-aya {
-  width: 24px;
-  height: 24px;
-  background-image: url('./../../../../../assets/images/aya.png');
-  background-size: cover;
-  background-position: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: normal;
+  font-size: 10px;
+  font-weight: 600;
   font-family: 'Cairo', sans-serif !important;
+  color: #7a5a1e;
   vertical-align: middle;
   text-decoration: none !important;
+  flex-shrink: 0;
 }
 
-/* ── Mushaf Al-Madinah line layout ────────────────────────── */
+/* ── Mushaf body layout ──────────────────────────────────────── */
 
 .quran-page {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+
+  // Protect page-top-header text from any parent span overrides
+  .page-top-header__juz,
+  .page-top-header__sura {
+    font-size: 8px !important;
+    font-weight: 500 !important;
+    font-family: 'Cairo', sans-serif !important;
+  }
+
+  // Protect sura header name from any parent span overrides
+  .sura-header__name {
+    font-size: 1.5rem !important;
+    font-family: 'Uthmani', 'KFGQPC Uthmanic Script HAFS', serif !important;
+  }
 }
 
 .mushaf-body {
-  line-height: 2.1;
+  line-height: 2.2;
   margin: 0 8px;
+  padding-bottom: 4px;
 
-  /* Pages 1 & 2: wider margins, centered lines */
   &.mushaf-body-special {
     margin: 0 40px;
 
     .mushaf-line {
       justify-content: center;
-      gap: 6px;
     }
   }
 }
 
+/* Enhancement 1: Full-width justified lines via space-between */
 .mushaf-line {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
+  align-items: baseline;
   direction: rtl;
 
-  /* Sura start / basmala lines are centered, not justified */
   &.mushaf-line-centered {
     justify-content: center;
-    gap: 6px;
+    gap: 10px;
   }
+}
+
+/* Enhancement 4: Basmala — distinctive golden line */
+.mushaf-line-basmala {
+  justify-content: center !important;
+  gap: 10px;
+  padding: 0;
+  border-top: 1px solid rgba(201, 160, 82, 0.3);
+  margin: 1px 0;
 }
 
 .mushaf-word {
@@ -179,8 +353,44 @@
   background: #d1d5db;
   flex-shrink: 0;
 
-  // hide separators when they would wrap to a new line
   @media (max-width: 400px) {
     display: none;
+  }
+}
+
+/* ── Enhancement 6: Page number badge ────────────────────────── */
+.page-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 3px 10px;
+  background: linear-gradient(180deg, #fdf5e0 0%, #f0e0a8 100%);
+  border: 1.5px solid #c9a052;
+  border-radius: 20px;
+  box-shadow: 0 1px 4px rgba(139, 90, 20, 0.15), inset 0 1px 0 rgba(255,255,255,0.5);
+  transition: all 0.2s;
+  line-height: 1.1;
+
+  &--playing {
+    border-color: #6b9e5e;
+    background: linear-gradient(180deg, #f0f8ee 0%, #d4edcd 100%);
+    box-shadow: 0 1px 4px rgba(80, 140, 60, 0.2);
+  }
+
+  &__num {
+    font-size: 13px;
+    font-weight: 800;
+    font-family: 'Cairo', sans-serif;
+    color: #3b2a0e;
+  }
+
+  &__label {
+    font-size: 8px;
+    font-weight: 600;
+    font-family: 'Cairo', sans-serif;
+    color: #8a6a30;
+    letter-spacing: 0.5px;
   }
 }

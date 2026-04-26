@@ -4,6 +4,14 @@
     <ng-container *ngFor="let page of quranPages; let id = index; trackBy: trackPage">
       <ng-template carouselSlide [id]="id + 1 + ''">
         <div class="quran-page tw-mx-3 tw-relative">
+
+          <!-- Standard Mushaf page header: juz (right) + sura (left) -->
+          <div class="page-top-header" dir="rtl">
+            <span class="page-top-header__juz">الجزء {{ convertToArabicNumbers(page.juzNumber) }}</span>
+            <span class="page-top-header__divider"></span>
+            <span class="page-top-header__sura">سورة {{ page.pageSuraName }}</span>
+          </div>
+
           <div class="mushaf-body" [class.mushaf-body-special]="page.pageNumber <= 2" dir="rtl">
 
             <!-- Mushaf Al-Madinah line view -->
@@ -11,27 +19,46 @@
               <ng-container *ngFor="let line of page.mushafLines; let li = index">
 
                 <!-- Inline sura header -->
-                <div *ngIf="line.isSuraStart" class="tw-relative tw-mb-3 tw-mt-2">
-                  <img src="../../../../../assets/images/head.png" class="tw-h-16 tw-w-full" alt="" />
-                  <div class="tw-absolute tw-top-[4px] tw-left-0 tw-right-0">
-                    <span class="tw-text-3xl">{{ line.suraName }}</span>
+                <div *ngIf="line.isSuraStart" class="sura-header">
+                  <div class="sura-header__frame">
+                    <span class="sura-header__side sura-header__side--right">
+                      <span class="sura-header__num-badge">{{ convertToArabicNumbers(line.suraNumber) }}</span>
+                    </span>
+                    <span class="sura-header__center">
+                      <span class="sura-header__gem">✦</span>
+                      <span class="sura-header__name">{{ line.suraName }}</span>
+                      <span class="sura-header__gem">✦</span>
+                    </span>
+                    <span class="sura-header__side sura-header__side--left">
+                      <span class="sura-header__count-badge"><b>{{ convertToArabicNumbers(line.suraAyaCount) }}</b><small>آيات</small></span>
+                    </span>
                   </div>
+                </div>
+
+                <!-- Basmala between sura header and first aya (all suras except At-Tawbah #9) -->
+                <div *ngIf="line.isSuraStart && line.suraNumber !== 9 && line.suraNumber !== 1"
+                  class="mushaf-line mushaf-line-basmala">
+                  <span class="mushaf-word">بِسۡمِ</span>
+                  <span class="mushaf-word">ٱللَّهِ</span>
+                  <span class="mushaf-word">ٱلرَّحۡمَـٰنِ</span>
+                  <span class="mushaf-word">ٱلرَّحِيمِ</span>
                 </div>
 
                 <!-- Mushaf line -->
                 <div class="mushaf-line"
                   [class.mushaf-line-centered]="line.isCentered"
+                  [class.mushaf-line-basmala]="line.isBasmala"
                   [class.line-hl]="isLineHighlighted(line)"
                   [class.line-hl-first]="isFirstHighlightedLine(line, li)"
                   [class.line-hl-last]="isLastHighlightedLine(line, li)">
                   <ng-container *ngFor="let seg of line.segments">
-                    <ng-container *ngFor="let w of seg.lineColoredWords">
-                      <span class="mushaf-word"
+                    <ng-container *ngFor="let g of seg.lineGroups">
+                      <span *ngFor="let word of g.words" class="mushaf-word"
                         [class.word-hl]="seg.aya.highlighted"
-                        [style.text-decoration-line]="w.color ? 'underline' : 'none'"
-                        [style.text-decoration-color]="w.color"
+                        [style.text-decoration-line]="g.color ? 'underline' : 'none'"
+                        [style.text-decoration-color]="g.color"
                         (click)="toggleHighlight(seg.aya)"
-                        (contextmenu)="onRightClick($event, seg.aya)">{{ w.word }}</span>
+                        (contextmenu)="onRightClick($event, seg.aya)">{{ word }}</span>
                     </ng-container>
                     <span *ngIf="seg.isAyaEnd" class="aya-aya">{{ convertToArabicNumbers(seg.aya.ayaNumber) }}</span>
                   </ng-container>
@@ -79,11 +106,10 @@
     </svg>
   </button>
 
-  <!-- Page pill -->
-  <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2 tw-bg-white tw-border tw-border-gray-200 tw-rounded-full tw-shadow-sm tw-px-4 tw-py-1.5"
-    [class.tw-border-green-400]="slideshowPlaying"
-    [class.tw-bg-green-50]="slideshowPlaying">
-    <span class="tw-text-sm tw-font-bold tw-text-gray-800">{{ convertToArabicNumbers(pageNumber) }}</span>
+  <!-- Enhancement 6: Ornamental page badge -->
+  <div class="page-badge" [class.page-badge--playing]="slideshowPlaying">
+    <span class="page-badge__num">{{ convertToArabicNumbers(pageNumber) }}</span>
+    <span class="page-badge__label">صفحة</span>
   </div>
 
   <!-- Speed selector -->
@@ -189,24 +215,24 @@
 <div class="color-legend" dir="rtl">
   <span class="legend-item">
     <span class="legend-dot" style="background:#FF0000"></span>كلمة وحيدة بداية الآية
-  </span>
-  <span class="legend-sep"></span>
+    </span>
+    <span class="legend-sep"></span>
   <span class="legend-item">
     <span class="legend-dot" style="background:#00CC44"></span>موضعين
   </span>
-  <span class="legend-sep"></span>
+    <span class="legend-sep"></span>
   <span class="legend-item">
     <span class="legend-dot" style="background:#0000FF"></span>ثلاث مواضع
   </span>
-  <span class="legend-sep"></span>
+    <span class="legend-sep"></span>
   <span class="legend-item">
     <span class="legend-dot" style="background:#CCCC00; outline:1px solid #bbb;"></span>أربع مواضع
   </span>
-  <span class="legend-sep"></span>
+    <span class="legend-sep"></span>
   <span class="legend-item">
     <span class="legend-dot" style="background:#800080"></span>أكثر من أربع
   </span>
-  <span class="legend-sep"></span>
+    <span class="legend-sep"></span>
   <span class="legend-item">
     <span class="legend-dot" style="background:#FFA500"></span>كلمة وحيدة وسط الآية
   </span>
