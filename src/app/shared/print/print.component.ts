@@ -223,7 +223,7 @@ export class PrintComponent {
   .line {
     width:100%; display:flex; flex-direction:row; justify-content:space-between;
     align-items:baseline; direction:rtl;
-    line-height:2.1; font-size:14pt; color:#111;
+    line-height:1.6; font-size:14pt; color:#111;
   }
   .line.centered { justify-content:center; gap:5px; }
   .word { white-space:nowrap; }
