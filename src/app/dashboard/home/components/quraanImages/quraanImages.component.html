@@ -113,12 +113,12 @@
   </div>
 
   <!-- Speed selector -->
-  <select [(ngModel)]="slideshowSpeed" (ngModelChange)="onSlideshowSpeedChange()"
+  <!-- <select [(ngModel)]="slideshowSpeed" (ngModelChange)="onSlideshowSpeedChange()"
     class="tw-text-xs tw-text-gray-500 tw-bg-white tw-border tw-border-gray-200 tw-rounded-full tw-px-2 tw-py-1 tw-shadow-sm tw-outline-none">
     <option [value]="1500">سريع</option>
     <option [value]="3000">متوسط</option>
     <option [value]="5000">بطيء</option>
-  </select>
+  </select> -->
 
   <!-- Prev page (RTL: visually left = prev in mushaf) -->
   <button (click)="prevPage()" [disabled]="pageNumber <= 1"
