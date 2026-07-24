@@ -11,8 +11,9 @@
         [style.right.px]="getColOffset(inp)">
         <span *ngIf="hasHighlight(inp)" class="mot-indicator"></span>
         <span *ngFor="let sura of inp.mergedSuras"
-          class="tw-block"
-          [class.tw-text-green-700]="true">
+          class="tw-block tw-cursor-context-menu"
+          [class.tw-text-green-700]="true"
+          (contextmenu)="onMotashabehatRightClick($event, sura, inp)">
           {{ sura.text }}
         </span>
       </div>
@@ -42,7 +43,8 @@
         [style.left.px]="getColOffset(inp)">
         <span *ngIf="hasHighlight(inp)" class="mot-indicator"></span>
         <span *ngFor="let sura of inp.mergedSuras"
-          class="tw-block tw-text-green-700">
+          class="tw-block tw-text-green-700 tw-cursor-context-menu"
+          (contextmenu)="onMotashabehatRightClick($event, sura, inp)">
           {{ sura.text }}
         </span>
       </div>
@@ -50,5 +52,6 @@
 
   </div>
 
+  <p-contextMenu #compareMenu [model]="compareMenuItems" appendTo="body"></p-contextMenu>
 
 </div>

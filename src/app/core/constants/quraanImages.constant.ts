@@ -33,6 +33,7 @@ export interface InputItem {
   ayat: any[]; // Replace 'any' with the proper type if known
   aya: string;
   ayaId: string;
+  sura: string;
   spans: Span[];
   motashabehatSpans: MotashabehatSpan[];
   spansOfColoredWords: SpansOfColoredWords[];
@@ -55,6 +56,8 @@ interface Moade3 {
   id: number;
   suraWithIndex: string;
   top: string;
+  suraIndex?: number;
+  ayaIndex?: number;
 }
 
 interface Span {

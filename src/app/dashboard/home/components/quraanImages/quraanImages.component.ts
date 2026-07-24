@@ -54,6 +54,7 @@ export interface InputItem {
   ayat: any[];
   aya: string;
   ayaId: string;
+  sura: string;
   spans: Span[];
   motashabehatSpans: MotashabehatSpan[];
   spansOfColoredWords: SpansOfColoredWords[];
@@ -1164,6 +1165,7 @@ private renderPage(page: number): void {
         ayat: [],
         aya: aya.aya,
         ayaId: aya.id.toString(),
+        sura: aya.sura,
         isActive: this.selectedAyaId === aya.id,
         href: `#${aya.ayaIndex}`,
         activeAya: aya.ayaIndex,
@@ -1399,6 +1401,8 @@ private renderPage(page: number): void {
       aya?: string;
       id: number;
       color: string;
+      suraIndex?: number;
+      ayaIndex?: number;
     }[],
     ayaStart: number,
     ayaEnd: number
@@ -1416,6 +1420,8 @@ private renderPage(page: number): void {
       aya: m.aya,
       id: m.id,
       color: m.color,
+      suraIndex: m.suraIndex,
+      ayaIndex: m.ayaIndex,
     }));
     if (arr.length > 0) {
       motashabehat.height = `${parseInt(arr[arr.length - 1].top, 10) + 25 - parseInt(arr[0].top, 10)

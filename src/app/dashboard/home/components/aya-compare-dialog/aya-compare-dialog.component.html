@@ -1,0 +1,46 @@
+<div dir="rtl" class="tw-min-w-[320px] sm:tw-min-w-[600px] tw-max-w-[720px]">
+
+  <header class="tw-flex tw-items-center tw-justify-between tw-border-b tw-border-[#E4E4D0] tw-pb-3 tw-mb-4">
+    <div>
+      <h2 class="tw-mb-0 tw-text-base tw-font-bold">مقارنة الآيات المتشابهة</h2>
+      <p class="tw-text-xs tw-text-gray-400 tw-mb-0">الكلمات المتطابقة مع الآية الحالية مظللة</p>
+    </div>
+    <button title="إغلاق" (click)="close()" mat-flat-button
+      class="tw-bg-[#E4E4D0] tw-w-8 tw-h-8 tw-min-w-0 tw-px-0 tw-rounded-full">
+      <span class="tw-text-gray-600 tw-text-sm tw-block">✕</span>
+    </button>
+  </header>
+
+  <!-- Current aya -->
+  <div class="tw-mb-5 tw-p-3 tw-rounded-xl tw-border-2 tw-border-mainColor tw-bg-[#f0fdf4]">
+    <div class="tw-text-xs tw-font-semibold tw-text-mainColor tw-mb-1">
+      الآية الحالية · {{ data.current.suraName }} ({{ data.current.ayaIndex }})
+    </div>
+    <p class="quran-compare-text tw-m-0">
+      <span *ngFor="let w of currentWords">{{ w.word }} </span>
+    </p>
+  </div>
+
+  <!-- Targets -->
+  <div class="tw-flex tw-flex-col tw-gap-3 tw-max-h-[50vh] tw-overflow-y-auto tw-pl-1">
+    <div *ngFor="let target of data.targets"
+      class="tw-p-3 tw-rounded-xl tw-border tw-border-[#E4E4D0] tw-bg-white hover:tw-border-mainColor tw-transition-colors">
+      <div class="tw-flex tw-items-center tw-justify-between tw-mb-1">
+        <button (click)="jumpTo(target)"
+          [disabled]="target.suraIndex == null"
+          class="tw-text-xs tw-font-semibold tw-text-mainColor tw-underline tw-cursor-pointer tw-bg-transparent tw-border-0 tw-p-0 disabled:tw-opacity-40 disabled:tw-cursor-default">
+          {{ target.suraName }} ({{ target.ayaIndex }}) — الانتقال إليها
+        </button>
+      </div>
+      <p class="quran-compare-text tw-m-0">
+        <span *ngFor="let w of diffWordsFor(target)"
+          [class.matched-word]="w.matches">{{ w.word }} </span>
+      </p>
+    </div>
+
+    <p *ngIf="data.targets.length === 0" class="tw-text-sm tw-text-gray-400 tw-text-center tw-py-6">
+      لا توجد آيات للمقارنة
+    </p>
+  </div>
+
+</div>

@@ -1,10 +1,16 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ViewChild } from "@angular/core";
 import {
   IMAGES,
   InputItem,
   MotashabehatSpan,
 } from "src/app/core/constants/quraanImages.constant";
 import { NgxSpinnerService } from "ngx-spinner";
+import { MatDialog } from "@angular/material/dialog";
+import { MenuItem } from "primeng/api";
+import { ContextMenu } from "primeng/contextmenu";
+import { QuraanImagesComponent } from "./components/quraanImages/quraanImages.component";
+import { AyaCompareDialogComponent } from "./components/aya-compare-dialog/aya-compare-dialog.component";
+import { AyaCompareDialogResult, AyaCompareRef } from "src/app/core/models/aya-compare.model";
 
 /** Width of each motashabehat column in px (box + gap) */
 const COL_WIDTH = 134;
@@ -35,7 +41,11 @@ export class HomeComponent {
   /** Width of right stack (pages remaining) — shrinks 28 → 4 px */
   get rightStackWidth(): number { return Math.round(4 + ((604 - this.currentPage) / 604) * 24); }
 
-  constructor(private _spinner: NgxSpinnerService) {}
+  @ViewChild("compareMenu") compareMenu!: ContextMenu;
+  @ViewChild(QuraanImagesComponent) private _quraanImages!: QuraanImagesComponent;
+  compareMenuItems: MenuItem[] = [];
+
+  constructor(private _spinner: NgxSpinnerService, private _dialog: MatDialog) {}
 
   onAyaClick(aya: any) {
     this.leftMotashabehatSpans.forEach((mot) => {
@@ -83,10 +93,9 @@ onMotshbehatGenerated($event: InputItem[]) {
       const moade3 = input?.motashabehat?.moade3;
       if (!moade3 || moade3.length === 0) return;
 
-      (input as any).mergedSuras = this.formatMoade3Entries(
-        moade3,
-        input.activeAya
-      );
+      const groups = this.formatMoade3Entries(moade3, input.activeAya);
+      (input as any).mergedSuras = groups;
+      (input as any).allMatches = groups.flatMap((g) => g.entries);
 
       // _startsRight=true → aya begins at the right edge → box goes to right panel
       if ((input as any)._startsRight) {
@@ -125,9 +134,9 @@ onMotshbehatGenerated($event: InputItem[]) {
   private formatMoade3Entries(
     moade3List: any[],
     activeAya?: number
-  ): { text: string; highlighted: boolean }[] {
+  ): { text: string; highlighted: boolean; entries: AyaCompareRef[] }[] {
     const seen = new Set<string>();
-    const groups: { suraName: string; indexes: number[]; highlighted: boolean }[] = [];
+    const groups: { suraName: string; indexes: number[]; highlighted: boolean; entries: AyaCompareRef[] }[] = [];
 
     moade3List.forEach((item) => {
       const match = item.suraWithIndex.match(/^(.*)\s*\((\d+)\)$/);
@@ -140,19 +149,72 @@ onMotshbehatGenerated($event: InputItem[]) {
       seen.add(key);
 
       const highlighted = activeAya ? index === activeAya : false;
+      const entry: AyaCompareRef = {
+        suraName,
+        ayaIndex: index,
+        text: item.aya ?? "",
+        suraIndex: item.suraIndex,
+      };
       const lastGroup = groups[groups.length - 1];
       if (lastGroup && lastGroup.suraName === suraName) {
         lastGroup.indexes.push(index);
         lastGroup.highlighted = lastGroup.highlighted || highlighted;
+        lastGroup.entries.push(entry);
       } else {
-        groups.push({ suraName, indexes: [index], highlighted });
+        groups.push({ suraName, indexes: [index], highlighted, entries: [entry] });
       }
     });
 
     return groups.map((g) => ({
       text: `${g.suraName} (${g.indexes.map((i) => this.toArabicNumber(i)).join("، ")})`,
       highlighted: g.highlighted,
+      entries: g.entries,
     }));
+  }
+
+  onMotashabehatRightClick(
+    event: MouseEvent,
+    group: { entries: AyaCompareRef[] },
+    inp: InputItem
+  ): void {
+    event.preventDefault();
+
+    const current: AyaCompareRef = {
+      suraName: inp.sura,
+      ayaIndex: inp.activeAya,
+      text: inp.aya,
+    };
+    const allTargets: AyaCompareRef[] = (inp as any).allMatches ?? [];
+
+    this.compareMenuItems = [
+      {
+        label: "مقارنة مع الحالي",
+        icon: "pi pi-eye",
+        command: () => this.openCompareDialog(current, group.entries),
+      },
+      {
+        label: "مقارنة مع الجميع",
+        icon: "pi pi-list",
+        command: () => this.openCompareDialog(current, allTargets),
+      },
+    ];
+    this.compareMenu.show(event);
+  }
+
+  private openCompareDialog(current: AyaCompareRef, targets: AyaCompareRef[]): void {
+    const dialogRef = this._dialog.open<AyaCompareDialogComponent, unknown, AyaCompareDialogResult>(
+      AyaCompareDialogComponent,
+      {
+        width: "700px",
+        panelClass: "popup-center",
+        data: { current, targets },
+      }
+    );
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.jumpTo?.suraIndex != null) {
+        this._quraanImages.navigateToAya(result.jumpTo.suraIndex, result.jumpTo.ayaIndex);
+      }
+    });
   }
 
   private toArabicNumber(num: number): string {

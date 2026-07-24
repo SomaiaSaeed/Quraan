@@ -8,20 +8,24 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import { QuraanImagesComponent } from './components/quraanImages/quraanImages.component';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { UnderlineMatchDirective } from './components/quraanImages/underlineMatchDirective';
+import { MaterialModule } from 'src/app/shared/material/material.module';
+import { AyaCompareDialogComponent } from './components/aya-compare-dialog/aya-compare-dialog.component';
 
 
 @NgModule({
   declarations: [
     UnderlineMatchDirective,
     HomeComponent,
-    QuraanImagesComponent
+    QuraanImagesComponent,
+    AyaCompareDialogComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     HomeRoutingModule,
     CarouselModule,
-    ContextMenuModule
+    ContextMenuModule,
+    MaterialModule
   ]
 })
 export class HomeModule { }
