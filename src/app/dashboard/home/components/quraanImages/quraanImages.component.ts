@@ -74,6 +74,8 @@ interface AyaDetail {
   index: number;
   sura: string;
   lastWord: string;
+  matchScore?: number;
+  suraIndex?: number;
 }
 
 interface ArrOfColoredWords {
@@ -100,6 +102,9 @@ interface AllAya {
     aya?: string;
     id: number;
     color: string;
+    matchScore?: number;
+    suraIndex?: number;
+    ayaIndex?: number;
   }[];
 }
 
@@ -769,6 +774,28 @@ private renderPage(page: number): void {
 
   }
   
+  /** Counts how many leading words two word lists share, starting from index 0 */
+  private countSharedLeadingWords(sourceWords: string[], candidateWords: string[]): number {
+    const len = Math.min(sourceWords.length, candidateWords.length);
+    let count = 0;
+    for (let i = 0; i < len; i++) {
+      if (sourceWords[i] !== candidateWords[i]) break;
+      count++;
+    }
+    return count;
+  }
+
+  /** Strongest match first, mushaf order (sura then aya) as tiebreaker */
+  private sortMoade3ByMatchThenMushafOrder(
+    arr: { matchScore?: number; suraIndex?: number; ayaIndex?: number }[]
+  ): void {
+    arr.sort((a, b) =>
+      (b.matchScore ?? 0) - (a.matchScore ?? 0) ||
+      (a.suraIndex ?? 0) - (b.suraIndex ?? 0) ||
+      (a.ayaIndex ?? 0) - (b.ayaIndex ?? 0)
+    );
+  }
+
   private generateMotashabehatOfSelectedPage(pageNumber: number): void {
     this._quranPages[pageNumber - 1].ayas.forEach((ayaInPage: any) => {
       this.arrOfAyaWords = ayaInPage.text_without_tashkeel.split(" ");
@@ -792,6 +819,9 @@ private renderPage(page: number): void {
         suraWithIndex: string;
         aya: string;
         color: string;
+        matchScore?: number;
+        suraIndex?: number;
+        ayaIndex?: number;
       }[] = [];
       let arrayOfWordsWithColors: ArrOfColoredWords[] = [];
 
@@ -808,12 +838,18 @@ private renderPage(page: number): void {
         this._quranInJson.forEach((sura: any) => {
           sura.aya.forEach((aya: any) => {
             if (aya.text_without_tashkeel === this.searchWord || aya.text_without_tashkeel.startsWith(this.searchWord + ' ')) {
+              const matchScore = this.countSharedLeadingWords(
+                this.arrOfAyaWords,
+                aya.text_without_tashkeel.split(" ")
+              );
               this.x.push({
                 id: ayaInPage.id,
                 errorFactor: ayaInPage.errorFactor,
                 top: ayaInPage.top,
                 text: aya.text_without_tashkeel,
                 index: aya.index,
+                suraIndex: sura.index,
+                matchScore,
                 suraWithIndex: `${sura.name} (${aya.index})`,
                 sura: sura.name,
                 lastWord: this.arrOfAyaWords[i],
@@ -864,8 +900,12 @@ private renderPage(page: number): void {
                 suraWithIndex: mode3.suraWithIndex,
                 aya: mode3.text,
                 color: "",
+                matchScore: mode3.matchScore,
+                suraIndex: mode3.suraIndex,
+                ayaIndex: mode3.index,
               });
             });
+            this.sortMoade3ByMatchThenMushafOrder(arrayOfMot);
             ayaDetails = {
               errorFactor: this.x[0].errorFactor,
               top: this.x[0].top,
@@ -896,8 +936,12 @@ private renderPage(page: number): void {
                 suraWithIndex: mode3.suraWithIndex,
                 aya: mode3.text,
                 color: "",
+                matchScore: mode3.matchScore,
+                suraIndex: mode3.suraIndex,
+                ayaIndex: mode3.index,
               });
             });
+            this.sortMoade3ByMatchThenMushafOrder(arrayOfMot);
             ayaDetails = {
               errorFactor: this.x[0].errorFactor,
               top: this.x[0].top,
@@ -928,9 +972,12 @@ private renderPage(page: number): void {
                 suraWithIndex: mode3.suraWithIndex,
                 aya: mode3.text,
                 color: "",
-                
+                matchScore: mode3.matchScore,
+                suraIndex: mode3.suraIndex,
+                ayaIndex: mode3.index,
               });
             });
+            this.sortMoade3ByMatchThenMushafOrder(arrayOfMot);
             ayaDetails = {
               errorFactor: this.x[0].errorFactor,
               top: this.x[0].top,
@@ -962,8 +1009,12 @@ private renderPage(page: number): void {
                   suraWithIndex: mode3.suraWithIndex,
                   aya: mode3.text,
                   color: "",
+                  matchScore: mode3.matchScore,
+                  suraIndex: mode3.suraIndex,
+                  ayaIndex: mode3.index,
                 });
               });
+              this.sortMoade3ByMatchThenMushafOrder(arrayOfMot);
               ayaDetails = {
                 errorFactor: this.x[0].errorFactor,
                 top: this.x[0].top,

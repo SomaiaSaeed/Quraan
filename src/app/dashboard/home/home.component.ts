@@ -83,7 +83,7 @@ onMotshbehatGenerated($event: InputItem[]) {
       const moade3 = input?.motashabehat?.moade3;
       if (!moade3 || moade3.length === 0) return;
 
-      (input as any).mergedSuras = this.mergeSuraWithIndexes(
+      (input as any).mergedSuras = this.formatMoade3Entries(
         moade3,
         input.activeAya
       );
@@ -121,11 +121,13 @@ onMotshbehatGenerated($event: InputItem[]) {
     });
   }
 
-  private mergeSuraWithIndexes(
+  /** One line per consecutive run of the same sura, in the order sorted upstream (match strength, then mushaf order) — aya# within a run share one set of brackets, comma-separated; the box's own CSS wraps long lines */
+  private formatMoade3Entries(
     moade3List: any[],
     activeAya?: number
   ): { text: string; highlighted: boolean }[] {
-    const map = new Map<string, number[]>();
+    const seen = new Set<string>();
+    const groups: { suraName: string; indexes: number[]; highlighted: boolean }[] = [];
 
     moade3List.forEach((item) => {
       const match = item.suraWithIndex.match(/^(.*)\s*\((\d+)\)$/);
@@ -133,21 +135,24 @@ onMotshbehatGenerated($event: InputItem[]) {
 
       const suraName = match[1].trim();
       const index = Number(match[2]);
+      const key = `${suraName}(${index})`;
+      if (seen.has(key)) return;
+      seen.add(key);
 
-      if (!map.has(suraName)) map.set(suraName, []);
-      map.get(suraName)!.push(index);
+      const highlighted = activeAya ? index === activeAya : false;
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup && lastGroup.suraName === suraName) {
+        lastGroup.indexes.push(index);
+        lastGroup.highlighted = lastGroup.highlighted || highlighted;
+      } else {
+        groups.push({ suraName, indexes: [index], highlighted });
+      }
     });
 
-    return Array.from(map.entries()).map(([sura, indexes]) => {
-      const sorted = [...new Set(indexes)].sort((a, b) => a - b);
-      const arabicIndexes = sorted
-        .map((i) => this.toArabicNumber(i))
-        .join("، ");
-      return {
-        text: `${sura} (${arabicIndexes})`,
-        highlighted: activeAya ? sorted.includes(activeAya) : false,
-      };
-    });
+    return groups.map((g) => ({
+      text: `${g.suraName} (${g.indexes.map((i) => this.toArabicNumber(i)).join("، ")})`,
+      highlighted: g.highlighted,
+    }));
   }
 
   private toArabicNumber(num: number): string {
