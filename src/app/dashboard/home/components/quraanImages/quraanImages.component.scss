@@ -273,9 +273,10 @@
 .mushaf-line {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: baseline;
   direction: rtl;
+  padding: 0 4px;
 
   &.mushaf-line-centered {
     justify-content: center;
