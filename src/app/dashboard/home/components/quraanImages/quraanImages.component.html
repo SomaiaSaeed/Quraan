@@ -3,7 +3,9 @@
   <owl-carousel-o [options]="customOptions" (translated)="onPageChange($event)">
     <ng-container *ngFor="let page of quranPages; let id = index; trackBy: trackPage">
       <ng-template carouselSlide [id]="id + 1 + ''">
-        <div class="quran-page tw-mx-3 tw-relative">
+        <!-- data-page lets the side panels measure *this* page's lines rather than
+             whichever page happens to still be in the carousel DOM -->
+        <div class="quran-page tw-mx-3 tw-relative" [attr.data-page]="page.pageNumber">
 
           <!-- Standard Mushaf page header: juz (right) + sura (left) -->
           <div class="page-top-header" dir="rtl">
@@ -45,7 +47,7 @@
                 </div>
 
                 <!-- Mushaf line -->
-                <div class="mushaf-line"
+                <div class="mushaf-line" mushafLineFit
                   [class.mushaf-line-centered]="line.isCentered"
                   [class.mushaf-line-basmala]="line.isBasmala"
                   [class.line-hl]="isLineHighlighted(line)"
@@ -211,31 +213,16 @@
 
 <p-contextMenu #menu [model]="contextMenuItems" appendTo="body"></p-contextMenu>
 
-<!-- Color legend — compact strip, in context with the page -->
+<!-- Color legend — compact strip, in context with the page.
+     Driven by the same `colors` array that paints the underlines, so a swatch can
+     never drift away from the colour it is describing. -->
 <div class="color-legend" dir="rtl">
-  <span class="legend-item">
-    <span class="legend-dot" style="background:#FF0000"></span>كلمة وحيدة بداية الآية
+  <ng-container *ngFor="let c of colors | slice:0:6; let last = last">
+    <span class="legend-item">
+      <span class="legend-dot" [style.background]="c.color"></span>{{ c.text }}
     </span>
-    <span class="legend-sep"></span>
-  <span class="legend-item">
-    <span class="legend-dot" style="background:#00CC44"></span>موضعين
-  </span>
-    <span class="legend-sep"></span>
-  <span class="legend-item">
-    <span class="legend-dot" style="background:#0000FF"></span>ثلاث مواضع
-  </span>
-    <span class="legend-sep"></span>
-  <span class="legend-item">
-    <span class="legend-dot" style="background:#CCCC00; outline:1px solid #bbb;"></span>أربع مواضع
-  </span>
-    <span class="legend-sep"></span>
-  <span class="legend-item">
-    <span class="legend-dot" style="background:#800080"></span>أكثر من أربع
-  </span>
-    <span class="legend-sep"></span>
-  <span class="legend-item">
-    <span class="legend-dot" style="background:#FFA500"></span>كلمة وحيدة وسط الآية
-  </span>
+    <span class="legend-sep" *ngIf="!last"></span>
+  </ng-container>
 </div>
 
 <!-- ── Tafseer Bottom Sheet ───────────────────────────────────────────────── -->

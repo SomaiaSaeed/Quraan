@@ -8,6 +8,7 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import { QuraanImagesComponent } from './components/quraanImages/quraanImages.component';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { UnderlineMatchDirective } from './components/quraanImages/underlineMatchDirective';
+import { MushafLineFitDirective } from './components/quraanImages/mushafLineFit.directive';
 import { MaterialModule } from 'src/app/shared/material/material.module';
 import { AyaCompareDialogComponent } from './components/aya-compare-dialog/aya-compare-dialog.component';
 
@@ -15,6 +16,7 @@ import { AyaCompareDialogComponent } from './components/aya-compare-dialog/aya-c
 @NgModule({
   declarations: [
     UnderlineMatchDirective,
+    MushafLineFitDirective,
     HomeComponent,
     QuraanImagesComponent,
     AyaCompareDialogComponent

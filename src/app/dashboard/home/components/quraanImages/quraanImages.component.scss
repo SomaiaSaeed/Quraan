@@ -256,29 +256,40 @@
 }
 
 .mushaf-body {
-  line-height: 2.2;
-  margin: 0 8px;
+  line-height: 1.85;          // book leading — tighter than 2.2, so the glyph can be larger
+  // The widest mushaf line is ~15.5 glyph-widths. Capping the column at that keeps
+  // every line as dense as the printed page: without it the column grows with the
+  // viewport while the text does not, and justification turns the surplus into
+  // wide gaps between words (the "separated words" on pages 3+).
+  max-width: calc(var(--mushaf-fs, 17px) * 15.5);
+  margin: 0 auto;
   padding-bottom: 4px;
 
   &.mushaf-body-special {
-    margin: 0 40px;
+    margin: 0 auto;
 
     .mushaf-line {
+      width: 100%;
       justify-content: center;
     }
   }
 }
 
-/* Enhancement 1: Full-width justified lines via space-between */
+/* A line keeps its natural word spacing and is then fitted to the column width by
+   [mushafLineFit] — the surplus never becomes gaps between words. */
 .mushaf-line {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: space-evenly;
+  width: max-content;
+  justify-content: flex-start;
+  gap: calc(var(--mushaf-fs, 17px) * 0.26);   // one natural word space
   align-items: baseline;
   direction: rtl;
-  padding: 0 4px;
+  transform-origin: right center;
 
-  &.mushaf-line-centered {
+  &.mushaf-line-centered,
+  &.mushaf-line-basmala {
+    width: 100%;
     justify-content: center;
     gap: 10px;
   }

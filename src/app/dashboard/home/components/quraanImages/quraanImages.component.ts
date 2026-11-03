@@ -335,15 +335,20 @@ private renderPage(page: number): void {
   selectedAyaIndex: number = 0;
   selectedAyaId: number = 0;
 
+  /** Single source of truth: paints the word underlines *and* the legend strip below the page */
   colors = [
-    { color: "#FF0000", text: "كلمة وحيدة بداية الأية" },// RED
-    { color: "#00FF00", text: "موضعين" },// GREEN
+    { color: "#FF0000", text: "كلمة وحيدة بداية الآية" },// RED
+    // was #00FF00 — lime is ~1.4:1 on the cream page; this is the readable green the
+    // legend was already hand-patched to show
+    { color: "#00CC44", text: "موضعين" },// GREEN
     { color: "#0000FF", text: "ثلاث مواضع" },// BLUE
-    { color: "#FFFF00", text: "أربع مواضع" },// YELLOW
-    { color: "#800080", text: "أكثر من أربع مواضع" },// PURPLE
-    { color: "#FFA500", text: "كلمة وحيدة وسط الأية" },// ORANGE
-    { color: "#90ee90", text: "موضعين وسط الأية" }, // LIGHT GREEN
-    { color: "#ADD8E6", text: "ثلاث مواضع وسط الأية" },// LIGHT BLUE
+    // was #FFFF00 — pure yellow is ~1.1:1 against the cream page, unreadable for
+    // many people. Teal keeps 5:1 contrast and stays distinct from the other five.
+    { color: "#0F766E", text: "أربع مواضع" },// TEAL
+    { color: "#800080", text: "أكثر من أربع" },// PURPLE
+    { color: "#FFA500", text: "كلمة وحيدة وسط الآية" },// ORANGE
+    { color: "#90ee90", text: "موضعين وسط الآية" }, // LIGHT GREEN
+    { color: "#ADD8E6", text: "ثلاث مواضع وسط الآية" },// LIGHT BLUE
   ];
 
   inputs: InputItem[] = [];

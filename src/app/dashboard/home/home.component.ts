@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, ViewChild } from "@angular/core";
 import {
   IMAGES,
   InputItem,
@@ -11,6 +11,7 @@ import { ContextMenu } from "primeng/contextmenu";
 import { QuraanImagesComponent } from "./components/quraanImages/quraanImages.component";
 import { AyaCompareDialogComponent } from "./components/aya-compare-dialog/aya-compare-dialog.component";
 import { AyaCompareDialogResult, AyaCompareRef } from "src/app/core/models/aya-compare.model";
+import { formatMoade3Entries } from "src/app/core/utils/motashabehat-format.util";
 
 /** Width of each motashabehat column in px (box + gap) */
 const COL_WIDTH = 134;
@@ -23,13 +24,18 @@ const BOX_PADDING_PX = 12;
 const BOX_LINE_HEIGHT_PX = 17;
 /** Bottom margin to keep boxes away from the container edge */
 const BOX_BOTTOM_MARGIN = 6;
+/** Clear space kept between two boxes stacked in the same column */
+const BOX_GAP_PX = 6;
+
+/** Which edge of the page a box sits against */
+type Side = "right" | "left";
 
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
   styleUrls: ["./home.component.scss"],
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   images: any[] = IMAGES;
   inputs: InputItem[] = [];
   rightMotashabehatSpans: any[] = [];
@@ -45,7 +51,19 @@ export class HomeComponent {
   @ViewChild(QuraanImagesComponent) private _quraanImages!: QuraanImagesComponent;
   compareMenuItems: MenuItem[] = [];
 
-  constructor(private _spinner: NgxSpinnerService, private _dialog: MatDialog) {}
+  /** Real on-screen top of every mushaf line of the current page, measured after render */
+  private _lineTops: number[] = [];
+  /** Every box of the current page, before it is dealt out to the two side panels */
+  private _boxes: any[] = [];
+  /** Waits for the mushaf lines of a freshly opened page to be painted */
+  private _lineWatcher?: MutationObserver;
+
+  constructor(
+    private _spinner: NgxSpinnerService,
+    private _dialog: MatDialog,
+    private _host: ElementRef<HTMLElement>,
+    private _cdr: ChangeDetectorRef
+  ) {}
 
   onAyaClick(aya: any) {
     this.leftMotashabehatSpans.forEach((mot) => {
@@ -68,14 +86,92 @@ export class HomeComponent {
   /** Returns the pixel top of an aya aligned to the actual rendered mushaf line,
    *  clamped so the box never overflows the container bottom. */
   getAyaTop(inp: any): number {
-    const lineIdx   = inp._lineIdx   ?? 0;
-    const extraTop  = inp._extraTopPx ?? 0;
+    const lineIdx = inp._lineIdx ?? 0;
+    // Measured line position is exact. The arithmetic fallback only runs before the
+    // first measurement — it has to guess the leading, so it drifts a little further
+    // down with every line, which is what pushed boxes below their aya.
+    const measured = this._lineTops[lineIdx];
+    const natural = measured ?? this._estimateLineTop(inp, lineIdx);
     const containerH = Math.max(600, window.innerHeight - 170);
-    const fontSize   = Math.min(40, Math.max(16, (window.innerHeight - 170) / 31.5));
-    const dynamicLineH = fontSize * 2.1;
-    const natural    = lineIdx * dynamicLineH + extraTop + QURAN_TOP_OFFSET;
     const boxH = this.estimateBoxHeight(inp);
     return Math.min(natural, containerH - boxH - BOX_BOTTOM_MARGIN);
+  }
+
+  private _estimateLineTop(inp: any, lineIdx: number): number {
+    const extraTop = inp._extraTopPx ?? 0;
+    const fontSize = Math.min(46, Math.max(14, (window.innerHeight - 190) / 27.75));
+    return lineIdx * fontSize * 1.85 + extraTop + QURAN_TOP_OFFSET;
+  }
+
+  /** Reads where each mushaf line actually ended up, so boxes can sit level with their aya.
+   *  Returns false while the lines are not on screen yet. */
+  private _measureLineTops(): boolean {
+    const host = this._host.nativeElement;
+    // Boxes are absolutely positioned inside the side panel, so line offsets have to be
+    // measured against that same origin — the panel starts above the bordered page.
+    const panel = host.querySelector(".motashabehat-side") as HTMLElement | null;
+    if (!panel) { this._lineTops = []; return false; }
+
+    // Address the page by number: the previous page's lines stay in the carousel DOM
+    // for a while, and measuring those puts every box at the wrong height.
+    const page = host.querySelector(
+      `.quran-page[data-page="${this.currentPage}"]`
+    ) as HTMLElement | null;
+    const lines = page ? Array.from(page.querySelectorAll(".mushaf-line")) : [];
+    if (!lines.length) { this._lineTops = []; return false; }
+
+    const originTop = panel.getBoundingClientRect().top;
+    this._lineTops = lines.map(
+      (l) => (l as HTMLElement).getBoundingClientRect().top - originTop
+    );
+    return true;
+  }
+
+  /**
+   * The child emits before Angular paints the lines — and building them can take a
+   * while — so watch for them to land instead of polling for a fixed number of frames.
+   */
+  private _placeOncePainted(): void {
+    this._lineWatcher?.disconnect();
+
+    const settle = () => {
+      this.assignPlacement();
+      this._cdr.detectChanges();
+      this._spinner.hide("page-nav");
+    };
+
+    if (this._measureLineTops()) { settle(); return; }
+
+    this._lineWatcher = new MutationObserver(() => {
+      if (!this._measureLineTops()) return;
+      this._lineWatcher?.disconnect();
+      this._lineWatcher = undefined;
+      settle();
+    });
+    this._lineWatcher.observe(this._host.nativeElement, { childList: true, subtree: true });
+
+    // never leave the spinner up if the lines never arrive
+    setTimeout(() => {
+      if (!this._lineWatcher) return;
+      this._lineWatcher.disconnect();
+      this._lineWatcher = undefined;
+      this._spinner.hide("page-nav");
+    }, 8000);
+  }
+
+  ngOnDestroy(): void {
+    this._lineWatcher?.disconnect();
+  }
+
+  /** The page number can land after the boxes do, so re-place once we know which page it is */
+  onPageNumberChange(page: number): void {
+    this.currentPage = page;
+    if (this._boxes.length) this._placeOncePainted();
+  }
+
+  @HostListener("window:resize")
+  onWindowResize(): void {
+    if (this._measureLineTops()) this.assignPlacement();
   }
 
   /** Estimated rendered height of a motashabehat box in px */
@@ -88,88 +184,67 @@ onMotshbehatGenerated($event: InputItem[]) {
     this.inputs = $event ?? [];
     this.rightMotashabehatSpans = [];
     this.leftMotashabehatSpans = [];
+    this._boxes = [];
+    this._lineTops = [];   // belong to the previous page
 
     this.inputs.forEach((input) => {
       const moade3 = input?.motashabehat?.moade3;
       if (!moade3 || moade3.length === 0) return;
 
-      const groups = this.formatMoade3Entries(moade3, input.activeAya);
+      const groups = formatMoade3Entries(moade3, input.activeAya);
       (input as any).mergedSuras = groups;
       (input as any).allMatches = groups.flatMap((g) => g.entries);
-
-      // _startsRight=true → aya begins at the right edge → box goes to right panel
-      if ((input as any)._startsRight) {
-        this.leftMotashabehatSpans.push(input);   // right panel (last col-span-2)
-      } else {
-        this.rightMotashabehatSpans.push(input);  // left panel (first col-span-2)
-      }
+      this._boxes.push(input);
     });
 
-    this.assignColumns(this.rightMotashabehatSpans);
-    this.assignColumns(this.leftMotashabehatSpans);
-    // All boxes positioned — hide after one rAF so Angular paints the boxes first
-    requestAnimationFrame(() => this._spinner.hide('page-nav'));
+    this.assignPlacement();          // provisional, from the estimate
+    this._placeOncePainted();        // corrected against the real line positions
   }
 
-  private assignColumns(spans: any[]): void {
-    const colBottoms: number[] = [];
-    const sorted = [...spans].sort((a, b) => (a._lineIdx ?? 0) - (b._lineIdx ?? 0));
+  /**
+   * Places each box beside its aya, preferring the side the aya starts on.
+   * When that side is already taken at the same height the box moves to the other
+   * side before a second column is opened — a free opposite side always reads
+   * better than stacking two columns of references on one edge.
+   */
+  private assignPlacement(): void {
+    const boxes = [...this._boxes].sort((a, b) => (a._lineIdx ?? 0) - (b._lineIdx ?? 0));
 
-    sorted.forEach((inp) => {
+    this.rightMotashabehatSpans = [];
+    this.leftMotashabehatSpans = [];
+
+    // bottom-most y already used, per side and column
+    const used: Record<Side, number[]> = { right: [], left: [] };
+
+    boxes.forEach((inp) => {
       const top = this.getAyaTop(inp);
-      // Find first column with enough space for this box
-      let ci = colBottoms.findIndex((bottom) => bottom <= top);
+      const height = this.estimateBoxHeight(inp);
+      const preferred: Side = inp._startsRight ? "right" : "left";
+      const other: Side = preferred === "right" ? "left" : "right";
 
-      if (ci === -1) {
-        // No existing column has space — open the next one, capped at MAX_COL_INDEX
-        ci = Math.min(colBottoms.length, MAX_COL_INDEX);
+      let placed = false;
+      for (let col = 0; col <= MAX_COL_INDEX && !placed; col++) {
+        for (const side of [preferred, other]) {
+          if ((used[side][col] ?? 0) <= top) {
+            this._place(inp, side, col, top, height, used);
+            placed = true;
+            break;
+          }
+        }
       }
-      if (colBottoms[ci] === undefined) colBottoms[ci] = 0;
-      inp._colIndex = ci;
-      colBottoms[ci] = top + this.estimateBoxHeight(inp);
+      // Everything is occupied — fall back to the preferred side's last column
+      if (!placed) this._place(inp, preferred, MAX_COL_INDEX, top, height, used);
     });
   }
 
-  /** One line per consecutive run of the same sura, in the order sorted upstream (match strength, then mushaf order) — aya# within a run share one set of brackets, comma-separated; the box's own CSS wraps long lines */
-  private formatMoade3Entries(
-    moade3List: any[],
-    activeAya?: number
-  ): { text: string; highlighted: boolean; entries: AyaCompareRef[] }[] {
-    const seen = new Set<string>();
-    const groups: { suraName: string; indexes: number[]; highlighted: boolean; entries: AyaCompareRef[] }[] = [];
-
-    moade3List.forEach((item) => {
-      const match = item.suraWithIndex.match(/^(.*)\s*\((\d+)\)$/);
-      if (!match) return;
-
-      const suraName = match[1].trim();
-      const index = Number(match[2]);
-      const key = `${suraName}(${index})`;
-      if (seen.has(key)) return;
-      seen.add(key);
-
-      const highlighted = activeAya ? index === activeAya : false;
-      const entry: AyaCompareRef = {
-        suraName,
-        ayaIndex: index,
-        text: item.aya ?? "",
-        suraIndex: item.suraIndex,
-      };
-      const lastGroup = groups[groups.length - 1];
-      if (lastGroup && lastGroup.suraName === suraName) {
-        lastGroup.indexes.push(index);
-        lastGroup.highlighted = lastGroup.highlighted || highlighted;
-        lastGroup.entries.push(entry);
-      } else {
-        groups.push({ suraName, indexes: [index], highlighted, entries: [entry] });
-      }
-    });
-
-    return groups.map((g) => ({
-      text: `${g.suraName} (${g.indexes.map((i) => this.toArabicNumber(i)).join("، ")})`,
-      highlighted: g.highlighted,
-      entries: g.entries,
-    }));
+  private _place(
+    inp: any, side: Side, col: number, top: number, height: number,
+    used: Record<Side, number[]>
+  ): void {
+    inp._colIndex = col;
+    used[side][col] = top + height + BOX_GAP_PX;
+    // The first panel in the grid renders on the visual left, the last on the right
+    (side === "right" ? this.leftMotashabehatSpans : this.rightMotashabehatSpans).push(inp);
   }
 
   onMotashabehatRightClick(
@@ -217,12 +292,4 @@ onMotshbehatGenerated($event: InputItem[]) {
     });
   }
 
-  private toArabicNumber(num: number): string {
-    const arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
-    return num
-      .toString()
-      .split("")
-      .map((d) => arabicDigits[+d])
-      .join("");
-  }
 }

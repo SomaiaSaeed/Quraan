@@ -27,7 +27,7 @@
         <app-quraanImages [images]="images"
           (motshabehat)="onMotshbehatGenerated($event)"
           (onClick)="onAyaClick($event)"
-          (pageNumberChange)="currentPage = $event">
+          (pageNumberChange)="onPageNumberChange($event)">
         </app-quraanImages>
       </div>
       <!-- Right stack: only for right pages (odd) — outer edge -->
