@@ -94,29 +94,43 @@
 
 <!-- Popup -->
 <ng-template #searchResult>
+ <div class="search-popup" [class.maximized]="isMaximized">
   <header class="flex-c-b tw-border-b tw-border-gray-100 tw-pb-2 tw-mb-3">
     <div>
       <h2 class="tw-mb-0 tw-text-sm tw-font-bold">نتائج البحث</h2>
       <p class="tw-text-[10px] tw-text-gray-400 tw-mb-0 tw-mt-0.5">{{ searchResults.length }} نتيجة</p>
     </div>
-    <button title="close" (click)="closeDialog()" mat-flat-button
-      class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
-      <span class="tw-text-white tw-text-sm tw-block tw-py-px">
-        <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
-      </span>
-    </button>
+    <div class="tw-flex tw-items-center tw-gap-1.5">
+      <button type="button" class="popup-ctrl" (click)="toggleMaximize()"
+        [attr.aria-pressed]="isMaximized"
+        [attr.aria-label]="isMaximized ? 'استعادة حجم النافذة' : 'تكبير النافذة لعرض الآية كاملة'"
+        [title]="isMaximized ? 'استعادة الحجم' : 'تكبير لعرض الآية كاملة'">
+        <i class="sfi tw-block" [class.sfi-enlarge2]="!isMaximized" [class.sfi-shrink2]="isMaximized"></i>
+      </button>
+      <button title="close" aria-label="إغلاق" (click)="closeDialog()" mat-flat-button
+        class="tw-bg-coral tw-w-8 tw-h-8 tw-min-w-0 tw-px-0">
+        <span class="tw-text-white tw-text-sm tw-block tw-py-px">
+          <i class="sfi sfi-cancel-1 tw-font-bold tw-block"></i>
+        </span>
+      </button>
+    </div>
   </header>
   <main>
-    <ul class="tw-space-y-0 tw-p-0 tw-list-none">
+    <ul class="result-list tw-space-y-0 tw-p-0 tw-list-none">
       <li *ngFor="let item of autocompleteItems | slice:0:5; let i = index"
-          class="tw-flex tw-items-center tw-gap-2 tw-py-2 tw-px-1 tw-border-b tw-border-gray-100 last:tw-border-0"
+          class="tw-flex tw-gap-2 tw-py-2 tw-px-1 tw-border-b tw-border-gray-100 last:tw-border-0"
+          [class.tw-items-center]="!isMaximized"
+          [class.tw-items-start]="isMaximized"
           dir="rtl">
         <span class="tw-shrink-0 tw-w-5 tw-h-5 tw-rounded-full tw-bg-secondColor tw-text-mainColor
-                     tw-text-[10px] tw-font-bold tw-flex tw-items-center tw-justify-center">
+                     tw-text-[10px] tw-font-bold tw-flex tw-items-center tw-justify-center"
+              [class.tw-mt-1]="isMaximized">
           {{ i + 1 }}
         </span>
         <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0">
-          <span class="tw-text-sm tw-leading-6 tw-font-[uthmanic_hafs_v20] tw-truncate"
+          <!-- compact: one clipped line · expanded: full aya at reading size -->
+          <span class="aya-text tw-font-[uthmanic_hafs_v20]"
+                [ngClass]="isMaximized ? 'tw-text-xl tw-leading-loose' : 'tw-text-sm tw-leading-6 tw-truncate'"
                 [innerHTML]="highlightText(item.othmani)"></span>
           <div class="tw-flex tw-items-center tw-gap-1.5">
             <span class="tw-text-[10px] tw-font-semibold tw-text-mainColor">{{ item.sura }}</span>
@@ -135,4 +149,5 @@
       </button>
     </div>
   </main>
+ </div>
 </ng-template>

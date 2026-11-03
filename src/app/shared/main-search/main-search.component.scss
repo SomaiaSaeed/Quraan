@@ -293,8 +293,58 @@ $radius:  6px;
   to { transform: rotate(360deg); }
 }
 
+// ── Result popup ───────────────────────────────────────────────────────────
+// ::ng-deep without :host so styles reach the Material dialog overlay content
+::ng-deep .search-popup {
+  // Header maximize/restore control — neutral next to the coral close button
+  .popup-ctrl {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid $border;
+    border-radius: 3px;
+    background: #fff;
+    color: $gray;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: $second;
+      border-color: $main;
+      color: darken($main, 10%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $main;
+      outline-offset: 1px;
+    }
+  }
+
+  .aya-text {
+    text-align: right;
+  }
+
+  // Expanded: the whole aya wraps instead of being clipped to one line.
+  // Font size / line height come from Tailwind utilities in the template —
+  // the config sets important:true, so utilities win over rules declared here.
+  &.maximized {
+    .aya-text {
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .result-list {
+      max-height: 68vh;
+      overflow-y: auto;
+      scrollbar-gutter: stable;   // no layout shift when the scrollbar appears
+    }
+  }
+}
+
 // ── Search word highlight (popup) ──────────────────────────────────────────
-// ::ng-deep without :host so the style reaches Material dialog overlay content
 ::ng-deep .hw {
   background: #fff59d;
   color: #1a1a1a;

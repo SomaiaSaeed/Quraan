@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 import { debounceTime, takeUntil } from "rxjs/operators";
@@ -15,6 +15,10 @@ export interface SearchResultItem {
   aya: string;
   data: any;
 }
+
+/** Result popup widths — compact preview vs. expanded full-aya reading */
+const COMPACT_WIDTH  = "380px";
+const EXPANDED_WIDTH = "min(960px, 94vw)";
 
 @Component({
   selector: "app-main-search",
@@ -37,6 +41,10 @@ export class MainSearchComponent implements OnInit, OnDestroy {
   isShowingHistory = false;
   isLoading = false;
   showDropdown = false;
+
+  /** Popup expanded so each aya is shown in full instead of clipped to one line */
+  isMaximized = false;
+  private _resultDialog?: MatDialogRef<any>;
 
   private searchInstance = new Search();
 
@@ -169,10 +177,26 @@ export class MainSearchComponent implements OnInit, OnDestroy {
     this.historyService.add(this.searchWord);  // Bug 5 – shared service
     this.showDropdown = false;
 
-    this.dialog.open(this.searchResult, {
-      width: "380px",
+    this.isMaximized = false;
+    this._resultDialog?.close();   // never stack a second copy of the same results
+
+    const ref = this.dialog.open(this.searchResult, {
+      width: COMPACT_WIDTH,
       panelClass: "popup-center",
+      autoFocus: false,
     });
+    this._resultDialog = ref;
+    // guard the identity check: the previous dialog's afterClosed fires *after*
+    // this one opens, and would otherwise drop the reference we just stored
+    ref.afterClosed().subscribe(() => {
+      if (this._resultDialog === ref) this._resultDialog = undefined;
+    });
+  }
+
+  /** Compact ↔ expanded. Expanded widens the dialog so full ayat wrap instead of being clipped. */
+  toggleMaximize(): void {
+    this.isMaximized = !this.isMaximized;
+    this._resultDialog?.updateSize(this.isMaximized ? EXPANDED_WIDTH : COMPACT_WIDTH);
   }
 
   closeDialog(): void {
