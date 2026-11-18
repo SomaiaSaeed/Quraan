@@ -14,7 +14,7 @@
             <span class="page-top-header__sura">سورة {{ page.pageSuraName }}</span>
           </div>
 
-          <div class="mushaf-body" [class.mushaf-body-special]="page.pageNumber <= 2" dir="rtl">
+          <div class="mushaf-body" [class.mushaf-body-special]="page.pageNumber <= 2" mushafBodyFit dir="rtl">
 
             <!-- Mushaf Al-Madinah line view -->
             <ng-container *ngIf="page.mushafLines?.length">
@@ -83,7 +83,7 @@
 </div>
 
 <!-- Page number indicator + slideshow controls -->
-<div class="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-mt-3 tw-mb-1" dir="rtl">
+<div class="tw-flex tw-items-center tw-justify-center tw-gap-2 tw-mt-1" dir="rtl">
 
   <!-- Next page (RTL: visually right = next in mushaf) -->
   <button (click)="nextPage()" [disabled]="pageNumber >= 604"

@@ -9,8 +9,8 @@
   position: relative;
   width: 100%;
   min-width: 0;
-  height: calc(100vh - 170px);
-  min-height: 600px;
+  /* shared with the two motashabehat panels so boxes stay level with their aya */
+  height: var(--mushaf-page-h, 600px);
   overflow: hidden;
 }
 
@@ -261,16 +261,41 @@
   // every line as dense as the printed page: without it the column grows with the
   // viewport while the text does not, and justification turns the surplus into
   // wide gaps between words (the "separated words" on pages 3+).
-  max-width: calc(var(--mushaf-fs, 17px) * 15.5);
+  // Tied to the base metric, not to the size [mushafBodyFit] may have applied:
+  // the page frame is sized from the base too, so a page whose glyph was eased
+  // down to make room for a sura banner keeps its full width instead of pulling
+  // blank margins back in — its lines simply need less squeezing to fit.
+  max-width: calc(var(--mushaf-fs-base, 17px) * 15.5);
   margin: 0 auto;
   padding-bottom: 4px;
 
+  // Al-Fatiha and the opening of Al-Baqarah carry only seven lines. Set at the
+  // ordinary size they left the lower half of the page blank; the printed mushaf
+  // sets these two pages in a visibly larger script and centres them in the page,
+  // which is what this does. The size is capped by [mushafLineFit], which never
+  // lets a line grow past the page, so a longer line simply stays within it.
   &.mushaf-body-special {
+    // [mushafBodyFit] measures this page and sets --mushaf-fs on it
+    max-width: 100%;
     margin: 0 auto;
+    min-height: calc(100% - 18px);
+    display: flex;
+    flex-direction: column;
+    // whatever height is left after the script has grown as far as the page
+    // width allows is spread between the lines, the way the opening pages are
+    // set in the book — rather than pooling as blank space under the text
+    justify-content: space-evenly;
 
     .mushaf-line {
-      width: 100%;
+      // max-content, never clamped: the real typeset width has to stay readable
+      // to [mushafLineFit], or an over-long line silently overflows the page
+      width: max-content;
+      margin-inline: auto;
       justify-content: center;
+      // A line too wide for the page overflows past its start edge (auto margins
+      // collapse to zero), so compress it from that same edge — scaling it about
+      // its centre would leave the line sitting a few pixels off the page.
+      transform-origin: right center;
     }
   }
 }
@@ -282,14 +307,21 @@
   flex-wrap: nowrap;
   width: max-content;
   justify-content: flex-start;
-  gap: calc(var(--mushaf-fs, 17px) * 0.26);   // one natural word space
+  gap: calc(var(--mushaf-fs, 17px) * 0.22);   // one natural word space
   align-items: baseline;
   direction: rtl;
   transform-origin: right center;
 
+  // Centred lines — a sura's opening line, the basmala, a sura's short closing
+  // line. width:100% used to hide their real width from [mushafLineFit], so a
+  // centred line longer than the column (a sura's first line often is) spilled
+  // past both page edges and was clipped by the page's overflow. max-content
+  // keeps the true typeset width measurable; auto margins still centre it.
   &.mushaf-line-centered,
   &.mushaf-line-basmala {
-    width: 100%;
+    width: max-content;
+    max-width: none;
+    margin-inline: auto;
     justify-content: center;
     gap: 10px;
   }
@@ -329,9 +361,9 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 4px 10px;
-  margin: 6px 8px 2px;
-  padding: 6px 10px;
+  gap: 2px 9px;
+  margin: 2px 6px 0;
+  padding: 3px 8px;
   background: #faf9f5;
   border: 1px solid #e4e4d0;
   border-radius: 8px;

@@ -9,6 +9,7 @@ import { QuraanImagesComponent } from './components/quraanImages/quraanImages.co
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { UnderlineMatchDirective } from './components/quraanImages/underlineMatchDirective';
 import { MushafLineFitDirective } from './components/quraanImages/mushafLineFit.directive';
+import { MushafBodyFitDirective } from './components/quraanImages/mushafBodyFit.directive';
 import { MaterialModule } from 'src/app/shared/material/material.module';
 import { AyaCompareDialogComponent } from './components/aya-compare-dialog/aya-compare-dialog.component';
 
@@ -17,6 +18,7 @@ import { AyaCompareDialogComponent } from './components/aya-compare-dialog/aya-c
   declarations: [
     UnderlineMatchDirective,
     MushafLineFitDirective,
+    MushafBodyFitDirective,
     HomeComponent,
     QuraanImagesComponent,
     AyaCompareDialogComponent

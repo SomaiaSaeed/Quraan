@@ -21,13 +21,59 @@
   font-style: normal;
   font-display: block;
 }
+/* ── Mushaf page metrics ──────────────────────────────────────────────────────
+   The whole reading view is driven from here, so the numbers live in one place.
+
+   A mushaf line is 15.5 glyph-widths wide and a page is 15 lines at 1.85 leading
+   = 27.75 glyph-heights. Those two ratios are the page; everything else follows:
+
+   --mushaf-h-avail : height the page may occupy — window minus the real chrome
+                      above and below it (header, card, page bar, colour legend).
+   --mushaf-w-avail : width the page may occupy — window minus the card padding,
+                      the page margin, its border and the paper-edge strip.
+   --mushaf-fs      : the glyph size, set by whichever of the two runs out first.
+                      On a desktop that is the height; on a phone it is the width,
+                      and sizing by height alone is what used to squeeze the lines
+                      sideways to make them fit.
+   --mushaf-page-h  : the page's own height — the lesser of the height available
+                      and the height the text actually needs, so a page sized by
+                      width does not leave a blank band under its last line.
+
+   The page frame is sized from --mushaf-fs too (see .quran-wrapper), so the text
+   fills the page edge to edge instead of sitting in wide blank margins: a mushaf
+   page is tall and narrow, and so is this one. */
+:root {
+  /* 166px = sticky header, card border and padding, page-number bar, legend */
+  --mushaf-h-avail: max(430px, calc(100vh - 166px));
+  /* 59px = card padding + page margin + double border + paper-edge strip */
+  --mushaf-w-avail: calc(100vw - 59px);
+
+  /* Once the two motashabehat panels are on screen they get the width the page
+     does not use, so the page must leave them enough for a reference box
+     (128px) plus the grid gaps and the page's own frame — 390px in all.
+     Without this the panels were squeezed to 90px on a tablet and the boxes
+     were clipped. */
+  @media (min-width: 768px) {
+    --mushaf-w-avail: calc(100vw - 390px);
+  }
+
+  /* -22px leaves the page's own top header and a couple of pixels of slack */
+  --mushaf-fs-base: clamp(
+    14px,
+    min(calc((var(--mushaf-h-avail) - 22px) / 27.75), calc(var(--mushaf-w-avail) / 15.5)),
+    46px
+  );
+  /* what the page actually renders at — the short opening pages override it */
+  --mushaf-fs: var(--mushaf-fs-base);
+
+  --mushaf-page-h: min(
+    var(--mushaf-h-avail),
+    calc(var(--mushaf-fs-base) * 27.75 + 22px)
+  );
+}
+
 .quran-page {
   text-align: center;
-
-  /* Single source of truth for mushaf glyph size — .mushaf-body derives its line
-     width and leading from it, so line density stays constant at any viewport.
-     15 lines x 1.85 leading = 27.75, so a page of 15 lines exactly fills the height. */
-  --mushaf-fs: clamp(14px, min(calc((100vh - 190px) / 27.75), 6vw), 46px);
 
   span{
     font-family: 'uthmanic_hafs_v20', sans-serif !important;

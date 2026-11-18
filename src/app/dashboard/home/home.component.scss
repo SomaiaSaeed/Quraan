@@ -1,8 +1,23 @@
+// ── Reading grid ───────────────────────────────────────────────────────
+// The middle column is sized by its content, not by a fixed fraction of the
+// width: the mushaf page is only as wide as 15.5 glyph-widths (see
+// .quran-wrapper), so a fixed 3/7 share left a third of the page blank on wide
+// screens. Letting it shrink to the page and giving the surplus to the two
+// motashabehat panels uses that space instead of padding it.
+.mushaf-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+}
+
 // ── Motashabehat panels ────────────────────────────────────────────────
 .motashabehat-side {
   position: relative;
-  height: calc(100vh - 170px);
-  min-height: 600px;
+  height: var(--mushaf-page-h, 600px);
   overflow: hidden;
 }
 
@@ -59,6 +74,15 @@
   align-items: stretch;
   min-width: 0;        // allow flex/grid child to shrink below content size
   overflow: hidden;    // prevent owl-carousel stage from blowing up the layout
+
+  // The page is exactly as wide as its widest line (15.5 glyph-widths) plus the
+  // border, the paper-edge strip and a printed-mushaf side margin — so the text
+  // fills the page frame instead of leaving a blank band inside it.
+  @media (min-width: 768px) {
+    width: calc(var(--mushaf-fs, 17px) * 15.5 + 62px);
+    max-width: 100%;
+    margin-inline: auto;
+  }
 }
 
 .paper-stack {

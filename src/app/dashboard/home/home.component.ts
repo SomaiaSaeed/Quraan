@@ -92,14 +92,27 @@ export class HomeComponent implements OnDestroy {
     // down with every line, which is what pushed boxes below their aya.
     const measured = this._lineTops[lineIdx];
     const natural = measured ?? this._estimateLineTop(inp, lineIdx);
-    const containerH = Math.max(600, window.innerHeight - 170);
     const boxH = this.estimateBoxHeight(inp);
-    return Math.min(natural, containerH - boxH - BOX_BOTTOM_MARGIN);
+    return Math.min(natural, this._panelHeight() - boxH - BOX_BOTTOM_MARGIN);
+  }
+
+  /** Height of a motashabehat panel — read from the DOM so it always agrees with
+   *  --mushaf-page-h instead of re-deriving it from the viewport here. */
+  private _panelHeight(): number {
+    const panel = this._host.nativeElement.querySelector(
+      ".motashabehat-side"
+    ) as HTMLElement | null;
+    return panel?.clientHeight || Math.max(430, window.innerHeight - 150);
   }
 
   private _estimateLineTop(inp: any, lineIdx: number): number {
     const extraTop = inp._extraTopPx ?? 0;
-    const fontSize = Math.min(46, Math.max(14, (window.innerHeight - 190) / 27.75));
+    // same metric the stylesheet uses, so the provisional pass lands close to the
+    // measured one and boxes do not visibly jump when the real tops arrive
+    const fontSize = Math.min(
+      46,
+      Math.max(14, (this._panelHeight() - 14) / 27.75)
+    );
     return lineIdx * fontSize * 1.85 + extraTop + QURAN_TOP_OFFSET;
   }
 

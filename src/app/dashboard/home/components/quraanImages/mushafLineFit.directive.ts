@@ -11,8 +11,11 @@ import { AfterViewInit, Directive, ElementRef, NgZone, OnDestroy } from "@angula
  */
 @Directive({ selector: "[mushafLineFit]" })
 export class MushafLineFitDirective implements AfterViewInit, OnDestroy {
-  /** Beyond these the glyphs visibly distort, so a line is left short instead */
-  private static readonly MIN_SCALE = 0.78;
+  /** A line is never left wider than its column — text spilling past the page
+   *  frame is worse than slightly narrow glyphs — so the floor is only a last
+   *  resort against a pathological line, not a comfort limit. */
+  private static readonly MIN_SCALE = 0.55;
+  /** Stretching further than this visibly distorts, so a short line stays short */
   private static readonly MAX_SCALE = 1.18;
 
   private _observer?: ResizeObserver;
@@ -38,22 +41,27 @@ export class MushafLineFitDirective implements AfterViewInit, OnDestroy {
   private _fit(): void {
     const el = this._el.nativeElement;
 
-    if (
+    // A centred line — a sura's closing line, the basmala, the enlarged opening
+    // pages — keeps its own width, exactly as it sits in the book. It is still
+    // compressed if it would otherwise run past the page.
+    const centred =
       el.classList.contains("mushaf-line-centered") ||
       el.classList.contains("mushaf-line-basmala") ||
-      el.closest(".mushaf-body-special")
-    ) {
-      el.style.transform = "";
-      return;
-    }
+      !!el.closest(".mushaf-body-special");
 
     const available = el.parentElement?.clientWidth ?? 0;
     const natural = el.offsetWidth;   // width:max-content, and transform doesn't affect it
     if (!available || !natural) return;
 
+    const needed = available / natural;
+    if (centred && needed >= 1) {
+      el.style.transform = "";
+      return;
+    }
+
     const scale = Math.min(
-      Math.max(available / natural, MushafLineFitDirective.MIN_SCALE),
-      MushafLineFitDirective.MAX_SCALE
+      Math.max(needed, MushafLineFitDirective.MIN_SCALE),
+      centred ? 1 : MushafLineFitDirective.MAX_SCALE
     );
     el.style.transform = `scaleX(${scale.toFixed(4)})`;
   }
