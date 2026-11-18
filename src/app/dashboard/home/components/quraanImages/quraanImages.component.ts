@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation,AfterViewInit } from "@angular/core";
 import { CarouselComponent, OwlOptions, SlidesOutputData } from "ngx-owl-carousel-o";
 import { MenuItem } from "primeng/api";
 import { ContextMenu } from "primeng/contextmenu";
@@ -189,6 +189,8 @@ private loadPageQuick(pageNumber: number): void {
 }
 
 ngAfterViewInit(): void {
+
+  this._watchFrameWidth();
 
   setTimeout(() => {
     const pendingPage = localStorage.getItem('pendingNavPage');
@@ -406,7 +408,29 @@ private renderPage(page: number): void {
   tafseerText     = '';
   tafseerEdition  = 'ar.muyassar';
 
-  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService, private _printService: PrintService, private _spinner: NgxSpinnerService) { }
+  constructor(private _searchInstance: Search, private _http: HttpClient, private _bookmarkService: BookmarkService, private _listenService: ListenService, private _printService: PrintService, private _spinner: NgxSpinnerService, private _hostEl: ElementRef<HTMLElement>) { }
+
+  /** The page frame is now sized from the mushaf metrics rather than from a fixed
+   *  share of the width, so its width can change without the window resizing.
+   *  The carousel only recomputes slide widths on a window resize, which would
+   *  leave a slide narrower than the frame it sits in — so tell it when the frame
+   *  itself changes. */
+  private _frameObserver?: ResizeObserver;
+  private _lastFrameWidth = 0;
+
+  private _watchFrameWidth(): void {
+    if (typeof ResizeObserver === "undefined") return;
+    const frame = this._hostEl.nativeElement.querySelector(".carousel-wrapper");
+    if (!frame) return;
+    this._lastFrameWidth = frame.clientWidth;
+    this._frameObserver = new ResizeObserver(() => {
+      const w = (frame as HTMLElement).clientWidth;
+      if (!w || Math.abs(w - this._lastFrameWidth) < 2) return;
+      this._lastFrameWidth = w;
+      window.dispatchEvent(new Event("resize"));   // what the carousel listens for
+    });
+    this._frameObserver.observe(frame);
+  }
 
   ngOnInit() {
     this.quranPages = this.groupQuranPages();
@@ -456,9 +480,14 @@ private renderPage(page: number): void {
       .replace(/\uFEFB|\uFEFC/g, 'لا');
   }
 
+  /** Every aya of the book by "sura:aya", so a line can reach one the page the
+   *  text data assigns it to does not own — see buildMushafLines. */
+  private _ayaByVerseKey = new Map<string, any>();
+
   groupQuranPages(): any[] {
     // One slide per Mushaf page — a page may contain multiple suras
     const pageMap = new Map<number, any>();
+    this._ayaByVerseKey.clear();
 
     this._searchInstance.table_othmani.forEach((aya: any) => {
       const pageNum = Number(aya.nOFPage);
@@ -475,7 +504,7 @@ private renderPage(page: number): void {
       }
 
       const slide = pageMap.get(pageNum);
-      slide.ayat.push({
+      const entry = {
         id: aya.id,
         text: aya.AyaText_Othmani,
         ayaNumber: aya.Aya_N,
@@ -484,7 +513,9 @@ private renderPage(page: number): void {
         highlighted: false,
         matchedWord: '',
         arrOfColoredWords: []
-      });
+      };
+      slide.ayat.push(entry);
+      this._ayaByVerseKey.set(suraNumber + ':' + aya.Aya_N, entry);
     });
 
     return Array.from(pageMap.values()).sort((a, b) => a.pageNumber - b.pageNumber);
@@ -1554,6 +1585,7 @@ private renderPage(page: number): void {
 
   ngOnDestroy(): void {
     this.pauseSlideshow();
+    this._frameObserver?.disconnect();
   }
 
   // ── Mushaf line rendering ───────────────────────────────────────────────────
@@ -1606,7 +1638,13 @@ private renderPage(page: number): void {
       const lineSegments: any[] = [];
 
       line.segments.forEach((seg: any) => {
-        const aya = ayaLookup.get(seg.verseKey);
+        // The two data sets disagree about where a page begins: the line data
+        // puts an aya on this page while the aya text assigns it to the one
+        // before. Dropping the segment lost 83 ayat across 28 pages outright —
+        // a page would open with the three-word tail of a line and the ayat
+        // before it were nowhere in the book. Fall back to the whole-Quran
+        // lookup so the line is laid out as the line data describes it.
+        const aya = ayaLookup.get(seg.verseKey) ?? this._ayaByVerseKey.get(seg.verseKey);
         if (!aya) return;
 
         // Use NT words for position tracking (aligns with wordPositions in lines JSON)
@@ -1687,8 +1725,15 @@ private renderPage(page: number): void {
       let suraAyaCount = 0;
       if (line.isSuraStart && line.segments.length) {
         suraNumber = Number(line.segments[0].verseKey.split(':')[0]);
-        const aya = slide.ayat.find((a: any) => a.suraNumber === suraNumber);
-        suraName = aya?.suraName || '';
+        // The same page-boundary mismatch as the segment lookup above: a sura can
+        // open on a page whose aya list does not include it, and its banner then
+        // carried a number and an aya count but no name at all (At-Tin on page
+        // 597). suraList covers the whole book, so fall back to it.
+        const own = slide.ayat.find((a: any) => a.suraNumber === suraNumber);
+        suraName =
+          own?.suraName ||
+          this.suraList.find((s) => s.index === suraNumber)?.name ||
+          '';
         suraAyaCount = this.suraList.find(s => s.index === suraNumber)?.ayaCount ?? 0;
       }
 
@@ -1707,8 +1752,13 @@ private renderPage(page: number): void {
 
     slide.mushafLines = mushafLines;
     slide.juzNumber = this.getJuzForPage(slide.pageNumber);
-    // Primary sura on this page = first aya's sura name
-    slide.pageSuraName = slide.ayat?.[0]?.suraName ?? '';
+    // Primary sura on this page = the sura the first printed line belongs to.
+    // Reading it off slide.ayat named the page after a sura further down it
+    // whenever the page opened with an aya the page does not own.
+    slide.pageSuraName =
+      mushafLines[0]?.segments?.[0]?.aya?.suraName ||
+      slide.ayat?.[0]?.suraName ||
+      '';
     this._printService.quranPages = this.quranPages;
 
     // Track first/last mushaf line index for each aya — used by connected highlight box
