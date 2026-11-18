@@ -100,15 +100,10 @@ export class MainSearchComponent implements OnInit, OnDestroy {
     const word = value?.trim();
     if (!word) return;
 
-    const query       = this.normalizer.strip(word);
-    const querySimple = this.normalizer.stripSimple(word);
-
     const all     = this.searchInstance.table_othmani;
-    const matched = all.filter((aya: any) => {
-      const ayaText   = aya.AyaText || '';
-      const ayaSimple = this.normalizer.stripSimple((aya.AyaText_Othmani || '').trim());
-      return ayaText.includes(query) || ayaSimple.includes(querySimple);
-    });
+    const matched = all.filter((aya: any) =>
+      this.normalizer.ayaMatches(aya.AyaText, aya.AyaText_Othmani, word)
+    );
 
     this.searchResults = matched.map((aya: any) => ({ data: aya }));
     this.results       = matched.slice(0, 5).map((aya: any) => aya.AyaText_Othmani);
@@ -212,12 +207,9 @@ export class MainSearchComponent implements OnInit, OnDestroy {
 
   highlightText(text: string): SafeHtml {
     if (!text || !this.searchWord?.trim()) return text || '';
-    const queryFull   = this.normalizer.strip(this.searchWord.trim()).split(' ').filter(w => w);
-    const querySimple = this.normalizer.stripSimple(this.searchWord.trim()).split(' ').filter(w => w);
+    const terms = this.searchWord.trim().split(' ').filter(w => w);
     const highlighted = text.split(' ').map(word => {
-      const sf = this.normalizer.strip(word);
-      const ss = this.normalizer.stripSimple(word);
-      const matches = queryFull.some(q => sf.includes(q)) || querySimple.some(q => ss.includes(q));
+      const matches = terms.some(t => this.normalizer.wordMatches(word, t));
       return matches ? `<span class="hw">${word}</span>` : word;
     }).join(' ');
     return this.sanitizer.bypassSecurityTrustHtml(highlighted);

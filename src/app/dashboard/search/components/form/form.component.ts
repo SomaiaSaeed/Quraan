@@ -600,13 +600,9 @@ export class FormComponent implements OnInit, OnDestroy {
 		const word = this.searchQuery?.trim();
 		if (!word) return;
 		const pool    = this.getSearchPool();
-		const qFull   = this.normalizer.strip(word);
-		const qSimple = this.normalizer.stripSimple(word);
-		const matched = pool.filter((item: any) => {
-			const ayaText   = item.data?.AyaText || '';
-			const ayaSimple = this.normalizer.stripSimple((item.data?.AyaText_Othmani || '').trim());
-			return ayaText.includes(qFull) || ayaSimple.includes(qSimple);
-		});
+		const matched = pool.filter((item: any) =>
+			this.normalizer.ayaMatches(item.data?.AyaText, item.data?.AyaText_Othmani, word)
+		);
 		this.autocompleteItems = matched.slice(0, 8).map((item: any) => ({
 			othmani: item.data?.AyaText_Othmani || '',
 			sura:    item.data?.Sura_Name || '',
@@ -643,14 +639,14 @@ export class FormComponent implements OnInit, OnDestroy {
 
 			const searchResults = dataArray.filter((item: any) => {
 				// Bug 1 fix: use optional chaining — data may be null from corrupted localStorage
-				const ayaText   = item.data?.AyaText || '';
+				const ayaText   = this.normalizer.strip(item.data?.AyaText || '');
 				const ayaSimple = this.normalizer.stripSimple((item.data?.AyaText_Othmani || '').trim());
 
 				if (this.exactMatch) {
 					return ayaText.split(' ').some((w: string) => w === query) ||
 					       ayaSimple.split(' ').some((w: string) => w === querySimple);
 				} else {
-					return ayaText.includes(query) || ayaSimple.includes(querySimple);
+					return this.normalizer.ayaMatches(item.data?.AyaText, item.data?.AyaText_Othmani, this.searchQuery.trim());
 				}
 			});
 
